@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu de Disciplinas IFPE - Segundo Semestre 2026</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Modern Typography: Outfit & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #080c14;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glow Backgrounds */
+        .ambient-glow-1 {
+            position: absolute;
+            top: 20%;
+            left: 15%;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            filter: blur(60px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ambient-glow-2 {
+            position: absolute;
+            bottom: 20%;
+            right: 15%;
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+            filter: blur(70px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ambient-glow-3 {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.08) 0%, rgba(0, 0, 0, 0) 70%);
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Modern Glass Cards */
+        .modern-card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modern-card:hover {
+            transform: translateY(-3px) scale(1.01);
+            background: rgba(30, 41, 59, 0.75);
+            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Modern Color Accent Lights */
+        .card-cyan:hover {
+            border-color: rgba(6, 182, 212, 0.4);
+            box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.25);
+        }
+
+        .card-violet:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 0 25px -5px rgba(139, 92, 246, 0.25);
+        }
+
+        .card-amber:hover {
+            border-color: rgba(245, 158, 11, 0.4);
+            box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.25);
+        }
+
+        .card-emerald:hover {
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
+        }
+    </style>
+</head>
+<body class="font-sans h-full flex flex-col items-center justify-center p-4 sm:p-6 relative min-h-screen selection:bg-indigo-500/30 selection:text-indigo-200">
+
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
+    <div class="ambient-glow-3"></div>
+
+    <main class="w-full max-w-lg mx-auto flex flex-col items-center justify-center text-center z-10 my-auto">
+        
+        <!-- Header Title -->
+        <header class="mb-8">
+            <h1 class="font-outfit text-lg sm:text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+                Menu de Disciplinas IFPE - Segundo Semestre 2026
+            </h1>
+        </header>
+
+        <div class="w-full space-y-3.5">
+
+            <!-- Item 1: Organização Estruturada de Computadores -->
+            <a href="orgEstruturadaComp/orgEstruturadaComp.html" 
+               class="modern-card card-cyan group relative flex items-center justify-between w-full p-4 sm:p-5 rounded-2xl text-left overflow-hidden">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.8)] group-hover:scale-125 transition-transform duration-300"></div>
+                    <span class="text-sm sm:text-base font-semibold text-slate-200 group-hover:text-white transition-colors">
+                        Organização Estruturada de Computadores
+                    </span>
+                </div>
+                <svg class="w-5 h-5 text-slate-500 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+
+            <!-- Item 2: Prática de Ensino à Computação VI -->
+            <a href="praticaEnsinoComp6/praticaEnsinoComp6.html" 
+               class="modern-card card-violet group relative flex items-center justify-between w-full p-4 sm:p-5 rounded-2xl text-left overflow-hidden">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-2.5 h-2.5 rounded-full bg-violet-400 shadow-[0_0_10px_rgba(139,92,246,0.8)] group-hover:scale-125 transition-transform duration-300"></div>
+                    <span class="text-sm sm:text-base font-semibold text-slate-200 group-hover:text-white transition-colors">
+                        Prática de Ensino à Computação VI
+                    </span>
+                </div>
+                <svg class="w-5 h-5 text-slate-500 group-hover:text-violet-400 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+
+            <!-- Item 3: Tópicos Avançados de Inteligência Artificial -->
+            <a href="topicosAvancadosIA/topicosAvancadosIA.html" 
+               class="modern-card card-amber group relative flex items-center justify-between w-full p-4 sm:p-5 rounded-2xl text-left overflow-hidden">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.8)] group-hover:scale-125 transition-transform duration-300"></div>
+                    <span class="text-sm sm:text-base font-semibold text-slate-200 group-hover:text-white transition-colors">
+                        Tópicos Avançados de Inteligência Artificial
+                    </span>
+                </div>
+                <svg class="w-5 h-5 text-slate-500 group-hover:text-amber-400 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+
+            <!-- Item 4: WEB I -->
+            <a href="web1/web1.html" 
+               class="modern-card card-emerald group relative flex items-center justify-between w-full p-4 sm:p-5 rounded-2xl text-left overflow-hidden">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.8)] group-hover:scale-125 transition-transform duration-300"></div>
+                    <span class="text-sm sm:text-base font-semibold text-slate-200 group-hover:text-white transition-colors">
+                        WEB I
+                    </span>
+                </div>
+                <svg class="w-5 h-5 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+
+        </div>
+    </main>
+
+</body>
+</html>
