@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz FAURGS - Desenvolvimento Web</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        paper: '#FAF9F6',
+                        card: '#FFFFFF',
+                        ink: {
+                            800: '#1A202C',
+                            700: '#2D3748',
+                            600: '#4A5568',
+                            500: '#718096',
+                        },
+                        brand: {
+                            50: '#F0F7FF',
+                            100: '#E0EFFE',
+                            600: '#2563EB',
+                            700: '#1D4ED8',
+                            800: '#1E40AF',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+            color: #1E293B;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        /* Custom radio button styles for high readability */
+        .option-label {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .option-label:hover {
+            border-color: #93C5FD;
+            background-color: #F0F9FF;
+        }
+        input[type="radio"]:checked + .option-content {
+            border-color: #2563EB;
+            background-color: #EFF6FF;
+            box-shadow: 0 0 0 1px #2563EB;
+        }
+        input[type="radio"]:checked + .option-content .radio-circle {
+            border-color: #2563EB;
+            background-color: #2563EB;
+        }
+        input[type="radio"]:checked + .option-content .radio-circle-inner {
+            display: block;
+        }
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #F1F5F9;
+            color: #0F172A;
+            padding: 0.15rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.9em;
+            border: 1px solid #E2E8F0;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-16">
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">
+                        Estilo FAURGS
+                    </span>
+                    <span class="text-xs text-slate-500 font-medium">10 Questões Completas</span>
+                </div>
+                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">Simulado: Desenvolvimento Web</h1>
+            </div>
+            
+            <div id="progress-container" class="flex items-center gap-3">
+                <div class="text-right">
+                    <div id="answered-count" class="text-sm font-semibold text-slate-700">0 de 10 respondidas</div>
+                    <div class="w-32 bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200 mt-1">
+                        <div id="progress-bar" class="bg-blue-600 h-full w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-8 space-y-8">
+
+        <section class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Instruções do Simulado
+            </h2>
+            <p class="text-sm text-slate-600 leading-relaxed">
+                Responda a todas as 10 questões objetivas abaixo. As questões cobrem os papéis do HTML, CSS e JS, hierarquia de cabeçalhos, formatação semântica e resolução de caminhos locais/absolutos. Ao finalizar, clique no botão ao final da página para calcular sua pontuação e liberar as <strong>resoluções detalhadas comentadas</strong>.
+            </p>
+        </section>
+
+        <form id="quiz-form" class="space-y-8">
+
+            <!-- QUESTÃO 1 -->
+            <article class="question-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8" id="q-card-1">
+                <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-md border border-blue-100">Questão 1</span>
+                    <span class="text-xs text-slate-400 font-medium">Tríade do Desenvolvimento Web</span>
+                </div>
+                
+                <p class="text-base sm:text-lg font-medium text-slate-800 leading-relaxed mb-4">
+                    Assinale com V (verdadeiro) ou F (falso) as afirmações abaixo a respeito dos papéis desempenhados por HTML, CSS e JavaScript na construção de páginas web modernas.
+                </p>
+
+                <div class="space-y-3 bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm text-slate-700 mb-6 leading-relaxed">
+                    <p>( &nbsp; ) O HTML (HyperText Markup Language) constitui a estrutura fundamental do documento, sendo responsável por demarcar o sentido e a organização semântica dos elementos da página.</p>
+                    <p>( &nbsp; ) O CSS (Cascading Style Sheets) atua no aspecto estético e visual, definindo cores, fontes, leiautes e regras de adaptabilidade visual para diferentes dimensões de tela.</p>
+                    <p>( &nbsp; ) O JavaScript é uma linguagem de marcação secundária cujo objetivo exclusivo é substituir o CSS no tratamento de estilizações estáticas de elementos visuais.</p>
+                    <p>( &nbsp; ) A interatividade, o comportamento dinâmico e a resposta a eventos (como a associação de escutadores via <code>addEventListener</code>) são funções providas pelo JavaScript.</p>
+                </div>
+
+                <p class="text-sm font-semibold text-slate-800 mb-3">A sequência correta de preenchimento dos parênteses, de cima para baixo, é</p>
+
+                <div class="space-y-2.5">
+                    <label class="option-label block relative">
+                        <input type="radio" name="q1" value="A" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">A)</span>
+                            <span class="text-sm text-slate-800">V – V – F – V.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q1" value="B" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">B)</span>
+                            <span class="text-sm text-slate-800">V – F – V – F.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q1" value="C" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">C)</span>
+                            <span class="text-sm text-slate-800">F – V – F – V.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q1" value="D" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">D)</span>
+                            <span class="text-sm text-slate-800">V – V – V – F.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q1" value="E" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">E)</span>
+                            <span class="text-sm text-slate-800">F – F – V – V.</span>
+                        </div>
+                    </label>
+                </div>
+            </article>
+
+            <article class="question-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8" id="q-card-2">
+                <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-md border border-blue-100">Questão 2</span>
+                    <span class="text-xs text-slate-400 font-medium">Hierarquia e Escaneabilidade</span>
+                </div>
+
+                <p class="text-base sm:text-lg font-medium text-slate-800 leading-relaxed mb-4">
+                    Considere as seguintes afirmações sobre a hierarquia de títulos, escaneabilidade e boas práticas na estruturação de documentos HTML5.
+                </p>
+
+                <div class="space-y-3 bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm text-slate-700 mb-6 leading-relaxed">
+                    <p><strong>I -</strong> As tags de cabeçalho <code>&lt;h1&gt;</code> a <code>&lt;h6&gt;</code> não devem ser empregadas com a simples finalidade de alterar o tamanho da fonte do texto, mas para indicar a relevância e a ordem hierárquica do conteúdo para navegadores e leitores de tela.</p>
+                    <p><strong>II -</strong> A regra recomendada para a estruturação semântica estabelece a presença de apenas um elemento <code>&lt;h1&gt;</code> por documento, atuando como o título principal.</p>
+                    <p><strong>III -</strong> Para otimizar a leitura visual por parte dos usuários, é considerada uma boa prática pular níveis hierárquicos na estrutura, como transitar diretamente de um <code>&lt;h1&gt;</code> para um <code>&lt;h3&gt;</code> sem a utilização prévia de um <code>&lt;h2&gt;</code>.</p>
+                </div>
+
+                <p class="text-sm font-semibold text-slate-800 mb-3">Quais estão corretas?</p>
+
+                <div class="space-y-2.5">
+                    <label class="option-label block relative">
+                        <input type="radio" name="q2" value="A" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">A)</span>
+                            <span class="text-sm text-slate-800">Apenas I.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q2" value="B" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">B)</span>
+                            <span class="text-sm text-slate-800">Apenas II.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q2" value="C" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">C)</span>
+                            <span class="text-sm text-slate-800">Apenas III.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q2" value="D" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">D)</span>
+                            <span class="text-sm text-slate-800">Apenas I e II.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q2" value="E" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">E)</span>
+                            <span class="text-sm text-slate-800">I, II e III.</span>
+                        </div>
+                    </label>
+                </div>
+            </article>
+
+            <article class="question-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8" id="q-card-3">
+                <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-md border border-blue-100">Questão 3</span>
+                    <span class="text-xs text-slate-400 font-medium">Formatação Semântica de Texto</span>
+                </div>
+
+                <p class="text-base sm:text-lg font-medium text-slate-800 leading-relaxed mb-6">
+                    Em relação à formatação semântica de textos na especificação HTML5, assinale a alternativa correta no que se refere ao uso comparativo entre tags semânticas e elementos puramente visuais.
+                </p>
+
+                <div class="space-y-2.5">
+                    <label class="option-label block relative">
+                        <input type="radio" name="q3" value="A" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">A)</span>
+                            <span class="text-sm text-slate-800">A tag <code>&lt;b&gt;</code> deve ser utilizada prioritariamente quando se deseja indicar urgência ou alta relevância semântica em um aviso de segurança.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q3" value="B" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">B)</span>
+                            <span class="text-sm text-slate-800">A tag <code>&lt;strong&gt;</code> informa ao navegador e aos leitores de tela que o texto possui elevada importância ou urgência semântica, enquanto a tag <code>&lt;b&gt;</code> apenas altera a aparência gráfica do texto para negrito sem agregar significado especial.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q3" value="C" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">C)</span>
+                            <span class="text-sm text-slate-800">As tags <code>&lt;strong&gt;</code> e <code>&lt;b&gt;</code> possuem o mesmo valor semântico para motores de busca, diferindo unicamente quanto ao peso de renderização visual no navegador.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q3" value="D" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">D)</span>
+                            <span class="text-sm text-slate-800">O surgimento do CSS3 tornou as tags <code>&lt;strong&gt;</code> e <code>&lt;b&gt;</code> obsoletas, sendo proibida a utilização de ambas na validação do W3C.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q3" value="E" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">E)</span>
+                            <span class="text-sm text-slate-800">A tag <code>&lt;strong&gt;</code> é classificada como elemento visual de formatação de bordas, enquanto a tag <code>&lt;b&gt;</code> representa a estrutura de dados primária do documento.</span>
+                        </div>
+                    </label>
+                </div>
+            </article>
+
+            <article class="question-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8" id="q-card-4">
+                <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-md border border-blue-100">Questão 4</span>
+                    <span class="text-xs text-slate-400 font-medium">Tags Semânticas Auxiliares</span>
+                </div>
+
+                <p class="text-base sm:text-lg font-medium text-slate-800 leading-relaxed mb-4">
+                    Considere as seguintes tags semânticas de formatação de texto e suas respetivas funções funcionais descritas no padrão HTML5:
+                </p>
+
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm text-slate-700 mb-4 font-mono space-y-1">
+                    <p>1. &lt;mark&gt;</p>
+                    <p>2. &lt;small&gt;</p>
+                    <p>3. &lt;code&gt;</p>
+                </div>
+
+                <p class="text-sm text-slate-700 mb-4">Associe as tags listadas acima às suas respetivas descrições funcionais apresentadas a seguir:</p>
+
+                <div class="space-y-3 bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm text-slate-700 mb-6 leading-relaxed">
+                    <p>( &nbsp; ) É empregada para delimitar e indicar trechos de código-fonte de linguagens de programação no corpo do texto.</p>
+                    <p>( &nbsp; ) É utilizada para incluir comentários secundários, notas de isenção de responsabilidade ou avisos de direitos autorais.</p>
+                    <p>( &nbsp; ) Promove o destaque visual e semântico de um determinado trecho do texto, produzindo efeito análogo ao de uma caneta marca-texto.</p>
+                </div>
+
+                <p class="text-sm font-semibold text-slate-800 mb-3">A sequência correta de preenchimento dos parênteses, de cima para baixo, é</p>
+
+                <div class="space-y-2.5">
+                    <label class="option-label block relative">
+                        <input type="radio" name="q4" value="A" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">A)</span>
+                            <span class="text-sm text-slate-800">1 – 2 – 3.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q4" value="B" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">B)</span>
+                            <span class="text-sm text-slate-800">2 – 1 – 3.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q4" value="C" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">C)</span>
+                            <span class="text-sm text-slate-800">3 – 2 – 1.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q4" value="D" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">D)</span>
+                            <span class="text-sm text-slate-800">3 – 1 – 2.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q4" value="E" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">E)</span>
+                            <span class="text-sm text-slate-800">2 – 3 – 1.</span>
+                        </div>
+                    </label>
+                </div>
+            </article>
+
+            <article class="question-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8" id="q-card-5">
+                <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-md border border-blue-100">Questão 5</span>
+                    <span class="text-xs text-slate-400 font-medium">Tag Âncora e Atributos</span>
+                </div>
+
+                <p class="text-base sm:text-lg font-medium text-slate-800 leading-relaxed mb-4">
+                    A tag de âncora <code>&lt;a&gt;</code> desempenha papel central na navegação web, permitindo a interconexão entre documentos. Em relação ao funcionamento e aos atributos da tag <code>&lt;a&gt;</code>, analise as assertivas abaixo.
+                </p>
+
+                <div class="space-y-3 bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm text-slate-700 mb-6 leading-relaxed">
+                    <p><strong>I -</strong> O atributo <code>href</code> (Hypertext Reference) é fundamental para determinar o destino da navegação, seja ele um endereço externo completo ou um caminho local no servidor.</p>
+                    <p><strong>II -</strong> A utilização do atributo <code>target="_blank"</code> instrui o navegador a carregar o documento de destino obrigatoriamente na mesma aba e janela em que o usuário se encontra.</p>
+                    <p><strong>III -</strong> Em conformidade com as boas práticas de acessibilidade e arquitetura de informação, o texto âncora deve ser descritivo do conteúdo de destino, evitando-se o uso de expressões genéricas como "clique aqui".</p>
+                </div>
+
+                <p class="text-sm font-semibold text-slate-800 mb-3">Quais estão corretas?</p>
+
+                <div class="space-y-2.5">
+                    <label class="option-label block relative">
+                        <input type="radio" name="q5" value="A" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">A)</span>
+                            <span class="text-sm text-slate-800">Apenas I.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q5" value="B" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">B)</span>
+                            <span class="text-sm text-slate-800">Apenas I e III.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q5" value="C" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">C)</span>
+                            <span class="text-sm text-slate-800">Apenas II e III.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q5" value="D" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">D)</span>
+                            <span class="text-sm text-slate-800">Apenas II.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q5" value="E" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">E)</span>
+                            <span class="text-sm text-slate-800">I, II e III.</span>
+                        </div>
+                    </label>
+                </div>
+            </article>
+
+            <article class="question-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8" id="q-card-6">
+                <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-md border border-blue-100">Questão 6</span>
+                    <span class="text-xs text-slate-400 font-medium">Resolução de Caminhos Relativos</span>
+                </div>
+
+                <p class="text-base sm:text-lg font-medium text-slate-800 leading-relaxed mb-4">
+                    Considere a seguinte estrutura de arquivos e diretórios de um projeto web armazenado no servidor: a página principal <code>index.html</code> encontra-se localizada no diretório raiz do projeto (<code>/projeto</code>), enquanto a página de formulário de contato <code>contato.html</code> está contida dentro do subdiretório <code>paginas</code> (<code>/projeto/paginas/contato.html</code>).
+                </p>
+
+                <p class="text-sm text-slate-700 leading-relaxed mb-4">
+                    Durante a edição do arquivo <code>contato.html</code> (armazenado dentro do subdiretório <code>paginas</code>), o desenvolvedor necessita inserir um hiperlink que direcione o usuário de volta para a página inicial do site (<code>index.html</code>), localizada no diretório raiz do projeto.
+                </p>
+
+                <p class="text-sm font-semibold text-slate-800 mb-3">Assinale a alternativa que apresenta a sintaxe correta do caminho relativo a ser atribuído ao parâmetro <code>href</code> da tag <code>&lt;a&gt;</code> no arquivo <code>contato.html</code>.</p>
+
+                <div class="space-y-2.5">
+                    <label class="option-label block relative">
+                        <input type="radio" name="q6" value="A" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">A)</span>
+                            <span class="text-sm text-slate-800"><code>href="./index.html"</code></span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q6" value="B" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">B)</span>
+                            <span class="text-sm text-slate-800"><code>href="../index.html"</code></span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q6" value="C" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">C)</span>
+                            <span class="text-sm text-slate-800"><code>href=".../index.html"</code></span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q6" value="D" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">D)</span>
+                            <span class="text-sm text-slate-800"><code>href="/paginas/index.html"</code></span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q6" value="E" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">E)</span>
+                            <span class="text-sm text-slate-800"><code>href="index.html"</code></span>
+                        </div>
+                    </label>
+                </div>
+            </article>
+
+            <article class="question-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8" id="q-card-7">
+                <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-md border border-blue-100">Questão 7</span>
+                    <span class="text-xs text-slate-400 font-medium">Sintaxe dos Operadores de Diretório</span>
+                </div>
+
+                <p class="text-base sm:text-lg font-medium text-slate-800 leading-relaxed mb-6">
+                    A navegação interna e a referência a arquivos dentro de um projeto web exigem o domínio dos operadores de caminho relativo e absoluto. Sobre a sintaxe de apontamento de diretórios em páginas HTML, assinale a alternativa correta.
+                </p>
+
+                <div class="space-y-2.5">
+                    <label class="option-label block relative">
+                        <input type="radio" name="q7" value="A" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">A)</span>
+                            <span class="text-sm text-slate-800">O prefixo <code>/</code> posicionado no início de um caminho especifica uma busca que avança um nível na pasta imediatamente inferior.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q7" value="B" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">B)</span>
+                            <span class="text-sm text-slate-800">O operador <code>../</code> instrui o navegador a subir um nível na árvore de diretórios, retornando para a pasta pai.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q7" value="C" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">C)</span>
+                            <span class="text-sm text-slate-800">A representação <code>./</code> força o navegador a reiniciar a busca a partir da raiz do sistema operacional da máquina cliente.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q7" value="D" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">D)</span>
+                            <span class="text-sm text-slate-800">A indicação de caminho relativo impede o carregamento de arquivos de mídia, sendo obrigatório o uso de URLs absolutas completas para imagens.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q7" value="E" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">E)</span>
+                            <span class="text-sm text-slate-800">A utilização do operador <code>../</code> é restrita ao carregamento de arquivos de folhas de estilo CSS externos, não podendo ser applied em tags de link <code>&lt;a&gt;</code>.</span>
+                        </div>
+                    </label>
+                </div>
+            </article>
+
+            <article class="question-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8" id="q-card-8">
+                <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-md border border-blue-100">Questão 8</span>
+                    <span class="text-xs text-slate-400 font-medium">Analogia da Edificação</span>
+                </div>
+
+                <p class="text-base sm:text-lg font-medium text-slate-800 leading-relaxed mb-6">
+                    Na analogia estrutural utilizada para o ensino do desenvolvimento de páginas web, a construção de um site é comparada às etapas de edificação de uma residência. Assinale a alternativa que associa corretamente cada elemento dessa analogia à sua respetiva tecnologia.
+                </p>
+
+                <div class="space-y-2.5">
+                    <label class="option-label block relative">
+                        <input type="radio" name="q8" value="A" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">A)</span>
+                            <span class="text-sm text-slate-800">A alvenaria e o esqueleto de sustentação correspondem ao JavaScript; a pintura e os acabamentos ao HTML; e a rede elétrica e automação ao CSS.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q8" value="B" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">B)</span>
+                            <span class="text-sm text-slate-800">A alvenaria e o esqueleto de sustentação correspondem ao HTML; a pintura, cores e decoração ao CSS; e a rede elétrica, automação e interatividade ao JavaScript.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q8" value="C" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">C)</span>
+                            <span class="text-sm text-slate-800">A alvenaria e o esqueleto de sustentação correspondem ao CSS; a pintura e os acabamentos ao JavaScript; e a rede elétrica ao HTML.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q8" value="D" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">D)</span>
+                            <span class="text-sm text-slate-800">A alvenaria e o esqueleto de sustentação correspondem ao HTML; a pintura e os acabamentos ao JavaScript; e a rede elétrica ao CSS.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q8" value="E" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">E)</span>
+                            <span class="text-sm text-slate-800">A alvenaria e o esqueleto de sustentação correspondem ao JavaScript; a pintura e os acabamentos ao CSS; e a rede elétrica ao HTML.</span>
+                        </div>
+                    </label>
+                </div>
+            </article>
+
+            <article class="question-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8" id="q-card-9">
+                <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-md border border-blue-100">Questão 9</span>
+                    <span class="text-xs text-slate-400 font-medium">Diferenciação Semântica (&lt;i&gt; vs &lt;em&gt;)</span>
+                </div>
+
+                <p class="text-base sm:text-lg font-medium text-slate-800 leading-relaxed mb-4">
+                    Considere o seguinte trecho textual a ser inserido em um documento HTML5 segundo os preceitos de formatação semântica:
+                </p>
+
+                <blockquote class="bg-slate-50 border-l-4 border-slate-300 p-4 text-slate-700 italic text-sm mb-4">
+                    "O conceito de algoritmo tem origem no nome do matemático persa <em>Al-Khwarizmi</em>. Durante o seminário, o relator enfatizou: 'Nós <em>realmente</em> precisamos aplicar esta validação'."
+                </blockquote>
+
+                <p class="text-sm text-slate-700 leading-relaxed mb-4">
+                    Para atender rigorosamente às recomendações semânticas da especificação do HTML5 quanto à marcação de termos técnicos / de outro idioma e à indicação de ênfase no tom de fala, o trecho <em>Al-Khwarizmi</em> e a palavra <em>realmente</em> devem ser envolvidos, respetivamente, pelas tags:
+                </p>
+
+                <div class="space-y-2.5">
+                    <label class="option-label block relative">
+                        <input type="radio" name="q9" value="A" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">A)</span>
+                            <span class="text-sm text-slate-800"><code>&lt;i&gt;</code> e <code>&lt;em&gt;</code>.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q9" value="B" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">B)</span>
+                            <span class="text-sm text-slate-800"><code>&lt;em&gt;</code> e <code>&lt;i&gt;</code>.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q9" value="C" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">C)</span>
+                            <span class="text-sm text-slate-800"><code>&lt;strong&gt;</code> e <code>&lt;mark&gt;</code>.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q9" value="D" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">D)</span>
+                            <span class="text-sm text-slate-800"><code>&lt;small&gt;</code> e <code>&lt;code&gt;</code>.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q9" value="E" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8">E)</span>
+                            <span class="text-sm text-slate-800"><code>&lt;b&gt;</code> e <code>&lt;strong&gt;</code>.</span>
+                        </div>
+                    </label>
+                </div>
+            </article>
+
+            <article class="question-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8" id="q-card-10">
+                <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-md border border-blue-100">Questão 10</span>
+                    <span class="text-xs text-slate-400 font-medium">Sintaxe e Papéis das Linguagens Web</span>
+                </div>
+
+                <p class="text-base sm:text-lg font-medium text-slate-800 leading-relaxed mb-6">
+                    No que tange à sintaxe fundamental, estrutura de tags e semântica de marcação do HTML, assinale a alternativa <strong>INCORRETA</strong>.
+                </p>
+
+                <div class="space-y-2.5">
+                    <label class="option-label block relative">
+                        <input type="radio" name="q10" value="A" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">A)</span>
+                            <span class="text-sm text-slate-800">A tag é a unidade básica do HTML, sendo delimitada pelos sinais de menor (<code>&lt;</code>) e maior (<code>&gt;</code>).</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q10" value="B" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">B)</span>
+                            <span class="text-sm text-slate-800">A barra de fechamento (<code>/</code>) indica o ponto exato em que a marcação do elemento é finalizada, como no exemplo <code>&lt;/p&gt;</code>.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q10" value="C" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">C)</span>
+                            <span class="text-sm text-slate-800">A maioria das tags HTML funciona em pares de abertura e fechamento, envolvendo o conteúdo sobre o qual a marcação exercerá papel estrutural.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q10" value="D" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">D)</span>
+                            <span class="text-sm text-slate-800">O nome da tag informa ao navegador e aos recursos de acessibilidade qual é o papel estrutural daquele bloco textual.</span>
+                        </div>
+                    </label>
+                    <label class="option-label block relative">
+                        <input type="radio" name="q10" value="E" class="sr-only">
+                        <div class="option-content flex items-center p-3.5 rounded-lg border border-slate-200 bg-white">
+                            <span class="font-semibold text-sm text-slate-700 w-8 shrink-0">E)</span>
+                            <span class="text-sm text-slate-800">O HTML é responsável exclusivo pelas definições estéticas e visuais da página, cabendo ao CSS definir o significado e o sentido estrutural dos textos.</span>
+                        </div>
+                    </label>
+                </div>
+            </article>
+
+            <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <button type="submit" id="btn-submit" class="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-center flex items-center justify-center gap-2 text-base">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Finalizar Quiz e Ver Desempenho
+                </button>
+                <div id="validation-warning" class="hidden text-amber-700 bg-amber-50 px-4 py-2 rounded-lg border border-amber-200 text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <span>Responda todas as questões para ver o resultado completo!</span>
+                </div>
+            </div>
+
+        </form>
+
+        <section id="results-section" class="hidden space-y-8 pt-6 border-t-2 border-slate-200">
+            
+            <!-- Result Score Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-md p-6 sm:p-8 text-center relative overflow-hidden">
+                <div id="performance-badge" class="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+                    Desempenho
+                </div>
+                
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-2">
+                    Sua Pontuação: <span id="score-text" class="text-blue-600">0/10</span>
+                </h2>
+                
+                <p id="feedback-text" class="text-slate-600 text-sm sm:text-base max-w-lg mx-auto mb-6">
+                    Confira abaixo o gabarito oficial e a resolução comentada questão por questão.
+                </p>
+
+                <!-- Quick Jump Grid -->
+                <div id="quick-results-grid" class="flex flex-wrap justify-center gap-2 pt-4 border-t border-slate-100">
+                    <!-- JS will populate question status pills here -->
+                </div>
+            </div>
+
+            <!-- Gabarito Resumido Table -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    Gabarito Oficial Rápido
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-700">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-xs font-bold uppercase text-slate-500">
+                            <tr>
+                                <th class="p-3">Questão</th>
+                                <th class="p-3">Sua Resposta</th>
+                                <th class="p-3">Gabarito</th>
+                                <th class="p-3">Assunto Principal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summary-table-body" class="divide-y divide-slate-100">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-4">
+                <h3 class="text-xl sm:text-2xl font-bold text-slate-900">Resoluções Comentadas</h3>
+                <span class="text-xs text-slate-500 font-medium">Explicadas na íntegra</span>
+            </div>
+
+            <!-- RESOLUÇÃO QUESTÃO 1 -->
+            <div class="resolution-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-3" id="res-1">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <span class="text-sm font-bold text-slate-900">Resolução da Questão 1</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">Gabarito: A</span>
+                </div>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    A análise fundamenta-se nos papéis distintivos e complementares das três tecnologias vitais do desenvolvimento web client-side.
+                </p>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    A primeira afirmação é <strong>verdadeira</strong> porque o HTML atua estritamente na marcação da estrutura do documento, conferindo sentido semântico aos blocos e agrupamentos. A segunda afirmação é <strong>verdadeira</strong> ao passo que o CSS responde exclusivamente pelo visual e pela formatação estática, gerenciando atributos como paleta de cores, tipografia e arranjo de leiaute responsivo para variadas telas. A terceira afirmação é <strong>falsa</strong> visto que o JavaScript é uma linguagem de programação interpretada de alto nível, não se tratando de linguagem de marcação e tampouco tendo a função de substituir as folhas de estilo estáticas. A quarta afirmação é <strong>verdadeira</strong> pois o comportamento dinâmico do documento, o tratamento de lógica computacional e a reação a ações do utilizador (como escutadores do tipo <code>addEventListener</code> e rotinas de animação) pertencem ao domínio funcional do JavaScript.
+                </p>
+                <p class="text-xs font-semibold text-blue-700 bg-blue-50 p-2.5 rounded-md border border-blue-100">
+                    Portanto, a sequência correta é V – V – F – V (Alternativa A).
+                </p>
+            </div>
+
+            <div class="resolution-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-3" id="res-2">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <span class="text-sm font-bold text-slate-900">Resolução da Questão 2</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">Gabarito: D</span>
+                </div>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    A estruturação hierárquica das tags de cabeçalho (<code>&lt;h1&gt;</code> a <code>&lt;h6&gt;</code>) constitui pilar essencial da acessibilidade e do SEO.
+                </p>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    A <strong>afirmação I está correta</strong> porque a finalidade primária dessas tags é estabelecer a ordenação de relevância do conteúdo para tecnologias assistivas e agentes de navegação, sendo incorreto utilizá-las com o propósito exclusivo de alterar o dimensionamento gráfico do texto. A <strong>afirmação II está correta</strong> ao ratificar a regra fundamental da arquitetura de informação que limita o elemento <code>&lt;h1&gt;</code> a uma única ocorrência por documento, marcando o título principal. A <strong>afirmação III está incorreta</strong> porque a quebra ou omissão de níveis hierárquicos — como saltar diretamente de um <code>&lt;h1&gt;</code> para um <code>&lt;h3&gt;</code> sem empregar o <code>&lt;h2&gt;</code> intermediário — prejudica sensivelmente a escaneabilidade do texto e desestrutura a navegação por leitores de tela.
+                </p>
+                <p class="text-xs font-semibold text-blue-700 bg-blue-50 p-2.5 rounded-md border border-blue-100">
+                    Assim, apenas I e II estão corretas (Alternativa D).
+                </p>
+            </div>
+
+            <div class="resolution-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-3" id="res-3">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <span class="text-sm font-bold text-slate-900">Resolução da Questão 3</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">Gabarito: B</span>
+                </div>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    A evolução do HTML5 consolidou o princípio do desacoplamento entre semântica e apresentação.
+                </p>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    A alternativa A é incorreta porque a tag <code>&lt;b&gt;</code> aplica unicamente um estilo em negrito sem adicionar valor de urgência ou relevância. A <strong>alternativa B é correta</strong> pois explicita perfeitamente o diferiamento conceitual: <code>&lt;strong&gt;</code> deve ser empregada para ressaltar frases de alta relevância, aviso ou urgência (o que informa leitores de tela e motores de busca), ao passo que <code>&lt;b&gt;</code> serve unicamente para estilização em negrito por razões tipográficas convencionais sem peso semântico acrescido. A alternativa C é incorreta porque motores de pesquisa e leitores de tela atribuem pesos diferenciados a essas tags. As alternativas D e E contêm erros conceituais, visto que ambas as tags continuam válidas no HTML5 e nenhuma delas atua como formatador de bordas CSS.
+                </p>
+                <p class="text-xs font-semibold text-blue-700 bg-blue-50 p-2.5 rounded-md border border-blue-100">
+                    A resposta correta é a Alternativa B.
+                </p>
+            </div>
+
+            <div class="resolution-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-3" id="res-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <span class="text-sm font-bold text-slate-900">Resolução da Questão 4</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">Gabarito: C</span>
+                </div>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    A especificação HTML5 introduziu e refinou elementos para contextualizar diferentes tipos de dados no texto.
+                </p>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    A tag <code>&lt;code&gt;</code> (3) é destinada a indicar trechos de código de programação ou sintaxe computacional, devendo ser associada à primeira descrição. A tag <code>&lt;small&gt;</code> (2) atua na inserção de textos secundários, notas de isenção de responsabilidade ou avisos de direitos autorais (copyright), relacionando-se à segunda descrição. A tag <code>&lt;mark&gt;</code> (1) aplica um destaque visual e semântico análogo ao uso de caneta marca-texto sobre excertos relevantes do documento, enquadrando-se na terceira descrição.
+                </p>
+                <p class="text-xs font-semibold text-blue-700 bg-blue-50 p-2.5 rounded-md border border-blue-100">
+                    A sequência de preenchimento dos parênteses resultante é 3 – 2 – 1 (Alternativa C).
+                </p>
+            </div>
+
+            <div class="resolution-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-3" id="res-5">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <span class="text-sm font-bold text-slate-900">Resolução da Questão 5</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">Gabarito: B</span>
+                </div>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    A tag de hipertexto <code>&lt;a&gt;</code> provê os mecanismos de interconexão essenciais da navegação web.
+                </p>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    A <strong>assertiva I está correta</strong> pois o atributo <code>href</code> representa o destino para o qual o navegador redirecionará a requisição. A <strong>assertiva II está incorreta</strong> porque a especificação do parâmetro <code>target="_blank"</code> força a abertura do hiperlink em uma nova aba ou janela do navegador, enquanto a abertura na mesma aba ocorre por padrão através de <code>target="_self"</code>. A <strong>assertiva III está correta</strong>, uma vez que a boa prática de arquitetura de informação exige que o texto âncora seja descritivo do conteúdo de destino, orientando adequadamente leitores de tela e usuários em geral.
+                </p>
+                <p class="text-xs font-semibold text-blue-700 bg-blue-50 p-2.5 rounded-md border border-blue-100">
+                    Logo, apenas I e III estão corretas (Alternativa B).
+                </p>
+            </div>
+
+            <div class="resolution-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-3" id="res-6">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <span class="text-sm font-bold text-slate-900">Resolução da Questão 6</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">Gabarito: B</span>
+                </div>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    A navegação por caminhos relativos é baseada na localização do arquivo que faz a chamada em relação ao arquivo de destino na árvore de diretórios.
+                </p>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    Sendo o arquivo de origem o <code>contato.html</code>, situado dentro da pasta <code>paginas</code> (<code>/projeto/paginas/contato.html</code>), e o arquivo de destino o <code>index.html</code>, localizado um nível acima, na pasta raiz <code>projeto</code> (<code>/projeto/index.html</code>), o desenvolvedor deve obrigatoriamente instruir o navegador a subir um nível na hierarquia de pastas. O operador de caminho relativo encarregado dessa subida de nível é o <code>../</code>. O endereço correto a ser atribuído ao <code>href</code> é <code>../index.html</code>. A indicação <code>./index.html</code> procuraria o arquivo dentro da própria pasta <code>paginas</code>, resultando em falha de navegação.
+                </p>
+                <p class="text-xs font-semibold text-blue-700 bg-blue-50 p-2.5 rounded-md border border-blue-100">
+                    Desta forma, a Alternativa B é a correta.
+                </p>
+            </div>
+
+            <div class="resolution-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-3" id="res-7">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <span class="text-sm font-bold text-slate-900">Resolução da Questão 7</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">Gabarito: B</span>
+                </div>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    O correto entendimento dos operadores de sintaxe de diretórios é fundamental para a vinculação de recursos na web.
+                </p>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    A alternativa A é incorreta pois a barra <code>/</code> no início do caminho faz referência à raiz principal do servidor web ou domínio. A <strong>alternativa B é correta</strong> ao definir rigorosamente a função da notação <code>../</code>, que consiste em subir um nível na árvore de diretórios, retornando à pasta pai. A alternativa C está incorreta porque <code>./</code> indica o próprio diretório atual. A alternativa D é falsa visto que caminhos relativos são largamente empregados no encadeamento de imagens e recursos locais. A alternativa E é incorreta, pois os operadores de diretório são universais em HTML, aplicáveis tanto em links <code>&lt;a&gt;</code> quanto em chamadas de scripts e imagens.
+                </p>
+                <p class="text-xs font-semibold text-blue-700 bg-blue-50 p-2.5 rounded-md border border-blue-100">
+                    Assim, a Alternativa B é a correta.
+                </p>
+            </div>
+
+            <div class="resolution-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-3" id="res-8">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <span class="text-sm font-bold text-slate-900">Resolução da Questão 8</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">Gabarito: B</span>
+                </div>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    A analogia da edificação residencial é um modelo pedagógico clássico utilizado para segmentar as responsabilidades do desenvolvimento web.
+                </p>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    Nesse paradigma, o <strong>HTML</strong> constitui a estrutura de alvenaria, o alicerce e o esqueleto que dão sustentação ao projeto. O <strong>CSS</strong> atua como a etapa de pintura, decoração, acabamento e definição de cores e estilos visuais. O <strong>JavaScript</strong> equipara-se à rede elétrica, ao sistema de automação e à lógica de interatividade que torna a estrutura funcional e dinâmica.
+                </p>
+                <p class="text-xs font-semibold text-blue-700 bg-blue-50 p-2.5 rounded-md border border-blue-100">
+                    A associação correta dessa analogia está expressa na Alternativa B.
+                </p>
+            </div>
+
+            <div class="resolution-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-3" id="res-9">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <span class="text-sm font-bold text-slate-900">Resolução da Questão 9</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">Gabarito: A</span>
+                </div>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    A especificação do HTML5 orienta o emprego diferenciado de tags de formatação textual conforme o significado do elemento.
+                </p>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    A tag <code>&lt;i&gt;</code> deve ser utilizada quando há alteração na qualidade de voz do texto, como no uso de termos técnicos, palavras em idioma estrangeiro ou nomes científicos (exemplo: <em>Al-Khwarizmi</em>). Por sua vez, a tag <code>&lt;em&gt;</code> é recomendada para aplicar uma ênfase de estresse na pronúncia ou tom da fala (exemplo: "Nós <em>realmente</em> precisamos disso").
+                </p>
+                <p class="text-xs font-semibold text-blue-700 bg-blue-50 p-2.5 rounded-md border border-blue-100">
+                    Portanto, a sequência correta e ordenada das tags é &lt;i&gt; e &lt;em&gt; (Alternativa A).
+                </p>
+            </div>
+
+            <div class="resolution-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-3" id="res-10">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <span class="text-sm font-bold text-slate-900">Resolução da Questão 10</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">Gabarito: E</span>
+                </div>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    As alternativas A, B, C e D descrevem corretamente os fundamentos da linguagem HTML: a tag é a unidade delimitada por <code>&lt;</code> e <code>&gt;</code>, a barra <code>/</code> assinala o fechamento do bloco, os elementos trabalham predominantemente em pares e a escolha da tag confere sentido semântico ao conteúdo.
+                </p>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    A <strong>alternativa E apresenta uma incorreção grave</strong> ao inverter as atribuições das linguagens: cabe ao HTML a responsabilidade pela marcação semântica e estrutural do documento, enquanto o CSS é a linguagem encarregada exclusiva da definição de estilos visuais e estéticos.
+                </p>
+                <p class="text-xs font-semibold text-blue-700 bg-blue-50 p-2.5 rounded-md border border-blue-100">
+                    Por ser a única afirmação incorreta, a Alternativa E é a resposta da questão.
+                </p>
+            </div>
+
+            <!-- Restart / Retry Button -->
+            <div class="text-center pt-8">
+                <button type="button" id="btn-restart" class="px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-xl transition-colors text-sm inline-flex items-center gap-2 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Refazer Simulado
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Answer Key Mapping
+            const answerKey = {
+                q1: 'A',
+                q2: 'D',
+                q3: 'B',
+                q4: 'C',
+                q5: 'B',
+                q6: 'B',
+                q7: 'B',
+                q8: 'B',
+                q9: 'A',
+                q10: 'E'
+            };
+
+            const mainTopics = {
+                q1: 'Tríade do Desenvolvimento Web',
+                q2: 'Hierarquia de Títulos (h1-h6)',
+                q3: 'Formatação Semântica: <strong> vs <b>',
+                q4: 'Tags Auxiliares (<mark>, <small>, <code>)',
+                q5: 'Tag Âncora <a> e Atributos',
+                q6: 'Caminhos Relativos (../)',
+                q7: 'Sintaxe dos Operadores de Diretório',
+                q8: 'Analogia da Edificação',
+                q9: 'Ênfase (<em>) e Idiomas (<i>)',
+                q10: 'Sintaxe HTML e Papel do CSS'
+            };
+
+            const totalQuestions = 10;
+            const quizForm = document.getElementById('quiz-form');
+            const answeredCountEl = document.getElementById('answered-count');
+            const progressBar = document.getElementById('progress-bar');
+            const resultsSection = document.getElementById('results-section');
+            const validationWarning = document.getElementById('validation-warning');
+            const summaryTableBody = document.getElementById('summary-table-body');
+            const quickResultsGrid = document.getElementById('quick-results-grid');
+            const scoreText = document.getElementById('score-text');
+            const feedbackText = document.getElementById('feedback-text');
+            const performanceBadge = document.getElementById('performance-badge');
+            const btnRestart = document.getElementById('btn-restart');
+
+            function updateProgress() {
+                let answered = 0;
+                for (let i = 1; i <= totalQuestions; i++) {
+                    const selected = quizForm.querySelector(`input[name="q${i}"]:checked`);
+                    if (selected) {
+                        answered++;
+                    }
+                }
+                answeredCountEl.textContent = `${answered} de ${totalQuestions} respondidas`;
+                const percentage = (answered / totalQuestions) * 100;
+                progressBar.style.width = `${percentage}%`;
+                
+                if (answered === totalQuestions) {
+                    validationWarning.classList.add('hidden');
+                }
+            }
+
+            // Attach event listener to options
+            quizForm.addEventListener('change', updateProgress);
+
+            quizForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Check answered count
+                let userAnswers = {};
+                let answeredCount = 0;
+                let score = 0;
+
+                for (let i = 1; i <= totalQuestions; i++) {
+                    const selected = quizForm.querySelector(`input[name="q${i}"]:checked`);
+                    if (selected) {
+                        userAnswers[`q${i}`] = selected.value;
+                        answeredCount++;
+                        if (selected.value === answerKey[`q${i}`]) {
+                            score++;
+                        }
+                    } else {
+                        userAnswers[`q${i}`] = null;
+                    }
+                }
+
+                if (answeredCount < totalQuestions) {
+                    validationWarning.classList.remove('hidden');
+                    // Scroll to warning button area
+                    validationWarning.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+
+                validationWarning.classList.add('hidden');
+
+                // Reveal Results Section
+                resultsSection.classList.remove('hidden');
+
+                // Populate Score Card
+                scoreText.textContent = `${score}/${totalQuestions}`;
+                
+                if (score === 10) {
+                    performanceBadge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 bg-emerald-100 text-emerald-800 border border-emerald-200';
+                    performanceBadge.textContent = 'Excelente! Acertou tudo!';
+                    feedbackText.textContent = 'Parabéns! Você demonstrou domínio completo sobre os conceitos fundamentais de HTML, CSS e JavaScript no padrão FAURGS.';
+                } else if (score >= 7) {
+                    performanceBadge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 bg-blue-100 text-blue-800 border border-blue-200';
+                    performanceBadge.textContent = 'Ótimo Desempenho!';
+                    feedbackText.textContent = 'Muito bem! Você tem uma base sólida. Revise as questões que errou para consolidar seus conhecimentos.';
+                } else if (score >= 5) {
+                    performanceBadge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 bg-amber-100 text-amber-800 border border-amber-200';
+                    performanceBadge.textContent = 'Bom / Atenção';
+                    feedbackText.textContent = 'Você alcançou um resultado mediano. Leia atentamente as resoluções comentadas abaixo para esclarecer suas dúvidas.';
+                } else {
+                    performanceBadge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 bg-rose-100 text-rose-800 border border-rose-200';
+                    performanceBadge.textContent = 'Necessita de Revisão';
+                    feedbackText.textContent = 'Recomendamos estudar a aula novamente e analisar cuidadosamente cada resolução explicativa abaixo.';
+                }
+
+                summaryTableBody.innerHTML = '';
+                quickResultsGrid.innerHTML = '';
+
+                for (let i = 1; i <= totalQuestions; i++) {
+                    const key = `q${i}`;
+                    const userVal = userAnswers[key];
+                    const correctVal = answerKey[key];
+                    const isCorrect = (userVal === correctVal);
+
+                    // Card styling highlight based on correctness
+                    const card = document.getElementById(`q-card-${i}`);
+                    if (isCorrect) {
+                        card.classList.remove('border-slate-200');
+                        card.classList.add('border-emerald-300', 'bg-emerald-50/20');
+                    } else {
+                        card.classList.remove('border-slate-200');
+                        card.classList.add('border-rose-300', 'bg-rose-50/20');
+                    }
+
+                    // Table Row
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition-colors';
+                    tr.innerHTML = `
+                        <td class="p-3 font-semibold text-slate-800">Questão ${i}</td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 rounded font-semibold text-xs ${isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                                ${userVal || 'ND'} ${isCorrect ? '✓' : '✗'}
+                            </span>
+                        </td>
+                        <td class="p-3 font-bold text-slate-900">${correctVal}</td>
+                        <td class="p-3 text-xs text-slate-600">${mainTopics[key]}</td>
+                    `;
+                    summaryTableBody.appendChild(tr);
+
+                    // Quick Jump Pill
+                    const jumpPill = document.createElement('a');
+                    jumpPill.href = `#q-card-${i}`;
+                    jumpPill.className = `w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs transition-transform hover:scale-110 ${isCorrect ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`;
+                    jumpPill.textContent = `Q${i}`;
+                    quickResultsGrid.appendChild(jumpPill);
+                }
+
+                // Scroll smoothly to score results
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+
+            btnRestart.addEventListener('click', function() {
+                quizForm.reset();
+                updateProgress();
+                resultsSection.classList.add('hidden');
+                
+                // Reset card styles
+                for (let i = 1; i <= totalQuestions; i++) {
+                    const card = document.getElementById(`q-card-${i}`);
+                    card.className = 'question-card bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8';
+                }
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>
