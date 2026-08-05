@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz FAURGS - Avaliação da Aprendizagem e Práxis Transformadora</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        paper: {
+                            50: '#fdfcf9',
+                            100: '#f9f6f0',
+                            200: '#f3ede2',
+                            300: '#e8decb',
+                            800: '#342f28',
+                            900: '#1c1915',
+                        },
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d'
+                        },
+                        faurgs: {
+                            600: '#1e3a8a',
+                            700: '#1e40af',
+                            800: '#1e3a8a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        serif: ['Georgia', 'Cambria', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Inter & Merriweather -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f5f0;
+            color: #242424;
+            line-height: 1.75;
+        }
+
+        .reading-text {
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 1.05rem;
+            line-height: 1.85;
+            color: #2d3748;
+        }
+
+        .custom-radio {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.35rem;
+            height: 1.35rem;
+            border: 2px solid #a0aec0;
+            border-radius: 50%;
+            outline: none;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+            margin-top: 0.15rem;
+        }
+
+        .custom-radio:checked {
+            border-color: #1e3a8a;
+            background-color: #1e3a8a;
+        }
+
+        .custom-radio:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0.5rem;
+            height: 0.5rem;
+            background-color: white;
+            border-radius: 50%;
+        }
+
+        .option-label {
+            transition: all 0.15s ease-in-out;
+            cursor: pointer;
+        }
+
+        .option-label:hover {
+            background-color: #f0ebd9;
+        }
+
+        /* Reading contrast optimizations */
+        .card-shadow {
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-[#f7f5f0] text-[#242424] antialiased selection:bg-amber-200">
+
+    <!-- Sticky Header / Navigation -->
+    <header class="sticky top-0 z-40 bg-[#f7f5f0]/95 backdrop-blur-md border-b border-[#e5dfd3] shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-lg bg-blue-900 text-white font-bold flex items-center justify-center text-lg shadow-sm">
+                    F
+                </div>
+                <div>
+                    <h1 class="font-bold text-gray-900 text-base sm:text-lg leading-tight">Simulado Estilo FAURGS</h1>
+                    <p class="text-xs text-gray-600">Avaliação da Aprendizagem e Práxis Transformadora</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <div class="text-right">
+                    <span class="text-xs uppercase tracking-wider text-gray-500 block font-semibold">Progresso</span>
+                    <span id="progress-text" class="text-sm font-bold text-blue-900">0 / 10 respondidas</span>
+                </div>
+                <button id="btn-submit-top" onclick="submitQuiz()" class="bg-blue-900 hover:bg-blue-800 text-white text-xs sm:text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-700">
+                    Finalizar Quiz
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-[#e8e2d5] h-1.5">
+            <div id="progress-bar" class="bg-blue-800 h-1.5 w-0 transition-all duration-300"></div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+
+        <!-- Quiz Intro Banner -->
+        <div class="bg-white rounded-2xl p-6 sm:p-8 mb-8 border border-[#e5dfd3] card-shadow">
+            <div class="flex items-center space-x-2 text-xs font-semibold text-blue-900 tracking-wider uppercase mb-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356.257l4 4.5a1 1 0 001.388 0l4-4.5a1 1 0 00.356-.257l2.644-1.131a1 1 0 000-1.84l-7-3zM3.309 8.842L2 9.402l7 3 7-3-1.309-.56L10 13.076 3.309 8.842z"/></svg>
+                <span>Concurso Público • Didática & Ensino de Informática</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 font-serif">Caderno de Questões - Banca FAURGS</h2>
+            <p class="reading-text mb-4 text-sm sm:text-base">
+                Responda às 10 questões completas abaixo. O layout foi desenvolvido com um esquema de tons pastel e fontes calibradas para garantir **máximo conforto visual e leitura sem fadiga**.
+            </p>
+            <div class="flex flex-wrap gap-4 text-xs font-medium text-gray-600 bg-[#f9f6f0] p-3.5 rounded-xl border border-[#ece4d6]">
+                <div class="flex items-center space-x-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-700"></span>
+                    <span>10 Questões Inéditas</span>
+                </div>
+                <div class="flex items-center space-x-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span>
+                    <span>Resolução Pedagógica Completa</span>
+                </div>
+                <div class="flex items-center space-x-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                    <span>Feedback Instantâneo ao Concluir</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Summary Section (Hidden initially) -->
+        <div id="results-banner" class="hidden bg-white rounded-2xl p-6 sm:p-8 mb-8 border-2 border-blue-900 card-shadow">
+            <div class="text-center">
+                <span class="text-xs font-bold text-blue-900 uppercase tracking-widest block mb-1">Resultado Final</span>
+                <h3 class="text-2xl sm:text-4xl font-extrabold text-gray-900 mb-2" id="score-title">Sua Pontuação</h3>
+                <div class="text-4xl sm:text-5xl font-black text-blue-900 my-3" id="score-number">0 / 10</div>
+                <p class="text-sm sm:text-base text-gray-700 max-w-xl mx-auto mb-6" id="score-feedback">
+                    Confira abaixo a resolução comentada e a fundamentação pedagógica detalhada para cada uma das questões.
+                </p>
+
+                <!-- Filter Controls -->
+                <div class="flex flex-wrap justify-center gap-2 mb-2">
+                    <button onclick="filterQuestions('all')" id="btn-filter-all" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-blue-900 text-white transition-colors">
+                        Todas as Questões
+                    </button>
+                    <button onclick="filterQuestions('correct')" id="btn-filter-correct" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
+                        Somente Acertos
+                    </button>
+                    <button onclick="filterQuestions('wrong')" id="btn-filter-wrong" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
+                        Somente Erros
+                    </button>
+                    <button onclick="resetQuiz()" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-amber-100 text-amber-800 hover:bg-amber-200 transition-colors border border-amber-300">
+                        Refazer Simulado
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions Container -->
+        <form id="quiz-form" onsubmit="event.preventDefault(); submitQuiz();">
+            <div id="questions-list" class="space-y-8">
+                <!-- Dynamically Rendered Questions -->
+            </div>
+
+            <!-- Bottom Action Bar -->
+            <div class="mt-10 mb-16 text-center">
+                <button type="button" id="btn-submit-bottom" onclick="submitQuiz()" class="bg-blue-900 hover:bg-blue-800 text-white text-base sm:text-lg font-bold px-8 py-3.5 rounded-xl shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                    Finalizar Quiz e Ver Resoluções
+                </button>
+            </div>
+        </form>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-[#e5dfd3] bg-[#f0ebd9] py-8 text-center text-xs text-gray-600">
+        <div class="max-w-4xl mx-auto px-4">
+            <p class="font-medium text-gray-800 mb-1">Simulado de Questões de Concurso Público — Estilo FAURGS</p>
+            <p>Didática, Avaliação Educacional e Práxis Transformadora no Ensino de Informática</p>
+        </div>
+    </footer>
+
+    <script>
+        const questionsData = [
+            {
+                id: 1,
+                title: "Questão 01",
+                statement: "No contexto do ensino de Computação e Informática, a transição do paradigma burocrático para a práxis transformadora exige uma reconfiguração profunda da concepção do processo avaliativo. No âmbito da Didática e da Avaliação Educacional, a avaliação da aprendizagem deve ser compreendida como um processo ______, voltado ao acompanhamento do desenvolvimento do estudante e à garantia do direito à aprendizagem, e não apenas como um mecanismo ______ de verificação de resultados acumulados ao final de uma etapa de ensino.",
+                questionPrompt: "Assinale a alternativa que preenche, CORRETA e respectivamente, as lacunas do texto acima.",
+                options: [
+                    { key: "A", text: "classificatório — diagnóstico" },
+                    { key: "B", text: "contínuo — classificatório" },
+                    { key: "C", text: "somativo — regulador" },
+                    { key: "D", text: "pontual — formativo" },
+                    { key: "E", text: "mecânico — emancipatório" }
+                ],
+                correctKey: "B",
+                resolution: {
+                    correctAlternative: "B (contínuo — classificatório)",
+                    fundamentation: "A discussão contemporânea sobre a Didática e a Avaliação Educacional preconiza a transição de um paradigma focado no controle burocrático para uma práxis comprometida com a emancipação e a garantia do direito à aprendizagem de todos os alunos. A avaliação deve ser estruturada como um processo **contínuo**, formativo e acompanhador. Ela se opõe ao modelo tradicional meramente **classificatório**, cujo único objetivo é atribuir notas, ranquear e rotular o estudante como \"aprovado\" ou \"reprovado\" no encerramento do período letivo.",
+                    otherOptions: "A opção A inverte a ordem ao colocar o caráter classificatório na primeira lacuna. A opção C insere a avaliação somativa como ideal de acompanhamento, o que contraria o texto. As opções D e E empregam os termos \"pontual\" e \"mecânico\" como qualificadores do processo desejável, quando na verdade esses adjetivos caracterizam a postura burocrática a ser superada."
+                }
+            },
+            {
+                id: 2,
+                title: "Questão 02",
+                statement: "Em conformidade com as contribuições da pedagogia crítica de Celso Vasconcellos aplicadas ao ensino de linguagens de programação e estruturas de dados, a ação avaliativa emancipatória deve superar a relação autoritária e vertical historicamente presente na relação pedagógica.",
+                questionPrompt: "Assinale a alternativa que está em DESACORDO com os princípios da avaliação dialógica e dialética.",
+                options: [
+                    { key: "A", text: "A prática dialógica estimula os estudantes a verbalizarem e justificarem suas hipóteses de resolução de problemas complexos durante as atividades práticas." },
+                    { key: "B", text: "O erro e a dúvida são concebidos como momentos de contradição pedagógica necessária, exigindo a mediação do docente para alcançar uma síntese cognitiva superior." },
+                    { key: "C", text: "A avaliação emancipatória busca substituir a mera adivinhação da solução esperada pelo professor pelo incentivo à reflexão sobre o próprio processo de raciocínio do aluno." },
+                    { key: "D", text: "A abordagem dialógica centraliza a avaliação na verificação estrita da norma culta e da memorização de comandos de sintaxe de forma descontextualizada." },
+                    { key: "E", text: "A escuta pedagógica e o estabelecimento de uma relação de parceria entre professor e estudante constituem requisitos para a construção da autonomia do educando." }
+                ],
+                correctKey: "D",
+                resolution: {
+                    correctAlternative: "D",
+                    fundamentation: "A questão exige a identificação da alternativa que está em **DESACORDO** com a avaliação dialógica e dialética defendida por Celso Vasconcellos no ensino de tecnologia. A opção D afirma que a abordagem dialógica foca na verificação estrita da norma culta da linguagem e na memorização de comandos de sintaxe. Essa descrição corresponde ao \"decorismo sintático\" e à concepção tradicional-autoritária de ensino, constituindo a antítese do diálogo e da reflexão pedagógica.",
+                    otherOptions: "As alternativas A, B, C e E apresentam fundamentos autênticos da avaliação dialógica e emancipatória. Elas destacam a importância de verbalizar hipóteses, considerar o erro como momento de contradição gerador de conhecimento, incentivar a metacognição sobre a lógica construída em vez de induzir a adivinhação do gabarito, e exercer a escuta pedagógica em prol da autonomia do educando."
+                }
+            },
+            {
+                id: 3,
+                title: "Questão 03",
+                statement: `A superação do "decorismo sintático" em prol do desenvolvimento do Pensamento Computacional envolve a mobilização de quatro pilares cognitivos fundamentais na construção de soluções algorítmicas. Considere as duas colunas abaixo:
+
+<div class="my-4 p-4 bg-[#f2ebd9] rounded-xl text-xs sm:text-sm border border-[#decfa8] text-gray-800 space-y-3 font-sans">
+    <div>
+        <p class="font-bold text-gray-900 border-b border-gray-300 pb-1 mb-1">Coluna 1 — Pilares do Pensamento Computacional</p>
+        <p>1. Decomposição</p>
+        <p>2. Reconhecimento de Padrões</p>
+        <p>3. Abstração</p>
+        <p>4. Algoritmo</p>
+    </div>
+    <div>
+        <p class="font-bold text-gray-900 border-b border-gray-300 pb-1 mb-1">Coluna 2 — Definições e Aplicações Pedagógicas</p>
+        <p>( &nbsp; ) Identificação de similaridades, repetições ou características comuns em problemas anteriores para direcionar a construção de soluções.</p>
+        <p>( &nbsp; ) Fatoração de um problema complexo e amplo em subproblemas menores, mais simples e facilmente gerenciáveis.</p>
+        <p>( &nbsp; ) Filtragem e isolamento dos detalhes superficiais e irrelevantes, focando unicamente na lógica de fundo e nos conceitos essenciais da estrutura do problema.</p>
+        <p>( &nbsp; ) Construção de uma sequência ordenada, finita e não ambígua de instruções passo a passo para a resolução de um problema.</p>
+    </div>
+</div>`,
+                questionPrompt: "A sequência correta de preenchimento dos parênteses da segunda coluna, de cima para baixo, é:",
+                options: [
+                    { key: "A", text: "2 — 1 — 3 — 4" },
+                    { key: "B", text: "1 — 2 — 4 — 3" },
+                    { key: "C", text: "3 — 4 — 1 — 2" },
+                    { key: "D", text: "2 — 3 — 1 — 4" },
+                    { key: "E", text: "4 — 1 — 2 — 3" }
+                ],
+                correctKey: "A",
+                resolution: {
+                    correctAlternative: "A (2 — 1 — 3 — 4)",
+                    fundamentation: "A associação correta entre as colunas exige o domínio dos quatro pilares conceituais do Pensamento Computacional e sua aplicação na avaliação educacional:<br>• **(2) Reconhecimento de Padrões**: Refere-se à capacidade de observar similaridades, repetições ou tendências em dados e problemas prévios, permitindo reaproveitar estratégias lógicas já consolidadas.<br>• **(1) Decomposição**: Consiste em dividir um problema denso e complexo em partes menores e articuladas, tornando sua análise e resolução mais acessíveis.<br>• **(3) Abstração**: Diz respeito à capacidade de filtrar detalhes periféricos ou específicos de uma tecnologia/sintaxe, concentrando a atenção nos aspectos essenciais do problema.<br>• **(4) Algoritmo**: Corresponde ao design da solução por meio do encadeamento lógico de instruções claras e ordenadas.",
+                    otherOptions: "A ordem do preenchimento de cima para baixo é exatamente **2 — 1 — 3 — 4**."
+                }
+            },
+            {
+                id: 4,
+                title: "Questão 04",
+                statement: "A professora Ana, ao ministrar a unidade curricular de Algoritmos, aplicou uma verificação sobre Estruturas de Repetição (while e for) e constatou que 60% da turma apresentou desempenho insuficiente, errando principalmente a etapa de atualização das variáveis de controle. Em vez de apenas registrar as notas no sistema acadêmico e avançar para o próximo tópico programático (Matrizes), a docente reestruturou o planejamento da semana, substituindo as aulas expositivas por oficinas práticas de simulação e controle de fluxo em pequenos grupos.",
+                questionPrompt: "A atitude da professora Ana exemplifica fundamentalmente:",
+                options: [
+                    { key: "A", text: "A função somativa da avaliação, pautada no cumprimento rígido do cronograma e no ordenamento dos estudantes em rankings." },
+                    { key: "B", text: "A função reguladora da avaliação formativa, na qual a coleta de dados sobre a aprendizagem serve de insumo para a reorientação da prática docente." },
+                    { key: "C", text: "O paradigma burocrático-tradicional, cujo objetivo central é a classificação dos estudantes mediante cumprimento do calendário." },
+                    { key: "D", text: "O adestramento sintático, focado na memorização mecânica de comandos de repetição sem contextualização." },
+                    { key: "E", text: "A heteronomia pedagógica, em que a nota é empregada como instrumento de coerção e controle de disciplina em sala de aula." }
+                ],
+                correctKey: "B",
+                resolution: {
+                    correctAlternative: "B",
+                    fundamentation: "A decisão da professora Ana de analisar os dados do desempenho da turma, identificar a dificuldade específica na atualização de variáveis em laços de repetição e replanejar sua atuação com estratégias práticas em grupo evidencia a **função reguladora da avaliação formativa**. Sob a ótica da práxis transformadora, a avaliação fornece dados constantes que servem de mecanismo de autorregulação e reorientação do trabalho docente, garantindo que o ensino se adapte às necessidades reais dos estudantes antes do término da unidade.",
+                    otherOptions: "As opções A, C, D e E descrevem os comportamentos associados à conduta de uma postura tradicional/burocrática, que apenas lança as notas e ignora a defasagem da maioria dos alunos, avançando rigidamente o conteúdo do cronograma."
+                }
+            },
+            {
+                id: 5,
+                title: "Questão 05",
+                statement: `No que se refere aos processos de autoavaliação, metacognição e construção da autonomia do estudante no ensino de tecnologia, considere as seguintes afirmações:
+
+<div class="my-3 p-4 bg-[#f9f6f0] rounded-xl border border-[#ece4d6] text-xs sm:text-sm text-gray-800 space-y-2 font-sans">
+    <p><strong>I.</strong> A metacognição consiste na capacidade do estudante de monitorar, avaliar e autorregular seus próprios processos cognitivos, desenvolvendo a habilidade de "pensar sobre o seu próprio pensamento".</p>
+    <p><strong>II.</strong> A autoavaliação emancipatória estimula a superação da heteronomia, tornando o estudante menos dependente da validação externa e da atribuição de notas pelo docente.</p>
+    <p><strong>III.</strong> A utilização de diários de bordo e relatórios reflexivos durante o desenvolvimento de software prejudica a aprendizagem significativa, pois desvia o tempo do estudante da prática de programação.</p>
+    <p><strong>IV.</strong> A depuração do próprio raciocínio lógico é um processo pedagógico tão decisivo para a formação intelectual do estudante quanto a depuração (debugging) de erros de compilação do código.</p>
+</div>`,
+                questionPrompt: "Quais estão corretas?",
+                options: [
+                    { key: "A", text: "Apenas I e III." },
+                    { key: "B", text: "Apenas II e IV." },
+                    { key: "C", text: "Apenas I, II e IV." },
+                    { key: "D", text: "Apenas II, III e IV." },
+                    { key: "E", text: "I, II, III e IV." }
+                ],
+                correctKey: "C",
+                resolution: {
+                    correctAlternative: "C (Apenas I, II e IV)",
+                    fundamentation: "• **A afirmativa I está correta** ao conceituar a metacognição como a tomada de consciência e o controle sobre as próprias estratégias de aprendizagem e tomada de decisão.<br>• **A afirmativa II está correta** pois a autoavaliação emancipatória liberta o educando da necessidade contínua de aprovação externa, promovendo a responsabilidade e a responsividade intelectual.<br>• **A afirmativa IV está correta** ao enfatizar que \"depurar o próprio pensamento\" (compreender por que um raciocínio lógico falhou) possui elevado valor cognitivo para a formação acadêmica.",
+                    otherOptions: "**Justificativa do Erro da Afirmativa III**: O uso de ferramentas como diários de bordo, portfólios e relatórios de reflexão fortalece a aprendizagem significativa. Longe de desperdiçar tempo, essas práticas estimulam a abstração e a reflexão sobre o processo de programação, impedindo que o aluno atue como mero digitador mecânico de código."
+                }
+            },
+            {
+                id: 6,
+                title: "Questão 06",
+                statement: 'O "decorismo sintático" caracteriza-se pelo foco excessivo na memorização mecânica de comandos, regras gramaticais e símbolos de linguagens de programação, reduzindo a Educação em Computação a uma atividade mecânica e de baixa exigência cognitiva.',
+                questionPrompt: "Assinale a alternativa que indica uma prática avaliativa alinhada à superação do decorismo sintático e à consolidação da aprendizagem significativa.",
+                options: [
+                    { key: "A", text: "Exigir, em prova teórica sem consulta, a escrita com exatidão da sintaxe e de todos os parâmetros da função qsort em linguagem C, penalizando severamente a omissão de uma vírgula." },
+                    { key: "B", text: "Cobrar a memorização de cor das tabelas de precedência de operadores sem requerer a resolução de problemas reais contextualizados." },
+                    { key: "C", text: "Propor uma situação-problema de ordenação alfabética em que o estudante deve projetar o fluxo lógico do algoritmo e explicar a sequência de comparações, independentemente do rigor sintático de uma linguagem específica." },
+                    { key: "D", text: "Avaliar o aprendizado por meio de testes de múltipla escolha baseados exclusivamente na identificação de erros de compilação em trechos isolados de código." },
+                    { key: "E", text: "Adotar critérios avaliativos centrados na memorização pontual de conceitos, impedindo o acesso à documentação técnica durante a resolução de problemas." }
+                ],
+                correctKey: "C",
+                resolution: {
+                    correctAlternative: "C",
+                    fundamentation: "O \"decorismo sintático\" reduz o ensino e a avaliação em informática a detalhes superficiais e gramaticais de uma linguagem de programação (como lembrar de cor comandos, parâmetros e pontuações). A superação dessa abordagem ocorre quando a avaliação passa a focar na capacidade de análise, síntese e raciocínio lógico do estudante. Ao solicitar que o aluno estruture o algoritmo e explique a lógica do fluxo de comparação em um problema real, o professor avalia as capacidades cognitivas essenciais em vez do conhecimento memorístico.",
+                    otherOptions: "As alternativas A, B, D e E exemplificam práticas decorísticas e tradicionais de avaliação, em que o estudante é penalizado por detalhes de memorização técnica sem ter sua capacidade de raciocínio adequadamente valorizada."
+                }
+            },
+            {
+                id: 7,
+                title: "Questão 07",
+                statement: `Na perspectiva dialética da avaliação educacional formulada por Celso Vasconcellos, o erro cometido pelo educando no processo de aprendizagem não deve ser visto como um fracasso definitivo ou ponto final do trabalho pedagógico.
+
+<div class="my-3 p-4 bg-[#f0ebd9] rounded-xl border border-[#decfa8] text-gray-900 font-serif italic text-sm sm:text-base leading-relaxed">
+    "O erro deve ser compreendido como uma <span class="underline font-semibold decoration-blue-800">___________</span> que expressa a hipótese atual do estudante, servindo de estopim para a <span class="underline font-semibold decoration-blue-800">___________</span> pedagógica do docente com vistas a alcançar uma <span class="underline font-semibold decoration-blue-800">___________</span> superior do conhecimento."
+</div>`,
+                questionPrompt: "Assinale a alternativa que preenche, CORRETA e respectivamente, as lacunas da frase acima.",
+                options: [
+                    { key: "A", text: "falha punível — classificação — memorização" },
+                    { key: "B", text: "contradição — mediação — síntese" },
+                    { key: "C", text: "deficiência — verificação — rotulação" },
+                    { key: "D", text: "certeza — transmissão — padronização" },
+                    { key: "E", text: "limitação — cobrança — nota" }
+                ],
+                correctKey: "B",
+                resolution: {
+                    correctAlternative: "B (contradição — mediação — síntese)",
+                    fundamentation: "A concepção dialética da avaliação educacional formulada por Celso Vasconcellos fundamenta-se na superação do viés punitivo do erro. O erro cometido pelo estudante não reflete ausência de inteligência, mas sim uma **contradição** entre a hipótese formulada pelo aluno e a estrutura real do objeto de conhecimento. O papel do professor não é classificar ou punir, mas realizar a **mediação** pedagógica (provocando desequilíbrios cognitivos) para que o estudante reorganize seu pensamento e alcance uma **síntese** superior de conhecimento.",
+                    otherOptions: "As opções A, C, D e E trazem palavras que pertencem à taxonomia burocrático-punitiva (falha, classificação, deficiência, rotulação, cobrança, nota), inadequadas ao preenchimento da concepção dialética preconizada na literatura de referência."
+                }
+            },
+            {
+                id: 8,
+                title: "Questão 08",
+                statement: `Associe os dois grandes paradigmas da avaliação educacional listados na Coluna 1 às características e intenções pedagógicas apresentadas na Coluna 2:
+
+<div class="my-4 p-4 bg-[#f2ebd9] rounded-xl text-xs sm:text-sm border border-[#decfa8] text-gray-800 space-y-3 font-sans">
+    <div>
+        <p class="font-bold text-gray-900 border-b border-gray-300 pb-1 mb-1">Coluna 1 — Paradigmas Avaliativos</p>
+        <p>1. Paradigma Burocrático / Tradicional</p>
+        <p>2. Práxis Transformadora</p>
+    </div>
+    <div>
+        <p class="font-bold text-gray-900 border-b border-gray-300 pb-1 mb-1">Coluna 2 — Características e Objetivos Pedagógicos</p>
+        <p>( &nbsp; ) Foco centrado na burocracia escolar, no cumprimento do calendário acadêmico e no lançamento estático de notas.</p>
+        <p>( &nbsp; ) Finalidade voltada à seleção, hierarquização, rotulação e ordenação dos estudantes.</p>
+        <p>( &nbsp; ) Ações caracterizadas pelo acompanhamento contínuo, mediação pedagógico-reflexiva e fornecimento de feedback qualitativo.</p>
+        <p>( &nbsp; ) Objetivo focado na reconfiguração da ação docente para garantir o direito pleno e efetivo à aprendizagem de todos os alunos.</p>
+    </div>
+</div>`,
+                questionPrompt: "A sequência correta de preenchimento dos parênteses da segunda coluna, de cima para baixo, é:",
+                options: [
+                    { key: "A", text: "1 — 1 — 2 — 2" },
+                    { key: "B", text: "2 — 1 — 1 — 2" },
+                    { key: "C", text: "1 — 2 — 2 — 1" },
+                    { key: "D", text: "2 — 2 — 1 — 1" },
+                    { key: "E", text: "1 — 2 — 1 — 2" }
+                ],
+                correctKey: "A",
+                resolution: {
+                    correctAlternative: "A (1 — 1 — 2 — 2)",
+                    fundamentation: "A correlação entre os paradigmas avaliativos e suas características operacionais e teleológicas pode ser resumida na seguinte comparação:<br><br>• **1. Burocrático / Tradicional**: Lançamento estático de notas, cumprimento de papéis e prazos. Finalidade de seleção, ordenação em rankings, rotulação e classificação.<br>• **2. Práxis Transformadora**: Acompanhamento contínuo, orientação, mediação e feedback qualitativo. Reconfiguração da ação do professor e garantia do direito individual à aprendizagem.",
+                    otherOptions: "Dessa forma, o preenchimento exato da segunda coluna é **1** (burocracia), **1** (seleção e rotulação), **2** (acompanhamento contínuo e mediação) e **2** (reconfiguração da ação do professor)."
+                }
+            },
+            {
+                id: 9,
+                title: "Questão 09",
+                statement: `Considerando as concepções de Celso Vasconcellos a respeito do Planejamento Educacional e da regulação da aprendizagem, analise as assertivas abaixo e assinale V para as verdadeiras e F para as falsas:
+
+<div class="my-3 p-4 bg-[#f9f6f0] rounded-xl border border-[#ece4d6] text-xs sm:text-sm text-gray-800 space-y-2 font-sans">
+    <p>( &nbsp; ) O plano de ensino deve funcionar como um documento rígido e dogmático, devendo ser cumprido independentemente dos resultados de aprendizagem observados na turma.</p>
+    <p>( &nbsp; ) O planejamento é uma hipótese de trabalho flexível e dinâmica, suscetível de constantes reprogramações a partir dos dados diagnosticados pela avaliação formativa.</p>
+    <p>( &nbsp; ) A avaliação formativa fornece informações simultâneas para o estudante autorregular sua aprendizagem e para o professor reorientar sua didática.</p>
+    <p>( &nbsp; ) A alteração do ritmo das aulas e a reexplicação de conteúdos com novas metodologias evidenciam desorganização do docente e falha de planejamento.</p>
+</div>`,
+                questionPrompt: "A sequência correta de preenchimento dos parênteses, de cima para baixo, é:",
+                options: [
+                    { key: "A", text: "V — F — V — F" },
+                    { key: "B", text: "F — V — V — F" },
+                    { key: "C", text: "F — V — F — V" },
+                    { key: "D", text: "V — V — F — F" },
+                    { key: "E", text: "F — F — V — V" }
+                ],
+                correctKey: "B",
+                resolution: {
+                    correctAlternative: "B (F — V — V — F)",
+                    fundamentation: "• **(F)** O planejamento de ensino não deve ser um dogma estático ou inflexível; concebê-lo dessa forma anula o caráter regulador da avaliação e ignora a realidade cognitiva dos alunos.<br>• **(V)** O planejamento educacional é uma hipótese de trabalho flexível, aberta a constantes reorientações pedagógicas com base nos diagnósticos obtidos ao longo do processo ensino-aprendizagem.<br>• **(V)** A avaliação formativa atua bidirecionalmente: permite ao estudante tomar consciência do seu percurso (autonomia) e ao professor reavaliar suas escolhas didáticas.<br>• **(F)** Reformular o ritmo de ensino ou criar estratégias metodológicas alternativas para sanar dúvidas não é sinal de falha, mas sim de compromisso ético-pedagógico com a garantia do aprendizado de todos.",
+                    otherOptions: "Portanto, a sequência correta é F — V — V — F."
+                }
+            },
+            {
+                id: 10,
+                title: "Questão 10",
+                statement: 'Durante uma atividade prática de Modelagem de Bancos de Dados, um grupo de estudantes apresenta um Diagrama Entidade-Relacionamento (DER) em que a cardinalidade entre "Cliente" e "Pedido" foi established como 1:1. Em vez de simplesmente apontar o erro ou atribuir nota zero, o professor formula o seguinte questionamento: "O que acontecerá na nossa aplicação se um mesmo cliente realizar mais de uma compra no mesmo mês?"',
+                questionPrompt: "A postura do professor caracteriza-se por:",
+                options: [
+                    { key: "A", text: "Adotar uma atitude monológica e punitiva, constrangendo os estudantes diante da turma em virtude da falha cometida." },
+                    { key: "B", text: "Privilegiar a aprendizagem mecânica, exigindo que os estudantes memorizem regras sem compreender a lógica do domínio." },
+                    { key: "C", text: "Exercer a mediação pedagógica por meio de uma intervenção dialógica, incentivando a reflexão, a investigação de cenários e a autorregulação do conhecimento." },
+                    { key: "D", text: "Substituir o raciocínio dos alunos ao fornecer prontamente o gabarito (1:N), impedindo a construção autônoma da solução." },
+                    { key: "E", text: "Omitir-se da responsabilidade de ensino ao não corrigir imediatamente a erro conceitual do diagrama." }
+                ],
+                correctKey: "C",
+                resolution: {
+                    correctAlternative: "C",
+                    fundamentation: "No ensino de Computação orientado pela práxis transformadora, a intervenção do professor diante de uma falha conceitual (como estabelecer a cardinalidade 1:1 onde caberia 1:N) deve ser dialógica e problematizadora. Ao devolver uma pergunta que confronta os estudantes com um cenário do mundo real (\"O que acontece se o cliente fizer duas compras no mês?\"), o docente não entrega a resposta pronta, mas atua como mediador, fazendo com que os próprios alunos identifiquem a contradição, reflitam sobre as consequências e reorganizem o Diagrama Entidade-Relacionamento com autonomia.",
+                    otherOptions: "As opções A, B, D e E retratam equívocos docentes frequentes: constrangimento autoritário (A), estímulo ao memorismo sem compreensão (B), transmissão passiva de soluções sem reflexão pelo educando (D) e omissão do papel docente de mediação (E)."
+                }
+            }
+        ];
+
+        /* User choices tracking state */
+        const userAnswers = {};
+        let isSubmitted = false;
+
+        function renderQuestions() {
+            const container = document.getElementById('questions-list');
+            container.innerHTML = '';
+
+            questionsData.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.id = `question-card-${q.id}`;
+                card.className = "bg-white rounded-2xl p-6 sm:p-8 border border-[#e5dfd3] card-shadow transition-all duration-300";
+
+                let html = `
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-blue-900 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+                            ${q.title}
+                        </span>
+                        <span id="badge-status-${q.id}" class="text-xs font-medium text-gray-500 italic">
+                            Pendente
+                        </span>
+                    </div>
+
+                    <div class="reading-text mb-4 text-gray-900 font-serif">
+                        ${q.statement}
+                    </div>
+
+                    <p class="font-sans font-semibold text-gray-900 text-sm sm:text-base mb-4">
+                        ${q.questionPrompt}
+                    </p>
+
+                    <div class="space-y-3 font-sans my-4">
+                `;
+
+                q.options.forEach(opt => {
+                    html += `
+                        <label id="option-box-${q.id}-${opt.key}" class="option-label flex items-start space-x-3 p-3.5 rounded-xl border border-[#ece4d6] bg-[#fcfaf7]">
+                            <input type="radio" 
+                                   name="question-${q.id}" 
+                                   value="${opt.key}" 
+                                   class="custom-radio mt-0.5" 
+                                   onchange="selectOption(${q.id}, '${opt.key}')"
+                                   ${userAnswers[q.id] === opt.key ? 'checked' : ''}
+                                   ${isSubmitted ? 'disabled' : ''}>
+                            <div class="text-xs sm:text-sm text-gray-800 leading-relaxed">
+                                <strong class="font-bold text-gray-900 mr-1.5">(${opt.key})</strong>
+                                <span>${opt.text}</span>
+                            </div>
+                        </label>
+                    `;
+                });
+
+                html += `</div>`;
+
+                /* Resolution Box Placeholder (Shown when submitted) */
+                html += `
+                    <div id="resolution-box-${q.id}" class="hidden mt-6 pt-6 border-t border-gray-200 space-y-4 font-sans text-xs sm:text-sm">
+                        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-start space-x-3">
+                            <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">✓</div>
+                            <div>
+                                <span class="font-bold text-emerald-900 text-sm block">Gabarito Oficial: Alternativa ${q.resolution.correctAlternative}</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-[#f9f6f0] border border-[#ece4d6] p-4 sm:p-5 rounded-xl space-y-3">
+                            <h4 class="font-bold text-gray-900 text-sm flex items-center space-x-1.5 border-b border-gray-200 pb-2">
+                                <span>📚 Resolução e Fundamentação Pedagógica</span>
+                            </h4>
+                            <div class="text-gray-800 leading-relaxed space-y-2">
+                                <p>${q.resolution.fundamentation}</p>
+                            </div>
+                            <div class="text-gray-600 italic text-xs pt-2 border-t border-gray-200/60">
+                                <strong class="not-italic text-gray-700">Análise Complementar:</strong> ${q.resolution.otherOptions}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                card.innerHTML = html;
+                container.appendChild(card);
+            });
+
+            updateProgress();
+        }
+
+        function selectOption(questionId, key) {
+            if (isSubmitted) return;
+            userAnswers[questionId] = key;
+            
+            // Update badge status
+            const badge = document.getElementById(`badge-status-${questionId}`);
+            if (badge) {
+                badge.textContent = "Respondida";
+                badge.className = "text-xs font-semibold text-blue-800 bg-blue-50 px-2.5 py-0.5 rounded-md border border-blue-200";
+            }
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const answeredCount = Object.keys(userAnswers).length;
+            const total = questionsData.length;
+            const percentage = Math.round((answeredCount / total) * 100);
+
+            document.getElementById('progress-text').textContent = `${answeredCount} / ${total} respondidas`;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+        }
+
+        function submitQuiz() {
+            if (isSubmitted) {
+                // Scroll to results if already submitted
+                document.getElementById('results-banner').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            const answeredCount = Object.keys(userAnswers).length;
+            if (answeredCount < questionsData.length) {
+                const confirmSubmit = window.confirm(`Você respondeu ${answeredCount} de ${questionsData.length} questões. Deseja finalizar assim mesmo?`);
+                if (!confirmSubmit) return;
+            }
+
+            isSubmitted = true;
+
+            // Calculate Score
+            let correctCount = 0;
+            questionsData.forEach(q => {
+                const userChoice = userAnswers[q.id];
+                const isCorrect = userChoice === q.correctKey;
+                if (isCorrect) correctCount++;
+
+                // Show resolution box
+                const resBox = document.getElementById(`resolution-box-${q.id}`);
+                if (resBox) resBox.classList.remove('hidden');
+
+                // Update badge
+                const badge = document.getElementById(`badge-status-${q.id}`);
+                if (badge) {
+                    if (isCorrect) {
+                        badge.textContent = "Correta ✓";
+                        badge.className = "text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300";
+                    } else {
+                        badge.textContent = userChoice ? `Incorreta (Sua opção: ${userChoice})` : "Não Respondida";
+                        badge.className = "text-xs font-bold text-rose-800 bg-rose-100 px-3 py-1 rounded-full border border-rose-300";
+                    }
+                }
+
+                // Highlight Option Labels
+                q.options.forEach(opt => {
+                    const optBox = document.getElementById(`option-box-${q.id}-${opt.key}`);
+                    if (!optBox) return;
+
+                    if (opt.key === q.correctKey) {
+                        optBox.className = "option-label flex items-start space-x-3 p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50/80 text-emerald-950 font-medium";
+                    } else if (userChoice === opt.key && !isCorrect) {
+                        optBox.className = "option-label flex items-start space-x-3 p-3.5 rounded-xl border-2 border-rose-400 bg-rose-50 text-rose-950";
+                    } else {
+                        optBox.className = "option-label flex items-start space-x-3 p-3.5 rounded-xl border border-gray-200 bg-gray-50/50 opacity-70";
+                    }
+                });
+            });
+
+            // Update Score Banner
+            const scoreNum = document.getElementById('score-number');
+            const scoreTitle = document.getElementById('score-title');
+            const scoreFeedback = document.getElementById('score-feedback');
+
+            scoreNum.textContent = `${correctCount} / ${questionsData.length}`;
+
+            if (correctCount >= 8) {
+                scoreTitle.textContent = "Excelente Desempenho! 🎉";
+                scoreFeedback.textContent = "Você demonstrou alto domínio sobre a Didática, Avaliação Educacional e Práxis Transformadora conforme cobrado pela banca FAURGS.";
+            } else if (correctCount >= 5) {
+                scoreTitle.textContent = "Bom Desempenho! 👍";
+                scoreFeedback.textContent = "Você tem boa assimilação dos conceitos. Revise as resoluções detalhadas abaixo para consolidar os pontos que perdeu.";
+            } else {
+                scoreTitle.textContent = "Requer Revisão Atenta 📖";
+                scoreFeedback.textContent = "Recomendamos a leitura atenta das fundamentações pedagógicas abaixo para fixar os conceitos cruciais do concurso.";
+            }
+
+            const resultsBanner = document.getElementById('results-banner');
+            resultsBanner.classList.remove('hidden');
+            resultsBanner.scrollIntoView({ behavior: 'smooth' });
+
+            // Disable submit buttons, change text
+            document.getElementById('btn-submit-top').textContent = "Ver Resultado";
+            document.getElementById('btn-submit-bottom').textContent = "Ver Resultado do Quiz";
+        }
+
+        function filterQuestions(filter) {
+            questionsData.forEach(q => {
+                const card = document.getElementById(`question-card-${q.id}`);
+                const isCorrect = userAnswers[q.id] === q.correctKey;
+
+                if (filter === 'all') {
+                    card.classList.remove('hidden');
+                } else if (filter === 'correct') {
+                    if (isCorrect) card.classList.remove('hidden');
+                    else card.classList.add('hidden');
+                } else if (filter === 'wrong') {
+                    if (!isCorrect) card.classList.remove('hidden');
+                    else card.classList.add('hidden');
+                }
+            });
+
+            // Update active filter button styling
+            const btnAll = document.getElementById('btn-filter-all');
+            const btnCorrect = document.getElementById('btn-filter-correct');
+            const btnWrong = document.getElementById('btn-filter-wrong');
+
+            btnAll.className = "px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors " + (filter === 'all' ? "bg-blue-900 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200");
+            btnCorrect.className = "px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors " + (filter === 'correct' ? "bg-emerald-700 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200");
+            btnWrong.className = "px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors " + (filter === 'wrong' ? "bg-rose-700 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200");
+        }
+
+        function resetQuiz() {
+            for (let member in userAnswers) delete userAnswers[member];
+            isSubmitted = false;
+
+            document.getElementById('results-banner').classList.add('hidden');
+            document.getElementById('btn-submit-top').textContent = "Finalizar Quiz";
+            document.getElementById('btn-submit-bottom').textContent = "Finalizar Quiz e Ver Resoluções";
+
+            renderQuestions();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize Quiz on load
+        window.onload = function() {
+            renderQuestions();
+        };
+    </script>
+</body>
+</html>
