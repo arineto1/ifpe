@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado HTML5 - Estilo Banca FAURGS</title>
+    
+    <style>
+        :root {
+            --bg-color: #fbf9f5;
+            --card-bg: #ffffff;
+            --text-main: #23272f;
+            --text-muted: #57606a;
+            --border-color: #e1e4e8;
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --success-color: #16a34a;
+            --success-bg: #f0fdf4;
+            --success-border: #bbf7d0;
+            --error-color: #dc2626;
+            --error-bg: #fef2f2;
+            --error-border: #fecaca;
+            --code-bg: #f3f4f6;
+            --code-text: #1f2937;
+            --accent-gold: #d97706;
+            --font-serif: Georgia, Cambria, "Times New Roman", Times, serif;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            line-height: 1.7;
+            padding: 20px 15px 60px 15px;
+            font-size: 17px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        header h1 {
+            font-family: var(--font-sans);
+            font-size: 26px;
+            color: #111827;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .sticky-progress {
+            position: sticky;
+            top: 15px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .progress-bar-bg {
+            flex-grow: 1;
+            height: 10px;
+            background-color: #e5e7eb;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 28px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .question-card:hover {
+            border-color: #cbd5e1;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .question-number {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary-color);
+            background-color: var(--primary-light);
+            padding: 3px 10px;
+            border-radius: 6px;
+        }
+
+        .question-source {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .question-text {
+            font-size: 17px;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            white-space: pre-line;
+            text-align: justify;
+        }
+
+        .code-block {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            font-family: "Courier New", Courier, monospace;
+            font-size: 14px;
+            padding: 14px 18px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            margin: 15px 0 20px 0;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.5;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: flex-start;
+            padding: 14px 18px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: #fafafa;
+            user-select: none;
+        }
+
+        .option-label:hover {
+            background-color: #f3f4f6;
+            border-color: #94a3b8;
+        }
+
+        .option-input {
+            margin-top: 4px;
+            margin-right: 12px;
+            accent-color: var(--primary-color);
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .option-content {
+            font-size: 16px;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        /* Selected State during quiz */
+        .option-label.selected {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+        }
+
+        .actions-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .btn-submit {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 16px 36px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            transition: all 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-retry {
+            background-color: #4b5563;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.2s ease;
+            display: inline-block;
+        }
+
+        .btn-retry:hover {
+            background-color: #374151;
+        }
+
+        /* Results Summary Box */
+        .results-summary {
+            display: none;
+            background-color: var(--card-bg);
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 35px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+
+        .results-summary.visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .score-title {
+            font-size: 22px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .score-number {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin: 10px 0;
+        }
+
+        .score-feedback {
+            font-size: 16px;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Post-Quiz Option Styles */
+        .option-label.is-correct {
+            border-color: var(--success-color) !important;
+            background-color: var(--success-bg) !important;
+            color: #14532d;
+            font-weight: 600;
+        }
+
+        .option-label.is-incorrect {
+            border-color: var(--error-color) !important;
+            background-color: var(--error-bg) !important;
+            color: #7f1d1d;
+        }
+
+        .resolution-box {
+            display: none;
+            margin-top: 22px;
+            padding: 20px 22px;
+            border-radius: 8px;
+            border-left: 5px solid var(--primary-color);
+            background-color: #f8fafc;
+            font-size: 15.5px;
+            color: #334155;
+            line-height: 1.65;
+        }
+
+        .resolution-box.visible {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .resolution-title {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .status-badge.correct {
+            background-color: var(--success-border);
+            color: #14532d;
+        }
+
+        .status-badge.incorrect {
+            background-color: var(--error-border);
+            color: #7f1d1d;
+        }
+
+        .status-badge.unanswered {
+            background-color: #fde68a;
+            color: #78350f;
+        }
+
+        /* Responsive design adjustments */
+        @media (max-width: 640px) {
+            body {
+                padding: 10px 10px 40px 10px;
+            }
+            .question-card {
+                padding: 18px;
+            }
+            header h1 {
+                font-size: 21px;
+            }
+            .btn-submit {
+                width: 100%;
+                padding: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <span class="badge">Desenvolvimento Web &bull; Informática</span>
+            <h1>Simulado HTML5 - Estilo Banca FAURGS</h1>
+            <p>10 Questões completas de provas e simulados. Responda a todas as questões e confira o gabarito comentado ao final.</p>
+        </header>
+
+        <!-- Progress tracking header -->
+        <div class="sticky-progress">
+            <span class="progress-text" id="progress-text">0 de 10 respondidas</span>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <!-- Results Summary Box (hidden initially) -->
+        <div class="results-summary" id="results-summary">
+            <h2 class="score-title">Resultado do Simulado</h2>
+            <div class="score-number" id="score-display">0/10</div>
+            <p class="score-feedback" id="score-feedback"></p>
+            <button class="btn-retry" onclick="resetQuiz()">Refazer Simulado</button>
+        </div>
+
+        <form id="quiz-form">
+            <div id="questions-container"></div>
+
+            <div class="actions-container" id="actions-container">
+                <button type="button" class="btn-submit" onclick="submitQuiz()">Finalizar Quiz e Ver Resoluções</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const questionsData = [
+            {
+                id: 1,
+                source: "(FAURGS - Simulado / Estilo Banca)",
+                text: "No desenvolvimento de páginas Web estruturadas em HTML, a inserção e a gestão de recursos visuais requerem a utilização de elementos específicos e seus respectivos atributos para garantir a correta renderização e a acessibilidade da aplicação. Em relação à tag <img> e aos seus atributos, considere as assertivas abaixo:\n\nI - A tag <img> é classificada como uma tag do tipo void (autofechável), o que significa que não possui um elemento correspondente de fechamento (</img>) no padrão HTML.\n\nII - O atributo alt tem como função primária indicar o caminho local ou a URL de origem da imagem a ser carregada pelo navegador Web.\n\nIII - O atributo alt é indispensável para a acessibilidade, pois provê uma descrição textual lida por leitores de tela e exibida na interface caso a imagem falhe ao carregar.\n\nQuais estão corretas?",
+                code: null,
+                options: [
+                    { letter: "A", text: "Apenas I." },
+                    { letter: "B", text: "Apenas II." },
+                    { letter: "C", text: "Apenas I e III." },
+                    { letter: "D", text: "Apenas II e III." },
+                    { letter: "E", text: "I, II e III." }
+                ],
+                answer: "C",
+                resolution: "<strong>Gabarito: C</strong><br><br>A análise detalhada das assertivas revela o domínio da estrutura de tags sem fechamento e acessibilidade Web. A assertiva I está correta, pois a tag <code>&lt;img&gt;</code> insere recursos visuais na página e possui sintaxe de tag aberta (void tag / autofechável), não admitindo um par de fechamento <code>&lt;/img&gt;</code> no padrão HTML. A assertiva II está incorreta, pois a função de indicar o caminho local ou a URL da imagem é desempenhada exclusivamente pelo atributo <code>src</code> (source). O atributo <code>alt</code> (alternative text), abordado corretamente na assertiva III, destina-se a fornecer a descrição textual da imagem utilizada por leitores de tela na acessibilidade e exibida em tela em situações nas quais a imagem falha ao carregar. Portanto, apenas as assertivas I e III estão corretas."
+            },
+            {
+                id: 2,
+                source: "(FAURGS - Simulado / Estilo Banca)",
+                text: "As estruturas de listas na linguagem HTML oferecem mecanismos para a organização de itens com ou sem hierarquia sequencial. Assinale as afirmações abaixo com V (verdadeiro) ou F (falso) no que se refere às marcas de listas não ordenadas (<ul>), ordenadas (<ol>) e aninhadas:\n\n( ) A tag pai <ul> gera uma lista ordenada cujos itens individuais são antecedidos automaticamente por numeração sequencial (1., 2., 3.).\n\n( ) Segundo as regras estritas de sintaxe do HTML, todo elemento filho <li> deve estar obrigatoriamente contido dentro de um bloco pai <ul> ou <ol>.\n\n( ) O atributo type da tag <ol> permite alterar a representação gráfica da numeração, aceitando valores para exibição em letras maiúsculas (ex: type=\"A\") ou números romanos (ex: type=\"I\").\n\n( ) O aninhamento de listas é realizado inserindo-se um novo bloco de lista (<ul> ou <ol>) diretamente dentro de um elemento filho <li> pertencente à lista principal.\n\nA sequência correta de preenchimento dos parênteses, de cima para baixo, é:",
+                code: null,
+                options: [
+                    { letter: "A", text: "V – V – F – F." },
+                    { letter: "B", text: "F – V – V – V." },
+                    { letter: "C", text: "F – V – F – V." },
+                    { letter: "D", text: "V – F – V – V." },
+                    { letter: "E", text: "F – F – V – V." }
+                ],
+                answer: "B",
+                resolution: "<strong>Gabarito: B</strong><br><br>A avaliação das afirmativas sobre a estruturação de listas no HTML permite classificar a sequência como F – V – V – V. A primeira afirmativa é falsa, pois a tag pai <code>&lt;ul&gt;</code> (Unordered List) define blocos de listas não ordenadas que exibem marcadores gráficos (bolinhas/bullets) por padrão, enquanto a numeração sequencial automática é produzida pela tag pai <code>&lt;ol&gt;</code> (Ordered List). A segunda afirmativa é verdadeira, visto que a regra de sintaxe estrita do HTML estabelece que a tag filho <code>&lt;li&gt;</code> (List Item) representa cada item individual e deve obrigatoriamente estar contida dentro de uma <code>&lt;ul&gt;</code> ou de uma <code>&lt;ol&gt;</code>. A terceira afirmativa é verdadeira, pois o atributo <code>type</code> na tag <code>&lt;ol&gt;</code> permite alterar o padrão numérico para letras (como <code>type=\"A\"</code>) ou algarismos romanos (como <code>type=\"I\"</code>). A quarta afirmativa é verdadeira, pois a técnica de aninhamento de listas consiste na inserção de um bloco de lista completo no interior de um elemento <code>&lt;li&gt;</code> de outra lista."
+            },
+            {
+                id: 3,
+                source: "(FAURGS - Simulado / Estilo Banca)",
+                text: "A especificação do HTML5 trouxe avanços significativos na manipulação de mídias nativas, permitindo a execução de áudio e vídeo diretamente nos navegadores sem a dependência de plugins ou extensões de terceiros. Em relação aos elementos multimídia no HTML5, assinale a alternativa correta:",
+                code: null,
+                options: [
+                    { letter: "A", text: "A reprodução de arquivos com extensões .mp3 e .mp4 exige a instalação prévia de plugins externos no navegador, uma vez que o HTML5 não possui suporte nativo para tais formatos." },
+                    { letter: "B", text: "A tag <video> é um elemento que necessita de tag de fechamento (</video>), permitindo a inclusão de mensagens de fallback em seu interior para navegadores incompatíveis." },
+                    { letter: "C", text: "O atributo controls, quando incluído nas tags de mídia, oculta os botões nativos de reprodução e força o desenvolvedor a implementar uma interface em JavaScript." },
+                    { letter: "D", text: "A declaração do atributo autoplay assegura a execução automática do áudio em 100% dos casos, sem estar sujeita a restrições impostas pelas políticas de navegação dos browsers modernos." },
+                    { letter: "E", text: "A tag <audio> requer obrigatoriamente a presença do atributo type=\"A\" para estabelecer a ordem de reprodução das faixas sonoras." }
+                ],
+                answer: "B",
+                resolution: "<strong>Gabarito: B</strong><br><br>A integração de mídias no HTML5 trouxe autonomia em relação a plugins legados. A alternativa A é incorreta porque o HTML5 executa arquivos multimídia nativos nos formatos .mp3 e .mp4 sem a necessidade de plugins externos. A alternativa B é a correta, pois a tag <code>&lt;video&gt;</code> necessita do par de fechamento <code>&lt;/video&gt;</code>, permitindo a inserção de textos ou elementos de fallback em seu interior para serem exibidos em navegadores antigos que não suportam a execução nativa de vídeo. A alternativa C é incorreta porque o atributo <code>controls</code> justamente exibe a barra e os botões nativos do próprio navegador (Play, Pause, volume, progresso e slider). A alternativa D é incorreta porque o atributo <code>autoplay</code> sofre restrições de execução por parte dos navegadores modernos para evitar autoplay indesejado de áudio. A alternativa E é incorreta, pois a ordenação de mídias não utiliza o atributo <code>type=\"A\"</code>, o qual é restrito ao controle de numeração de listas <code>&lt;ol&gt;</code>."
+            },
+            {
+                id: 4,
+                source: "(FAURGS - Adaptada / Provada do HCPA e UFCSPA)",
+                text: "Com relação à interface gráfica de um formulário que será usado pela Web, assinale a alternativa correta, considerando a correta forma de uso de cada uma das ferramentas gráficas e as possibilidades de codificação em HTML:",
+                code: null,
+                options: [
+                    { letter: "A", text: "Campos em que só um valor pode ser escolhido e, necessariamente, um deve ser escolhido devem ser do tipo \"checkbox\"." },
+                    { letter: "B", text: "A seleção entre três situações (\"Enviar\", \"Apagar\" ou \"Cancelar\") ao final de um formulário deve ser feita por meio de um menu de seleção onde só uma opção pode ser selecionada." },
+                    { letter: "C", text: "Campos que podem ter um, dois ou mais valores selecionados simultaneamente, ou até mesmo nenhum deles, deve ser do tipo \"radio\"." },
+                    { letter: "D", text: "O uso de menus é recomendado sempre que o número de opções for grande (regra do 7+/-2)." },
+                    { letter: "E", text: "Campos como Nome, Endereço, CEP, Telefone, Usuário, Senha ou Data devem ser do tipo texto e podem mostrar seu conteúdo com número ilimitado de caracteres." }
+                ],
+                answer: "D",
+                resolution: "<strong>Gabarito: D</strong><br><br>A construção de interfaces gráficas em formulários Web exige o emprego adequado de componentes de acordo com o tipo de dado e a quantidade de opções apresentadas. As alternativas A e C invertem os conceitos de seleção: campos em que apenas um valor pode ser escolhido dentre um grupo exclusivo devem ser do tipo \"radio\", enquanto o tipo \"checkbox\" deve ser utilizado quando múltiplos valores (ou nenhum) podem ser selecionados simultaneamente. A alternativa B está incorreta, pois ações de submissão ou cancelamento ao final do formulário (\"Enviar\", \"Apagar\", \"Cancelar\") devem ser acionadas por botões de comando (<code>&lt;input type=\"submit\"&gt;</code>, <code>&lt;button&gt;</code>), e não por menus de seleção. A alternativa D é a correta, pois respalda a boa prática de design de interface (mencionando a regra de capacidade cognitiva do usuário do limite 7 ± 2), recomendando o uso de menus dropdown (<code>&lt;select&gt;</code>) para grandes conjuntos de opções. A alternativa E é incorreta porque campos como CEP, Data, Senha e Telefone possuem formatos definidos e limites de caracteres, não devendo aceitar entradas ilimitadas."
+            },
+            {
+                id: 5,
+                source: "(FAURGS - Adaptada / Prova do HCPA Analista I Webdesigner)",
+                text: "Assinale as afirmações abaixo com V (verdadeiro) ou F (falso) no que se refere ao Web Design Responsivo:\n\n( ) Registra o histórico do usuário através de cookies e adapta o site às suas preferências de conteúdo e de navegação.\n\n( ) Leva em conta as proporções e dimensões das telas dos diferentes dispositivos.\n\n( ) Leva em conta as proporções da área de visualização do navegador definidas pelo usuário.\n\n( ) É favorecido pelo HTML5 e CSS3, mas também pode ser gerado com HTML4 e CSS2.1.\n\nA sequência correta de preenchimento dos parênteses, de cima para baixo, é:",
+                code: null,
+                options: [
+                    { letter: "A", text: "V – V – F – F." },
+                    { letter: "B", text: "F – V – V – F." },
+                    { letter: "C", text: "F – V – V – V." },
+                    { letter: "D", text: "V – V – V – F." },
+                    { letter: "E", text: "F – V – F – V." }
+                ],
+                answer: "C",
+                resolution: "<strong>Gabarito: C</strong><br><br>A conceituação de Web Design Responsivo compreende a adaptação técnica de layouts a múltiplos ambientes de visualização. A primeira afirmativa é falsa, pois o design responsivo trata da adaptação da camada visual e da disposição dos elementos com base nos limites físicos da tela, não estando relacionado ao rastreamento de preferências por cookies. A segunda afirmativa é verdadeira, já que a responsividade leva em conta as proporções e dimensões de telas de múltiplos dispositivos (desktops, tablets, smartphones). A terceira afirmativa é verdadeira, visto que o layout responsivo se ajusta dinamicamente à área de visualização (viewport) da janela do navegador ajustada pelo usuário. A quarta afirmativa é verdadeira, pois, embora o HTML5 e o CSS3 forneçam recursos avançados (como Media Queries e layouts flexíveis), a criação de estruturas responsivas já era viável com técnicas de dimensionamento percentual e fluido em HTML4 e CSS2.1. A sequência correta é F – V – V – V."
+            },
+            {
+                id: 6,
+                source: "(FAURGS - Simulado / Estilo Banca)",
+                text: "Considere o seguinte trecho de código HTML5 estruturado para a exibição de instruções operacionais em uma página Web:",
+                code: `<ol type="I">\n  <li>Planejamento Inicial\n    <ul>\n      <li>Levantamento de requisitos</li>\n      <li>Análise de viabilidade</li>\n    </ul>\n  </li>\n  <li>Execução do Projeto</li>\n</ol>`,
+                options: [
+                    { letter: "A", text: "O código apresenta erro estrito de sintaxe, pois a especificação proíbe a inclusão de uma lista não ordenada (<ul>) no interior de uma lista ordenada (<ol>)." },
+                    { letter: "B", text: "O primeiro item da lista principal será antecedido pelo marcador \"I.\", contendo uma sublista cujos itens serão exibidos com marcadores gráficos no formato de bolinhas por padrão." },
+                    { letter: "C", text: "A presença do atributo type=\"I\" força todos os itens da sublista não ordenada a adotarem, também, a numeração em algarismos romanos." },
+                    { letter: "D", text: "Para corrigir a sintaxe do aninhamento, o bloco <ul> deveria ser posicionado fora da tag <li>, imediatamente antes da tag de fechamento </ol>." },
+                    { letter: "E", text: "A tag pai <ol> renderizará marcadores em forma de bolinhas, enquanto a tag filho <ul> renderizará números alfabéticos ordenados." }
+                ],
+                answer: "B",
+                resolution: "<strong>Gabarito: B</strong><br><br>Ao interpretar o trecho de código, o navegador aplica a hierarquia das tags pai e filho. A alternativa A é incorreta porque o aninhamento de uma lista não ordenada (<code>&lt;ul&gt;</code>) dentro de um item (<code>&lt;li&gt;</code>) de uma lista ordenada (<code>&lt;ol&gt;</code>) é plenamente válido na sintaxe HTML. A alternativa B é a correta, pois o atributo <code>type=\"I\"</code> da tag <code>&lt;ol&gt;</code> define que o primeiro item será exibido com a numeração romana \"I.\", e a sublista <code>&lt;ul&gt;</code> interna exibirá seus itens com marcadores gráficos padrões no formato de bolinhas (bullets). A alternativa C é incorreta porque os atributos configurados em <code>&lt;ol&gt;</code> não sobrescrevem a estilização padrão da tag <code>&lt;ul&gt;</code> aninhada. A alternativa D é incorreta porque retirar a <code>&lt;ul&gt;</code> do interior do <code>&lt;li&gt;</code> violaria a regra de aninhamento de sublistas. A alternativa E é incorreta, pois inverte os padrões de renderização das duas tags."
+            },
+            {
+                id: 7,
+                source: "(FAURGS - Simulado / Estilo Banca)",
+                text: "No HTML5, os recursos de áudio e vídeo possuem diversos atributos que controlam seu funcionamento e a experiência do usuário durante a reprodução da mídia. Considere as assertivas abaixo sobre os atributos dos elementos <audio> e <video>:\n\nI - O atributo loop faz com que o recurso multimídia, ao atingir o seu final, seja automaticamente reiniciado, permanecendo em reprodução contínua.\n\nII - O atributo controls instrui o navegador a exibir a barra de interface nativa, contendo botões como Play, Pause, controle de volume, barra de progresso e slider de navegação.\n\nIII - O atributo autoplay é executado de forma irrestrita por todos os navegadores móveis e desktop, independentemente de interação prévia do usuário com a página Web.\n\nQuais estão corretas?",
+                code: null,
+                options: [
+                    { letter: "A", text: "Apenas I." },
+                    { letter: "B", text: "Apenas III." },
+                    { letter: "C", text: "Apenas I e II." },
+                    { letter: "D", text: "Apenas II e III." },
+                    { letter: "E", text: "I, II e III." }
+                ],
+                answer: "C",
+                resolution: "<strong>Gabarito: C</strong><br><br>A análise dos atributos de controle multimídia no HTML5 indica a veracidade das assertivas I e II. A assertiva I está correta, pois o atributo <code>loop</code> instrui o reprodutor de mídia a reiniciar a execução do arquivo automaticamente ao atingir o final, mantendo o áudio ou vídeo em repetição contínua. A assertiva II está correta, pois a declaração do atributo <code>controls</code> faz com que o navegador renderize a barra de controles nativa, disponibilizando botões de Play, Pause, ajuste de volume e a barra de progresso (slider). A assertiva III está incorreta porque o atributo <code>autoplay</code> é restrito por políticas internas da maioria dos navegadores modernos, que bloqueiam a reprodução automática sem interação prévia do usuário. Assim, apenas as assertivas I e II estão corretas."
+            },
+            {
+                id: 8,
+                source: "(FAURGS - Simulado / Estilo Banca)",
+                text: "Um desenvolvedor Web necessita incorporar um arquivo sonoro referente a uma aula gravada, salvo no formato .mp3, em uma página HTML5. Assinale a alternativa que indica, respectivamente, a tag nativa correta para essa finalidade e o atributo responsável por indicar o endereço do arquivo no servidor ou na Web:",
+                code: null,
+                options: [
+                    { letter: "A", text: "<sound> e href" },
+                    { letter: "B", text: "<audio> e src" },
+                    { letter: "C", text: "<media> e path" },
+                    { letter: "D", text: "<music> e url" },
+                    { letter: "E", text: "<audio> e alt" }
+                ],
+                answer: "B",
+                resolution: "<strong>Gabarito: B</strong><br><br>Para a incorporação nativa de faixas de áudio no formato .mp3 em páginas Web estruturadas no padrão HTML5, a especificação define a utilização do elemento <code>&lt;audio&gt;</code>. A localização do arquivo no servidor ou a sua URL correspondente na internet é informada obrigatoriamente através do atributo <code>src</code> (source). As marcas mencionadas nas alternativas A, C e D (<code>&lt;sound&gt;</code>, <code>&lt;media&gt;</code>, <code>&lt;music&gt;</code>) não existem no padrão HTML5. Além disso, o atributo <code>href</code> aplica-se a links e folhas de estilo, enquanto <code>alt</code> é restrito a descrições textuais de imagens, tornando a alternativa B a única correta."
+            },
+            {
+                id: 9,
+                source: "(FAURGS - Simulado / Estilo Banca)",
+                text: "A estrutura semântica das tags HTML exige a observância de regras de fechamento e de hierarquia entre elementos pai e filho. Considere as assertivas abaixo no que tange à sintaxe e categorização de elementos HTML:\n\nI - A tag <img> pertence à categoria de tags void (autofecháveis), não admitindo sintaxe de fechamento separada (</img>), enquanto o elemento <ul> exige obrigatoriamente a tag de fechamento </ul>.\n\nII - O elemento <li> possui autonomia semântica e pode ser declarado livremente no corpo do documento (<body>), sem a obrigatoriedade de estar contido em marcas <ol> ou <ul>.\n\nIII - Os elementos de mídia nativa <audio> e <video> compartilham a capacidade de utilizar o atributo src para definir a fonte do arquivo a ser executado.\n\nQuais estão corretas?",
+                code: null,
+                options: [
+                    { letter: "A", text: "Apenas I." },
+                    { letter: "B", text: "Apenas I e III." },
+                    { letter: "C", text: "Apenas II e III." },
+                    { letter: "D", text: "Apenas I e II." },
+                    { letter: "E", text: "I, II e III." }
+                ],
+                answer: "B",
+                resolution: "<strong>Gabarito: B</strong><br><br>A análise das regras de fechamento e escopo das tags no HTML valida as assertivas I e III. A assertiva I está correta, pois a tag <code>&lt;img&gt;</code> é void (autofechável) e não admite a tag de fechamento <code>&lt;/img&gt;</code>, enquanto a tag <code>&lt;ul&gt;</code> exige a tag de fechamento <code>&lt;/ul&gt;</code>. A assertiva II está incorreta, pois o elemento <code>&lt;li&gt;</code> não possui autonomia semântica e não pode ser inserido isoladamente no <code>&lt;body&gt;</code>; a sintaxe exige que o <code>&lt;li&gt;</code> esteja contido dentro de um elemento pai <code>&lt;ul&gt;</code> ou <code>&lt;ol&gt;</code>. A assertiva III está correta, pois tanto <code>&lt;audio&gt;</code> quanto <code>&lt;video&gt;</code> utilizam o atributo <code>src</code> para apontar o caminho do arquivo de mídia. Portanto, apenas I e III estão corretas."
+            },
+            {
+                id: 10,
+                source: "(FAURGS - Simulado / Estilo Banca)",
+                text: "Examine o código HTML5 a seguir, projetado para a reprodução de um vídeo institucional:",
+                code: `<video src="institucional.mp4" controls loop>\n  Seu navegador não suporta o elemento de vídeo.\n</video>`,
+                options: [
+                    { letter: "A", text: "O vídeo será renderizado sem os controles visuais (play/pause/volume), pois o atributo controls exige a atribuição explícita do valor controls=\"true\"." },
+                    { letter: "B", text: "A mídia institucional.mp4 será executada uma única vez e será interrompida imediatamente após atingir o seu término." },
+                    { letter: "C", text: "A frase \"Seu navegador não suporta o elemento de vídeo.\" será exibida na tela como uma legenda sobreposta durante toda a exibição do vídeo." },
+                    { letter: "D", text: "O código está sintaticamente correto em HTML5, disponibilizando a barra de controle nativa ao usuário e configurando a mídia para repetição automática e contínua (loop)." },
+                    { letter: "E", text: "O elemento <video> é autofechável, tornando o código inválido devido à presença do texto alternativo antes da marca </video>." }
+                ],
+                answer: "D",
+                resolution: "<strong>Gabarito: D</strong><br><br>No HTML5, os atributos <code>controls</code> e <code>loop</code> são do tipo booleano, o que significa que a simples presença do nome do atributo no elemento aciona a funcionalidade correspondente. Dessa forma, o vídeo renderizará os botões de controle nativos e entrará em repetição contínua ao chegar ao fim. O texto inserido entre a abertura <code>&lt;video&gt;</code> e o fechamento <code>&lt;/video&gt;</code> funciona como conteúdo de fallback e só é exibido se o navegador utilizado não oferecer suporte à tag nativa de vídeo do HTML5. O elemento <code>&lt;video&gt;</code> necessita da tag de fechamento, estando o código da questão sintaticamente correto. Assim, a alternativa D é a única correta."
+            }
+        ];
+
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            questionsData.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                card.id = `q-card-${q.id}`;
+
+                let html = `
+                    <div class="question-header">
+                        <span class="question-number">Questão ${q.id} de ${questionsData.length}</span>
+                        <span class="question-source">${q.source}</span>
+                    </div>
+                    <div class="question-text">${q.text}</div>
+                `;
+
+                if (q.code) {
+                    html += `<div class="code-block">${escapeHtml(q.code)}</div>`;
+                }
+
+                html += `<div class="options-list">`;
+                q.options.forEach(opt => {
+                    html += `
+                        <label class="option-label" id="label-q${q.id}-${opt.letter}">
+                            <input type="radio" 
+                                   name="q${q.id}" 
+                                   value="${opt.letter}" 
+                                   class="option-input"
+                                   onchange="onSelectOption(${q.id}, '${opt.letter}')">
+                            <span class="option-content"><strong>(${opt.letter})</strong> ${opt.text}</span>
+                        </label>
+                    `;
+                });
+                html += `</div>`;
+
+                // Resolution Box Container
+                html += `
+                    <div class="resolution-box" id="resolution-${q.id}">
+                        <div class="resolution-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            Resolução Detalhada
+                        </div>
+                        <div id="status-badge-${q.id}"></div>
+                        <div>${q.resolution}</div>
+                    </div>
+                `;
+
+                card.innerHTML = html;
+                container.appendChild(card);
+            });
+        }
+
+        /* Helper to escape HTML characters in code blocks */
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function onSelectOption(questionId, letter) {
+            // Highlight selected option visually
+            const labels = document.querySelectorAll(`[id^="label-q${questionId}-"]`);
+            labels.forEach(lbl => lbl.classList.remove('selected'));
+            
+            const selectedLabel = document.getElementById(`label-q${questionId}-${letter}`);
+            if (selectedLabel) {
+                selectedLabel.classList.add('selected');
+            }
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            let answeredCount = 0;
+            questionsData.forEach(q => {
+                const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
+                if (selected) answeredCount++;
+            });
+
+            const percent = (answeredCount / questionsData.length) * 100;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+            document.getElementById('progress-text').innerText = `${answeredCount} de ${questionsData.length} respondidas`;
+        }
+
+        function submitQuiz() {
+            let score = 0;
+
+            questionsData.forEach(q => {
+                const selectedInput = document.querySelector(`input[name="q${q.id}"]:checked`);
+                const userChoice = selectedInput ? selectedInput.value : null;
+
+                // Disable all radio buttons for this question
+                const inputs = document.querySelectorAll(`input[name="q${q.id}"]`);
+                inputs.forEach(i => i.disabled = true);
+
+                const resolutionBox = document.getElementById(`resolution-${q.id}`);
+                const statusBadge = document.getElementById(`status-badge-${q.id}`);
+
+                // Mark options correct / incorrect
+                q.options.forEach(opt => {
+                    const label = document.getElementById(`label-q${q.id}-${opt.letter}`);
+                    label.classList.remove('selected');
+
+                    if (opt.letter === q.answer) {
+                        label.classList.add('is-correct');
+                    } else if (userChoice === opt.letter && userChoice !== q.answer) {
+                        label.classList.add('is-incorrect');
+                    }
+                });
+
+                // Set status badge and calculate total score
+                if (userChoice === q.answer) {
+                    score++;
+                    statusBadge.innerHTML = `<span class="status-badge correct">&check; Você acertou esta questão</span>`;
+                } else if (userChoice === null) {
+                    statusBadge.innerHTML = `<span class="status-badge unanswered">&excl; Questão não respondida (Resposta correta: ${q.answer})</span>`;
+                } else {
+                    statusBadge.innerHTML = `<span class="status-badge incorrect">&cross; Você marcou (${userChoice}) - Resposta correta: (${q.answer})</span>`;
+                }
+
+                // Show detailed resolution box directly on the same page below the question
+                resolutionBox.classList.add('visible');
+            });
+
+            // Display overall score summary box
+            const summaryBox = document.getElementById('results-summary');
+            const scoreDisplay = document.getElementById('score-display');
+            const scoreFeedback = document.getElementById('score-feedback');
+
+            scoreDisplay.innerText = `${score} / ${questionsData.length}`;
+            
+            const percentage = (score / questionsData.length) * 100;
+            if (percentage === 100) {
+                scoreFeedback.innerText = "Excelente! Você gabaritou o simulado com 100% de aproveitamento em HTML5!";
+            } else if (percentage >= 70) {
+                scoreFeedback.innerText = "Ótimo desempenho! Você demonstrou forte conhecimento na estrutura de HTML5 e na sintaxe da FAURGS.";
+            } else if (percentage >= 50) {
+                scoreFeedback.innerText = "Bom trabalho. Leia atentamente as resoluções detalhadas abaixo para consolidar os pontos onde houve dúvida.";
+            } else {
+                scoreFeedback.innerText = "Revisão recomendada. Estude as resoluções comentadas abaixo para reforçar as regras estritas da W3C e da banca.";
+            }
+
+            summaryBox.classList.add('visible');
+            
+            // Hide submit action button
+            document.getElementById('actions-container').style.display = 'none';
+
+            // Scroll smoothly to results summary
+            summaryBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function resetQuiz() {
+            // Uncheck all inputs and enable them
+            const inputs = document.querySelectorAll('input[type="radio"]');
+            inputs.forEach(i => {
+                i.checked = false;
+                i.disabled = false;
+            });
+
+            // Remove option highlighting classes
+            const labels = document.querySelectorAll('.option-label');
+            labels.forEach(l => {
+                l.classList.remove('selected', 'is-correct', 'is-incorrect');
+            });
+
+            // Hide resolution boxes
+            const resBoxes = document.querySelectorAll('.resolution-box');
+            resBoxes.forEach(b => b.classList.remove('visible'));
+
+            // Hide summary box
+            document.getElementById('results-summary').classList.remove('visible');
+
+            // Show submit button container
+            document.getElementById('actions-container').style.display = 'block';
+
+            // Reset progress bar
+            updateProgress();
+
+            // Scroll back to header
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize quiz on window load
+        window.onload = function() {
+            renderQuestions();
+            updateProgress();
+        };
+    </script>
+</body>
+</html>

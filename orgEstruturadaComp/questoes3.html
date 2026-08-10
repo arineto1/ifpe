@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulado FAURGS - Hierarquia de Memória</title>
+  <style>
+    /* Variables - Warm Reader Theme for Long Reading Comfort */
+    :root {
+      --bg-page: #fbf9f5;
+      --bg-card: #ffffff;
+      --bg-card-subtle: #f4f0e8;
+      --text-main: #23272d;
+      --text-muted: #5c626d;
+      --border-color: #e4dfd3;
+      --border-focus: #1e3a8a;
+      
+      --primary: #1e3a8a;
+      --primary-hover: #172554;
+      --primary-light: #eff6ff;
+      
+      --correct-bg: #f0fdf4;
+      --correct-border: #86efac;
+      --correct-text: #166534;
+      
+      --incorrect-bg: #fef2f2;
+      --incorrect-border: #fca5a5;
+      --incorrect-text: #991b1b;
+      
+      --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.03);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.65;
+      font-size: 17px;
+      padding: 24px 16px 60px 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .badge-exam {
+      display: inline-block;
+      background-color: #fef3c7;
+      color: #92400e;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    header h1 {
+      font-size: 1.85rem;
+      color: var(--primary);
+      line-height: 1.3;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.02rem;
+    }
+
+    /* Progress Sticky Bar */
+    .sticky-bar {
+      position: sticky;
+      top: 16px;
+      z-index: 100;
+      background-color: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 16px 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .progress-info {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      max-width: 260px;
+      height: 10px;
+      background-color: var(--bg-card-subtle);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background-color: var(--primary);
+      transition: width 0.3s ease;
+    }
+
+    /* Question Cards */
+    .question-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s ease;
+    }
+
+    .question-card.answered {
+      border-color: #cbd5e1;
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--bg-card-subtle);
+    }
+
+    .question-number {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+
+    .question-tag {
+      font-size: 0.82rem;
+      background-color: var(--bg-card-subtle);
+      color: var(--text-muted);
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+
+    .question-stem {
+      font-size: 1.05rem;
+      margin-bottom: 16px;
+      color: var(--text-main);
+      text-align: justify;
+    }
+
+    .question-items {
+      background-color: var(--bg-card-subtle);
+      border-left: 4px solid var(--primary);
+      padding: 16px 20px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin-bottom: 18px;
+      font-size: 1rem;
+    }
+
+    .question-items p {
+      margin-bottom: 10px;
+      text-align: justify;
+    }
+
+    .question-items p:last-child {
+      margin-bottom: 0;
+    }
+
+    .question-prompt {
+      font-weight: 600;
+      margin-bottom: 18px;
+      color: var(--text-main);
+    }
+
+    /* Options */
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 18px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 10px;
+      cursor: pointer;
+      background-color: var(--bg-card);
+      transition: all 0.2s ease;
+      font-size: 1rem;
+    }
+
+    .option-label:hover {
+      background-color: var(--bg-page);
+      border-color: #b0a898;
+    }
+
+    .option-label input[type="radio"] {
+      margin-top: 4px;
+      accent-color: var(--primary);
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .option-text {
+      flex: 1;
+      line-height: 1.5;
+    }
+
+    .option-label.selected {
+      border-color: var(--primary);
+      background-color: var(--primary-light);
+    }
+
+    /* Review Mode Styles */
+    .question-card.review .option-label {
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .question-card.review .option-label.correct-option {
+      background-color: var(--correct-bg) !important;
+      border-color: var(--correct-border) !important;
+      color: var(--correct-text) !important;
+      font-weight: 600;
+    }
+
+    .question-card.review .option-label.incorrect-option {
+      background-color: var(--incorrect-bg) !important;
+      border-color: var(--incorrect-border) !important;
+      color: var(--incorrect-text) !important;
+    }
+
+    .result-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      margin-bottom: 14px;
+    }
+
+    .result-badge.correct {
+      background-color: var(--correct-bg);
+      color: var(--correct-text);
+      border: 1px solid var(--correct-border);
+    }
+
+    .result-badge.incorrect {
+      background-color: var(--incorrect-bg);
+      color: var(--incorrect-text);
+      border: 1px solid var(--incorrect-border);
+    }
+
+    /* Detailed Resolution Box */
+    .resolution-box {
+      display: none;
+      margin-top: 22px;
+      padding: 20px 24px;
+      background-color: #f7f5ef;
+      border-left: 4px solid var(--primary);
+      border-radius: 0 8px 8px 0;
+      font-size: 0.98rem;
+    }
+
+    .resolution-box h4 {
+      color: var(--primary);
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .resolution-content p {
+      margin-bottom: 12px;
+      text-align: justify;
+    }
+
+    .resolution-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .resolution-content ol, .resolution-content ul {
+      margin: 10px 0 12px 24px;
+    }
+
+    .resolution-content li {
+      margin-bottom: 6px;
+    }
+
+    /* Action Buttons */
+    .actions-container {
+      text-align: center;
+      margin-top: 32px;
+    }
+
+    .btn {
+      background-color: var(--primary);
+      color: #ffffff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 16px 36px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn:active {
+      transform: scale(0.99);
+    }
+
+    .btn-secondary {
+      background-color: #475569;
+      margin-left: 12px;
+    }
+
+    .btn-secondary:hover {
+      background-color: #334155;
+    }
+
+    /* Final Score Banner */
+    .score-banner {
+      display: none;
+      background-color: var(--bg-card);
+      border: 2px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 32px;
+      text-align: center;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .score-banner h2 {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .score-number {
+      font-size: 3.2rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin: 10px 0;
+    }
+
+    .score-message {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 12px 8px 40px 8px;
+        font-size: 16px;
+      }
+      
+      header, .question-card, .score-banner {
+        padding: 20px 16px;
+      }
+
+      .sticky-bar {
+        padding: 12px 16px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .progress-bar-bg {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Document Header -->
+    <header>
+      <span class="badge-exam">Estilo FAURGS • Arquitetura de Computadores</span>
+      <h1>Simulado: Hierarquia de Memória</h1>
+      <p>10 questões objetivas completas para concurso público com gabarito e resoluções analíticas detalhadas.</p>
+    </header>
+
+    <!-- Sticky Progress Bar -->
+    <div class="sticky-bar" id="stickyBar">
+      <div class="progress-info">
+        <span id="answeredCount">0</span> de 10 questões respondidas
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressBar"></div>
+      </div>
+    </div>
+
+    <!-- Score Banner (Revealed upon finish) -->
+    <div class="score-banner" id="scoreBanner">
+      <h2>Resultado do Simulado</h2>
+      <div class="score-number" id="scoreDisplay">0 / 10</div>
+      <p class="score-message" id="scoreMessage">Você concluiu o teste. Confira abaixo o seu desempenho e a resolução de cada questão.</p>
+      <button class="btn btn-secondary" onclick="resetQuiz()">Refazer Simulado</button>
+    </div>
+
+    <!-- Quiz Questions Container -->
+    <form id="quizForm">
+      <div id="questionsContainer"></div>
+
+      <div class="actions-container" id="submitBox">
+        <button type="button" class="btn" id="btnSubmit" onclick="finishQuiz()">Finalizar Quiz e Ver Gabarito</button>
+      </div>
+    </form>
+
+  </div>
+
+  <script>
+    // Exact Quiz Data based on the FAURGS Document
+    const quizData = [
+      {
+        id: 1,
+        title: "Questão 1",
+        tag: "Hierarquia & Custo por Byte",
+        stem: "A hierarquia de memória em sistemas computacionais é projetada para mitigar a disparidade de velocidade entre o processador e as unidades de armazenamento em massa. Considerando os parâmetros de latência, velocidade de acesso e custo por byte ao longo dos níveis dessa hierarquia, assinale a alternativa que apresenta a sequência de componentes disposta estritamente em ordem <strong>DECRESCENTE</strong> de custo por byte e de velocidade de acesso.",
+        items: null,
+        prompt: null,
+        options: [
+          { letter: "A", text: "Registradores – Memória Cache L1 – Memória Cache L3 – Memória Principal (DRAM) – Unidade de Estado Sólido (SSD)" },
+          { letter: "B", text: "Memória Cache L1 – Registradores – Memória Principal (DRAM) – Memória Cache L3 – Unidade de Estado Sólido (SSD)" },
+          { letter: "C", text: "Registradores – Memória Principal (DRAM) – Memória Cache L1 – Memória Cache L2 – Disco Rígido (HDD)" },
+          { letter: "D", text: "Memória Cache L3 – Memória Cache L1 – Registradores – Memória Principal (DRAM) – Fita Magnética de Backup" },
+          { letter: "E", text: "Registradores – Memória Cache L1 – Unidade de Estado Sólido (SSD) – Memória Principal (DRAM) – Disco Rígido (HDD)" }
+        ],
+        correct: "A",
+        resolution: `<p><strong>Resposta Correta: A</strong></p>
+          <p>A arquitetura hierárquica de memória organiza os meios de armazenamento de modo que o topo contenha os dispositivos com os menores tempos de acesso e maior custo financeiro por unidade de informação, enquanto a base abriga os meios de maior latência, alta capacidade e reduzido custo financeiro.</p>
+          <p>A ordenação decrescente conjunta de velocidade e custo por byte parte do nível mais alto até o mais baixo:</p>
+          <ol>
+            <li><strong>Registradores:</strong> Memórias de ultravelocidade integradas ao núcleo da CPU, apresentando o maior custo por byte.</li>
+            <li><strong>Memória Cache L1:</strong> Primeiro nível da cache, com reduzida latência de acesso.</li>
+            <li><strong>Memória Cache L3:</strong> Nível mais distante do núcleo entre as caches, com custo por byte e velocidade inferiores à L1, porém superiores aos da RAM.</li>
+            <li><strong>Memória Principal (DRAM):</strong> Oferece velocidade e custo moderados para sustentar os processos ativos do sistema operacional.</li>
+            <li><strong>Armazenamento Secundário (SSD):</strong> Meio de alta capacidade com custo por byte significativamente menor e latência muito superior à da memória principal.</li>
+          </ol>
+          <p>As demais alternativas descumprem a sequência ao intercalar a RAM antes de níveis de cache ou ao posicionar o SSD acima da memória principal.</p>`
+      },
+      {
+        id: 2,
+        title: "Questão 2",
+        tag: "Princípio da Localidade",
+        stem: "O Princípio da Localidade constitui a base teórica para a eficiência das memórias cache nos sistemas operacionais e arquiteturas modernas. A respeito desse princípio e de suas manifestações, considere as afirmações abaixo:",
+        items: [
+          "I - A localidade temporal expressa a tendência de um determinado endereço de memória, ao ser referenciado pelo processador, ser novamente acessado em um futuro próximo, como observado no processamento de laços (loops) e variáveis contadoras.",
+          "II - A localidade espacial manifesta-se quando a referência a um endereço específico indica uma elevada probabilidade de que endereços geograficamente contíguos ou adjacentes sejam acessados em breve, como no percurso sequencial de vetores ou na execução contínua de instruções.",
+          "III - A implementação de arquiteturas multinúcleo (multi-core) invalida a aplicação da localidade espacial, uma vez que a presença de caches privadas por núcleo torna desnecessário o agrupamento de dados adjacentes em linhas de cache."
+        ],
+        prompt: "Quais estão corretas?",
+        options: [
+          { letter: "A", text: "Apenas I." },
+          { letter: "B", text: "Apenas II." },
+          { letter: "C", text: "Apenas III." },
+          { letter: "D", text: "Apenas I e II." },
+          { letter: "E", text: "I, II e III." }
+        ],
+        correct: "D",
+        resolution: `<p><strong>Resposta Correta: D</strong></p>
+          <p>A fundamentação analítica do Princípio da Localidade apoia-se em duas dimensões complementares:</p>
+          <p><strong>Item I (Correto):</strong> A localidade temporal fundamenta-se na reutilização de dados recentes. Quando um endereço é acessado, há uma elevada probabilidade de reler a mesma posição em curto intervalo de tempo, padrão típico de estruturas repetitivas em código compilado.</p>
+          <p><strong>Item II (Correto):</strong> A localidade espacial baseia-se na contiguidade de referências. O acesso a um determinado endereço aponta para a requisição iminente de endereços vizinhos, cenário verificado na leitura de instruções sequenciais e no processamento de arranjos unidimensionais ou matrizes.</p>
+          <p><strong>Item III (Incorreto):</strong> Permanecendo como premissa essencial nos sistemas multi-core, a transferência de blocos contínuos de memória (linhas de cache) para as caches privadas L1/L2 otimiza o uso do barramento compartilhado e minimiza contendas no acesso à cache L3 e à RAM.</p>`
+      },
+      {
+        id: 3,
+        title: "Questão 3",
+        tag: "Tecnologia SRAM vs DRAM",
+        stem: "Em relação à arquitetura da memória cache, à organização dos níveis L1, L2 e L3 e às tecnologias semicondutoras associadas aos diferentes estágios de armazenamento, assinale a alternativa correta.",
+        items: null,
+        prompt: null,
+        options: [
+          { letter: "A", text: "A memória cache L1 apresenta maior capacidade volumétrica do que a cache L3 e é compartilhada de maneira uniforme entre todos os núcleos do processador." },
+          { letter: "B", text: "A memória cache é fabricada com células SRAM (RAM Estática), que oferecem maior rapidez e custo superior, enquanto a memória principal utiliza células DRAM (RAM Dinâmica)." },
+          { letter: "C", text: "A cache L3 situa-se internamente à Unidade Lógica e Aritmética (ULA), operando com latência inferior a 0,1 nanossegundo e menor capacidade do que a cache L1." },
+          { letter: "D", text: "A divisão física da memória cache L1 em duas estruturas independentes destina-se a separar os blocos de dados voláteis dos arquivos permanentes armazenados no disco." },
+          { letter: "E", text: "A cache L2 atua como um dispositivo de armazenamento secundário não volátil, intermediando o acesso entre o SSD NVMe e as fitas magnéticas de backup." }
+        ],
+        correct: "B",
+        resolution: `<p><strong>Resposta Correta: B</strong></p>
+          <p>A diferenciação tecnológica entre os níveis da hierarquia decorre das propriedades físicas dos semicondutores:</p>
+          <p>A memória cache é construída empregando a tecnologia <strong>SRAM (RAM Estática)</strong>, cujas células utilizam biestáveis (flip-flops) de múltiplos transistores. Essa topologia permite ciclos de operação extremamente rápidos sem necessidade de ciclos periódicos de refresh, elevando seu custo e área de silício. Em contrapartida, a memória principal emprega células <strong>DRAM (RAM Dinâmica)</strong>, baseadas em um transistor e um capacitor, viabilizando maior densidade e menor custo ao preço de exigir atualização periódica da carga.</p>
+          <ul>
+            <li><em>Alternativa A errada:</em> L1 possui menor capacidade que a L3 e é privada por núcleo.</li>
+            <li><em>Alternativa C errada:</em> L3 fica externa aos núcleos individuais, e não na ULA.</li>
+            <li><em>Alternativa D errada:</em> A divisão de L1 (L1i e L1d) serve para dados e instruções da CPU.</li>
+            <li><em>Alternativa E errada:</em> L2 é memória volátil de alta velocidade da CPU.</li>
+          </ul>`
+      },
+      {
+        id: 4,
+        title: "Questão 4",
+        tag: "Desempenho da Cache",
+        stem: "A avaliação de desempenho do subsistema de memória cache fundamenta-se nas métricas de acerto (hit) e falta (miss). Considere as afirmações a respeito da dinâmica de transferência de dados entre a CPU, a cache e a memória principal:",
+        items: [
+          "I - Um Cache Hit ocorre no momento em que o dado solicitado pelo processador é localizado na memória cache, permitindo sua recuperação na velocidade máxima do ciclo de clock da CPU.",
+          "II - Um Cache Miss exige que a requisição seja direcionada à memória principal (RAM), introduzindo um atraso operacional denominado Penalidade de Falta (Miss Penalty).",
+          "III - A Taxa de Acerto (Hit Ratio) quantifica a porcentagem de acessos satisfeitos pela cache, sendo que sistemas computacionais eficientes buscam manter essa taxa em níveis elevados, tipicamente acima de 90%."
+        ],
+        prompt: "Quais estão corretas?",
+        options: [
+          { letter: "A", text: "Apenas I." },
+          { letter: "B", text: "Apenas I e II." },
+          { letter: "C", text: "Apenas I e III." },
+          { letter: "D", text: "Apenas II e III." },
+          { letter: "E", text: "I, II e III." }
+        ],
+        correct: "E",
+        resolution: `<p><strong>Resposta Correta: E</strong></p>
+          <p>A operação da memória cache fundamenta-se no fluxo de intercepção de requisições enviadas pelo processador:</p>
+          <p><strong>Item I (Correto):</strong> A ocorrência de um <em>Cache Hit</em> confirma que a palavra solicitada está presente em uma das linhas da cache, permitindo a entrega imediata sem atravessar os barramentos externos do sistema.</p>
+          <p><strong>Item II (Correto):</strong> Diante de um <em>Cache Miss</em>, o controlador é forçado a buscar o bloco correspondente na memória principal (DRAM), gerando a latência adicional chamada de Penalidade de Falta (<em>Miss Penalty</em>).</p>
+          <p><strong>Item III (Correto):</strong> A Taxa de Acerto (<em>Hit Ratio</em>) mede o percentual de buscas satisfeitas na cache. Em razão da localidade temporal e espacial, sistemas modernos atingem rotineiramente taxas de acerto superiores a 90%.</p>`
+      },
+      {
+        id: 5,
+        title: "Questão 5",
+        tag: "Registradores da CPU",
+        stem: "Localizados no topo da hierarquia de armazenamento, os registradores desempenham papel fundamental na execução de instruções pela Unidade Central de Processamento (CPU). Em relação às características e funções dos registradores, assinale a alternativa correta.",
+        items: null,
+        prompt: null,
+        options: [
+          { letter: "A", text: "São dispositivos de armazenamento não volátil localizados na placa-mãe, fora do encapsulamento do processador." },
+          { letter: "B", text: "Destinam-se ao armazenamento temporário de dados e instruções em execução imediata, provendo suporte direto às operações da ULA e da Unidade de Controle." },
+          { letter: "C", text: "Apresentam capacidade de armazenamento na escala de Terabytes e tempos de acesso equivalentes aos das unidades de disco rígido." },
+          { letter: "D", text: "Operam como expansores da memória RAM para garantir que arquivos de imagem e vídeo não voláteis sejam preservados ao desligar o sistema." },
+          { letter: "E", text: "Possuem baixo custo por byte e velocidade de transferência inferior à das memórias secundárias com interface SATA." }
+        ],
+        correct: "B",
+        resolution: `<p><strong>Resposta Correta: B</strong></p>
+          <p>Os registradores constituem a memória mais rápida e mais próxima das unidades operacionais do processador.</p>
+          <p>Sua função essencial é armazenar operandos, resultados intermediários e instruções ativas no exato instante em que são manipulados pela Unidade Lógica e Aritmética (ULA) e interpretados pela Unidade de Controle (UC). Por estarem localizados internamente ao circuito integrado da CPU, seus tempos de acesso correspondem a frações de um ciclo de clock.</p>
+          <p>As alternativas A, C, D e E estão incorretas porque os registradores são voláteis, integrados à própria pastilha do processador, possuem capacidade na escala de bytes/palavras e ostentam o maior custo por byte de toda a arquitetura.</p>`
+      },
+      {
+        id: 6,
+        title: "Questão 6",
+        tag: "Armazenamento Secundário (HDD vs SSD)",
+        stem: "As tecnologias de armazenamento secundário permanente abrangem tanto as Unidades de Disco Rígido (HDD) quanto as Unidades de Estado Sólido (SSD). Considere as seguintes afirmações sobre suas características estruturais e operacionais:",
+        items: [
+          "I - O HDD é um dispositivo não volátil baseado em meios magnéticos que emprega componentes mecânicos móveis, como pratos giratórios e cabeças de leitura e escrita.",
+          "II - O SSD utiliza circuitos integrados de memória flash NAND sem partes móveis, o que lhe confere maior resistência a impactos mecânicos e velocidades de acesso superiores às do HDD.",
+          "III - Os SSDs com interface NVMe M.2 substituem funcionalmente a memória RAM, permitindo que o processador abdique da memória principal sem perda de taxa de transferência."
+        ],
+        prompt: "Quais estão corretas?",
+        options: [
+          { letter: "A", text: "Apenas I." },
+          { letter: "B", text: "Apenas II." },
+          { letter: "C", text: "Apenas I e II." },
+          { letter: "D", text: "Apenas II e III." },
+          { letter: "E", text: "I, II e III." }
+        ],
+        correct: "C",
+        resolution: `<p><strong>Resposta Correta: C</strong></p>
+          <p>O armazenamento secundário engloba dispositivos projetados para a persistência de dados a longo prazo:</p>
+          <p><strong>Item I (Correto):</strong> O HDD utiliza gravação magnética em pratos rígidos com leitura por cabeças mecânicas em braços atuadores móveis.</p>
+          <p><strong>Item II (Correto):</strong> O SSD utiliza memória NAND Flash de estado sólido sem partes móveis, o que proporciona maior resistência mecânica e latências muito menores que as dos discos magnéticos.</p>
+          <p><strong>Item III (Incorreto):</strong> Os SSDs NVMe M.2 continuam pertencendo ao armazenamento secundário (latência em microssegundos), enquanto a RAM opera em nanossegundos. Nenhum SSD substitui a RAM para execução direta do processador.</p>`
+      },
+      {
+        id: 7,
+        title: "Questão 7",
+        tag: "Memória Principal (RAM)",
+        stem: "A Memória Principal (RAM) atua como um elo intermediário no fluxo de dados do computador. Assinale a alternativa que descreve de forma tecnicamente precisa a função e a natureza da memória RAM no ambiente operacional.",
+        items: null,
+        prompt: null,
+        options: [
+          { letter: "A", text: "É uma memória eletrônica não volátil que armazena dados permanentemente, servindo para a retenção do sistema operacional após o desligamento do computador." },
+          { letter: "B", text: "Funciona como um espaço de trabalho temporário (workspace) que armazena os programas e arquivos ativamente processados pela CPU, oferecendo leitura veloz a partir do armazenamento secundário." },
+          { letter: "C", text: "É composta exclusivamente por células SRAM integradas diretamente ao núcleo do processador, operando na faixa de sub-nanossegundos." },
+          { letter: "D", text: "Apresenta velocidade de transferência idêntica à dos registradores e custo por byte superior ao da memória cache L1." },
+          { letter: "E", text: "Atua precipuamente como unidade de backup de longa duração, dispensando o uso de barramentos de sistema para comunicação com o processador." }
+        ],
+        correct: "B",
+        resolution: `<p><strong>Resposta Correta: B</strong></p>
+          <p>A Memória Principal (RAM) atua como o ambiente primário de execução para o sistema operacional.</p>
+          <p>Sua função é fornecer um espaço de trabalho temporário (<em>workspace</em>) de acesso aleatório onde os códigos e estruturas trazidos do armazenamento secundário permanecem depositados enquanto os processos estão ativos. Isso impede que a CPU fique paralisada aguardando a lentidão dos discos magnéticos ou memórias flash.</p>
+          <ul>
+            <li><em>Alternativa A errada:</em> A RAM é volátil.</li>
+            <li><em>Alternativa C errada:</em> RAM utiliza células DRAM.</li>
+            <li><em>Alternativa D errada:</em> Velocidade da RAM é bem inferior à dos registradores e da cache L1.</li>
+            <li><em>Alternativa E errada:</em> A RAM comunica-se com a CPU via barramentos de sistema.</li>
+          </ul>`
+      },
+      {
+        id: 8,
+        title: "Questão 8",
+        tag: "Trade-offs da Hierarquia",
+        stem: "Analisando-se a estrutura em níveis da hierarquia de memória e as suas variáveis fundamentais — velocidade de acesso, latência, capacidade de armazenamento e custo por byte —, constata-se um trade-off de projeto. Ao se deslocar do topo da hierarquia (registradores) em direção à base (armazenamento de backup), observa-se que",
+        items: null,
+        prompt: null,
+        options: [
+          { letter: "A", text: "a velocidade de acesso aumenta, a latência diminui e o custo por byte aumenta." },
+          { letter: "B", text: "a capacidade de armazenamento aumenta, a latência aumenta e o custo por byte diminui." },
+          { letter: "C", text: "o custo por byte aumenta, a capacidade diminui e a velocidade de acesso permanece inalterada." },
+          { letter: "D", text: "a velocidade de acesso aumenta, a capacidade diminui e o custo por byte diminui." },
+          { letter: "E", text: "a latência diminui, a capacidade aumenta e o custo por byte aumenta." }
+        ],
+        correct: "B",
+        resolution: `<p><strong>Resposta Correta: B</strong></p>
+          <p>A organização em camadas responde a limites físicos e econômicos de projeto. Ao deslocar-se do topo (registradores) em direção à base (DRAM, SSD, HDD, fitas):</p>
+          <ul>
+            <li><strong>Capacidade de Armazenamento:</strong> Aumenta expressivamente (de bytes/kilobytes para gigabytes/terabytes).</li>
+            <li><strong>Latência de Acesso:</strong> Aumenta significativamente (de sub-nanossegundos para milissegundos).</li>
+            <li><strong>Custo financeiro por Byte:</strong> Diminui acentuadamente, viabilizando guardar volumes gigantescos a preços acessíveis.</li>
+          </ul>
+          <p>A alternativa B descreve exatamente essa transição descendente.</p>`
+      },
+      {
+        id: 9,
+        title: "Questão 9",
+        tag: "Volatilidade das Memórias",
+        stem: "A volatilidade é um critério de classificação dos meios de armazenamento computacionais. A respeito da retenção de dados pelos componentes de memória, considere as afirmações a seguir:",
+        items: [
+          "I - Registradores, memória cache e memória RAM são classificados como memórias voláteis, pois perdem todo o seu conteúdo quando a alimentação elétrica do sistema é interrompida.",
+          "II - Dispositivos de armazenamento secundário, tais como HDDs, SSDs e fitas magnéticas, são não voláteis, preservando as informações gravadas na ausência de energia.",
+          "III - A memória cache L1 é não volátil, o que garante a inicialização do sistema operacional sem a necessidade de leitura prévia no armazenamento em massa."
+        ],
+        prompt: "Quais estão corretas?",
+        options: [
+          { letter: "A", text: "Apenas I." },
+          { letter: "B", text: "Apenas II." },
+          { letter: "C", text: "Apenas I e II." },
+          { letter: "D", text: "Apenas II e III." },
+          { letter: "E", text: "I, II e III." }
+        ],
+        correct: "C",
+        resolution: `<p><strong>Resposta Correta: C</strong></p>
+          <p>A classificação quanto à volatilidade divide as memórias em dois grupos funcionais:</p>
+          <p><strong>Item I (Correto):</strong> Registradores, caches e RAM dependem da presença constante de energia para manter seu estado lógico. Desligado o sistema, os dados desaparecem.</p>
+          <p><strong>Item II (Correto):</strong> HDDs, SSDs e fitas mantêm os dados por gravação magnética ou cargas aprisionadas em transistores flash sem consumo elétrico continuado.</p>
+          <p><strong>Item III (Incorreto):</strong> A cache L1 é estática (SRAM) e estritamente volátil. O firmware inicial de boot fica na memória ROM/Flash da placa-mãe.</p>`
+      },
+      {
+        id: 10,
+        title: "Questão 10",
+        tag: "Ordenação de Desempenho (FAURGS)",
+        stem: "Em concursos conduzidos pela FAURGS para a área de Tecnologia da Informação, é recorrente a cobrança da ordenação comparativa do desempenho relativo entre diferentes tecnologias de memória. Considere os seguintes componentes presentes em uma arquitetura computacional moderna:",
+        items: [
+          "1. Memória Principal (RAM)",
+          "2. Memória Cache",
+          "3. Memória Virtual (página alocada em armazenamento secundário)"
+        ],
+        prompt: "Assinale a alternativa que apresenta a enumeração desses elementos organizados de forma estrita da tecnologia MAIS RÁPIDA para a MAIS LENTA.",
+        options: [
+          { letter: "A", text: "1 – 2 – 3" },
+          { letter: "B", text: "1 – 3 – 2" },
+          { letter: "C", text: "2 – 1 – 3" },
+          { letter: "D", text: "2 – 3 – 1" },
+          { letter: "E", text: "3 – 2 – 1" }
+        ],
+        correct: "C",
+        resolution: `<p><strong>Resposta Correta: C</strong></p>
+          <p>Esta questão reflete o padrão recorrente da banca FAURGS para a ordenação comparativa de desempenho relativo entre diferentes memórias:</p>
+          <ol>
+            <li><strong>Memória Cache (Elemento 2):</strong> É a mais rápida por utilizar células SRAM integradas diretamente ao chip do processador.</li>
+            <li><strong>Memória Principal / RAM (Elemento 1):</strong> Posição intermediária, utilizando tecnologia DRAM operada pelo controlador de memória.</li>
+            <li><strong>Memória Virtual (Elemento 3):</strong> Páginas de memória gravadas temporariamente em disco/SSD secundário, sendo ordens de grandeza mais lenta que a RAM física.</li>
+          </ol>
+          <p>A ordenação da mais rápida para a mais lenta resulta na sequência <strong>2 – 1 – 3</strong> (Alternativa C).</p>`
+      }
+    ];
+
+    // State object to track selected user answers
+    const userAnswers = {};
+    let isSubmitted = false;
+
+    // Render All Questions on Page Load
+    function renderQuiz() {
+      const container = document.getElementById('questionsContainer');
+      container.innerHTML = '';
+
+      quizData.forEach((q) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.id = `question-card-${q.id}`;
+
+        let itemsHTML = '';
+        if (q.items && q.items.length > 0) {
+          itemsHTML = `<div class="question-items">
+            ${q.items.map(item => `<p>${item}</p>`).join('')}
+          </div>`;
+        }
+
+        let promptHTML = '';
+        if (q.prompt) {
+          promptHTML = `<div class="question-prompt">${q.prompt}</div>`;
+        }
+
+        let optionsHTML = q.options.map(opt => {
+          return `
+            <label class="option-label" id="label-q${q.id}-${opt.letter}">
+              <input type="radio" name="question_${q.id}" value="${opt.letter}" onchange="selectOption(${q.id}, '${opt.letter}')">
+              <span class="option-text"><strong>(${opt.letter})</strong> ${opt.text}</span>
+            </label>
+          `;
+        }).join('');
+
+        card.innerHTML = `
+          <div class="question-header">
+            <span class="question-number">${q.title}</span>
+            <span class="question-tag">${q.tag}</span>
+          </div>
+          <div id="badge-container-${q.id}"></div>
+          <div class="question-stem">${q.stem}</div>
+          ${itemsHTML}
+          ${promptHTML}
+          <div class="options-list">
+            ${optionsHTML}
+          </div>
+          <div class="resolution-box" id="resolution-${q.id}">
+            <h4> Resolução Detalhada</h4>
+            <div class="resolution-content">
+              ${q.resolution}
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // Handle Option Selection
+    function selectOption(questionId, letter) {
+      if (isSubmitted) return;
+
+      userAnswers[questionId] = letter;
+
+      // Highlight selected styling
+      const qData = quizData.find(q => q.id === questionId);
+      qData.options.forEach(opt => {
+        const label = document.getElementById(`label-q${questionId}-${opt.letter}`);
+        if (opt.letter === letter) {
+          label.classList.add('selected');
+        } else {
+          label.classList.remove('selected');
+        }
+      });
+
+      document.getElementById(`question-card-${questionId}`).classList.add('answered');
+      updateProgress();
+    }
+
+    // Update Progress Bar
+    function updateProgress() {
+      const answeredCount = Object.keys(userAnswers).length;
+      document.getElementById('answeredCount').innerText = answeredCount;
+      const pct = (answeredCount / quizData.length) * 100;
+      document.getElementById('progressBar').style.width = `${pct}%`;
+    }
+
+    // Finish Quiz and Evaluate
+    function finishQuiz() {
+      const totalQuestions = quizData.length;
+      const answeredCount = Object.keys(userAnswers).length;
+
+      if (answeredCount < totalQuestions) {
+        const confirmSubmit = confirm(`Você respondeu ${answeredCount} de ${totalQuestions} questões. Deseja finalizar o simulado mesmo assim?`);
+        if (!confirmSubmit) return;
+      }
+
+      isSubmitted = true;
+      let score = 0;
+
+      quizData.forEach(q => {
+        const card = document.getElementById(`question-card-${q.id}`);
+        card.classList.add('review');
+
+        const userAnswer = userAnswers[q.id];
+        const isCorrect = userAnswer === q.correct;
+
+        if (isCorrect) {
+          score++;
+        }
+
+        // Show badge right above question stem
+        const badgeContainer = document.getElementById(`badge-container-${q.id}`);
+        if (userAnswer) {
+          if (isCorrect) {
+            badgeContainer.innerHTML = `<span class="result-badge correct">✓ Você Acertou (Sua resposta: ${userAnswer})</span>`;
+          } else {
+            badgeContainer.innerHTML = `<span class="result-badge incorrect">✗ Você Errou (Sua resposta: ${userAnswer} | Correta: ${q.correct})</span>`;
+          }
+        } else {
+          badgeContainer.innerHTML = `<span class="result-badge incorrect">⚠ Não Respondida (Gabarito: ${q.correct})</span>`;
+        }
+
+        // Highlight option cards
+        q.options.forEach(opt => {
+          const label = document.getElementById(`label-q${q.id}-${opt.letter}`);
+          const input = label.querySelector('input');
+          input.disabled = true;
+
+          if (opt.letter === q.correct) {
+            label.classList.add('correct-option');
+          } else if (opt.letter === userAnswer && userAnswer !== q.correct) {
+            label.classList.add('incorrect-option');
+          }
+        });
+
+        // Show Resolution Box under each question
+        const resBox = document.getElementById(`resolution-${q.id}`);
+        resBox.style.display = 'block';
+      });
+
+      // Update Score Banner
+      const scoreBanner = document.getElementById('scoreBanner');
+      const scoreDisplay = document.getElementById('scoreDisplay');
+      const scoreMessage = document.getElementById('scoreMessage');
+
+      scoreDisplay.innerText = `${score} / ${totalQuestions}`;
+      
+      const pct = (score / totalQuestions) * 100;
+      if (pct >= 80) {
+        scoreMessage.innerText = `Excelente desempenho! (${pct}% de acertos). Você está muito bem preparado no tema de Hierarquia de Memória para a banca FAURGS.`;
+      } else if (pct >= 60) {
+        scoreMessage.innerText = `Bom trabalho! (${pct}% de acertos). Revise os pontos onde houve erro analisando as resoluções detalhadas abaixo.`;
+      } else {
+        scoreMessage.innerText = `Você obteve ${pct}% de acertos. Recomendamos estudar novamente os conceitos da aula e analisar atentamente as resoluções de cada questão.`;
+      }
+
+      scoreBanner.style.display = 'block';
+      document.getElementById('submitBox').style.display = 'none';
+      document.getElementById('stickyBar').style.display = 'none';
+
+      // Scroll smoothly to score banner
+      scoreBanner.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Reset Quiz to initial state
+    function resetQuiz() {
+      isSubmitted = false;
+      for (let key in userAnswers) {
+        delete userAnswers[key];
+      }
+
+      document.getElementById('scoreBanner').style.display = 'none';
+      document.getElementById('submitBox').style.display = 'block';
+      document.getElementById('stickyBar').style.display = 'flex';
+      
+      updateProgress();
+      renderQuiz();
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Initialize on page load
+    window.onload = function() {
+      renderQuiz();
+    };
+  </script>
+</body>
+</html>
