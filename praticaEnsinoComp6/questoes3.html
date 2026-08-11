@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz FAURGS - Instrumentos e Metodologias Avaliativas em Computação</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                            800: '#1e3a8a',
+                        },
+                        paper: {
+                            bg: '#fbfbf9', // Tom suave e quente para descanso visual
+                            card: '#ffffff',
+                            border: '#e5e7eb',
+                            text: '#1f2937',
+                            muted: '#4b5563',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f7f7f5;
+            color: #27272a;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.75;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .reading-text {
+            font-size: 1.05rem;
+            color: #27272a;
+            line-height: 1.8;
+        }
+
+        .option-card {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .option-card:hover:not(.disabled) {
+            border-color: #2563eb;
+            background-color: #f0f7ff;
+        }
+
+        .option-card.selected {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+
+        .option-card.correct-answer {
+            border-color: #16a34a !important;
+            background-color: #f0fdf4 !important;
+            color: #14532d !important;
+        }
+
+        .option-card.wrong-answer {
+            border-color: #dc2626 !important;
+            background-color: #fef2f2 !important;
+            color: #7f1d1d !important;
+        }
+
+        /* Animações e detalhes sutis */
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-16">
+
+    <!-- Header fixo e limpo -->
+    <header class="sticky top-0 z-50 bg-[#fbfbf9]/95 backdrop-blur border-b border-gray-200 py-3 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="bg-brand-600 text-white text-xs font-bold px-2.5 py-1 rounded tracking-wider uppercase">FAURGS</span>
+                <h1 class="text-sm sm:text-base font-semibold text-gray-800 truncate">Instrumentos e Metodologias Avaliativas em Computação</h1>
+            </div>
+            <div id="header-counter" class="text-xs sm:text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                <span id="answered-count">0</span> de 10 respondidas
+            </div>
+        </div>
+        <!-- Progresso visual -->
+        <div class="w-full bg-gray-200 h-1 mt-3">
+            <div id="progress-bar" class="bg-brand-600 h-1 w-0 transition-all duration-300"></div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 mt-8">
+
+        <!-- Banner Introdutório -->
+        <div id="intro-card" class="bg-white rounded-xl border border-gray-200 p-6 mb-8 shadow-sm">
+            <div class="border-b border-gray-100 pb-4 mb-4">
+                <span class="text-xs font-semibold uppercase tracking-wider text-brand-600">Simulado de Concurso</span>
+                <h2 class="text-2xl font-bold text-gray-900 mt-1">Caderno de Questões: Padrão FAURGS</h2>
+                <p class="text-gray-600 text-sm mt-1">Questões objetivas no formato clássico com afirmativas (I, II, III, IV), focadas na prática pedagógica, didática do ensino de tecnologia, rubricas, portfólios e feedback formativo.</p>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm text-gray-500">
+                <div class="flex items-center space-x-4">
+                    <span>📝 10 Questões</span>
+                    <span>⏱️ Sem limite de tempo</span>
+                    <span>💡 Resoluções comentadas ao finalizar</span>
+                </div>
+                <button onclick="scrollToQuestion(1)" class="text-brand-600 font-semibold hover:underline">Ir para Questão 1 &rarr;</button>
+            </div>
+        </div>
+
+        <!-- Dashboard de Resultados (Invisível no início) -->
+        <div id="results-dashboard" class="hidden bg-white rounded-xl border-2 border-brand-500 p-6 mb-8 shadow-md fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-100 pb-6">
+                <div>
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Resultado do Simulado</span>
+                    <h2 class="text-3xl font-extrabold text-gray-900 mt-1">Gabarito e Desempenho</h2>
+                    <p class="text-gray-600 text-sm mt-1">Confira sua pontuação e a fundamentação teórico-prática de cada questão abaixo.</p>
+                </div>
+                <div class="flex items-center space-x-4 bg-gray-50 p-4 rounded-xl border border-gray-100 self-start md:self-auto">
+                    <div class="text-center">
+                        <div id="score-text" class="text-3xl font-black text-brand-600">0 / 10</div>
+                        <div class="text-xs font-medium text-gray-500">Acertos</div>
+                    </div>
+                    <div class="h-10 w-px bg-gray-200"></div>
+                    <div class="text-center">
+                        <div id="percentage-text" class="text-3xl font-black text-gray-800">0%</div>
+                        <div class="text-xs font-medium text-gray-500">Aproveitamento</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtro de Visualização -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pt-4">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-gray-500 uppercase">Filtrar:</span>
+                    <button onclick="filterQuestions('all')" id="filter-all" class="px-3 py-1 text-xs font-medium rounded-full bg-brand-600 text-white">Todas (10)</button>
+                    <button onclick="filterQuestions('correct')" id="filter-correct" class="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200">Corretas</button>
+                    <button onclick="filterQuestions('wrong')" id="filter-wrong" class="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200">Incorretas</button>
+                </div>
+                <button onclick="restartQuiz()" class="px-4 py-2 text-xs font-bold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 border border-gray-300 transition">Reiniciar Quiz</button>
+            </div>
+        </div>
+
+        <!-- Container das Questões -->
+        <div id="questions-container" class="space-y-8">
+            <!-- As questões serão injetadas via JavaScript aqui -->
+        </div>
+
+        <!-- Botão de Finalizar -->
+        <div id="submit-block" class="mt-10 p-6 bg-white rounded-xl border border-gray-200 shadow-sm text-center">
+            <h3 class="text-base font-semibold text-gray-800 mb-2">Concluiu a resolução das questões?</h3>
+            <p class="text-sm text-gray-500 mb-4">Ao clicar no botão abaixo, suas respostas serão corrigidas e os comentários detalhados de cada questão serão exibidos na mesma página.</p>
+            <button id="submit-btn" onclick="finishQuiz()" class="w-full sm:w-auto px-8 py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-sm transition-all text-base">
+                Finalizar Quiz e Ver Resolução
+            </button>
+        </div>
+
+    </main>
+
+    <script>
+        // Estrutura de dados completa das questões e resoluções
+        const quizData = [
+            {
+                id: 1,
+                statement: "No âmbito da prática pedagógica e da didática no ensino de Computação, a escolha e a utilização dos instrumentos avaliativos exigem uma clara intencionalidade do professor no planejamento do ensino. Considere as afirmações a seguir sobre o conceito, a função e a aplicação dos instrumentos avaliativos no processo de ensino-aprendizagem.",
+                items: [
+                    "I - O instrumento de avaliação deve ser concebido como um meio transparente voltado ao apoio da aprendizagem e à orientação das decisões pedagógicas do docente, e não como um fim em si mesmo.",
+                    "II - A prova escrita individual em papel constitui o único recurso capaz de aferir de forma integral a lógica de programação, o desenvolvimento de algoritmos e a capacidade de trabalho em equipe no campo da ciência da computação.",
+                    "III - Diários de aprendizagem, mapas conceituais, entrevistas e testes de código constituem recursos metodológicos que fornecem dados sistemáticos sobre a forma como o aluno aprende.",
+                    "IV - A intencionalidade do professor na construção e escolha dos recursos avaliativos possibilita que os dados coletados orientem ajustes no ensino e forneçam feedbacks estruturados para o aluno."
+                ],
+                question: "Quais estão corretas?",
+                options: [
+                    "(A) Apenas I e II.",
+                    "(B) Apenas II e III.",
+                    "(C) Apenas I, III e IV.",
+                    "(D) Apenas II, III e IV.",
+                    "(E) I, II, III e IV."
+                ],
+                correct: 2, // C
+                topic: "Conceito e Função dos Instrumentos Avaliativos",
+                explanation: `
+                    <p class="font-bold text-gray-900 mb-2">Gabarito: (C) Apenas I, III e IV.</p>
+                    <p class="mb-2"><strong>Análise das proposições:</strong></p>
+                    <ul class="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                        <li><strong>I - Correta:</strong> O instrumento avaliativo no ensino de Computação atua como um meio pedagógico transparente a serviço da aprendizagem e do redefinir de decisões didáticas, contrapondo-se à visão tradicional que considera a prova ou teste como um fim em si mesmo.</li>
+                        <li><strong>II - Incorreta:</strong> A prova escrita em papel possui limitações estruturais para avaliar o trabalho colaborativo, a interação com ambientes de execução e o processo dinâmico de depuração de código.</li>
+                        <li><strong>III - Correta:</strong> Diários de aprendizagem, testes de código, mapas conceituais e conversas/entrevistas constituem recursos intencionalmente desenhados para coletar evidências sobre o modo como o estudante constrói estruturas lógicas e conceituais.</li>
+                        <li><strong>IV - Correta:</strong> A intencionalidade do professor garante que os instrumentos forneçam dados úteis para o ajuste do ensino e para a oferta de feedbacks formativos e estruturados ao aluno.</li>
+                    </ul>
+                `
+            },
+            {
+                id: 2,
+                statement: "A adequação pedagógica e a diversificação dos instrumentos avaliativos são diretrizes essenciais para assegurar a equidade, a justiça e o respeito à diversidade de perfis dos estudantes em cursos de tecnologia. Considere as proposições abaixo relativas ao alinhamento entre objetivos de ensino e escolhas metodológicas.",
+                items: [
+                    "I - Avaliar a habilidade prática de resolução de problemas e o desenvolvimento de software utilizando exclusivamente provas teóricas e individuais aplicadas em papel configura uma incoerência entre o objetivo educacional e o instrumento utilizado.",
+                    "II - A utilização de múltiplos e diversificados instrumentos avaliativos contempla diferentes estilos de aprendizagem e formas de expressão dos estudantes — como o estilo visual, o cinestésico e o focado em leitura/escrita —, promovendo equidade no processo educativo.",
+                    "III - A busca pela equidade avaliativa exige a padronização e a aplicação uniforme de um único instrumento tradicional para todas as atividades da disciplina, vedando a diversificação de formatos.",
+                    "IV - O acompanhamento de projetos de software por meio da observação registrada, análise de repositórios compartilhados de código e arguição individual com apresentação técnica constitui uma prática avaliativa coerente e diversificada."
+                ],
+                question: "Quais estão corretas?",
+                options: [
+                    "(A) Apenas I e III.",
+                    "(B) Apenas II e III.",
+                    "(C) Apenas I, II e IV.",
+                    "(D) Apenas II, III e IV.",
+                    "(E) I, II, III e IV."
+                ],
+                correct: 2, // C
+                topic: "Coerência e Diversificação Avaliativa",
+                explanation: `
+                    <p class="font-bold text-gray-900 mb-2">Gabarito: (C) Apenas I, II e IV.</p>
+                    <p class="mb-2"><strong>Análise das proposições:</strong></p>
+                    <ul class="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                        <li><strong>I - Correta:</strong> Há uma inadequação pedagógica manifesta quando se busca avaliar a competência prática de resolução de problemas e construção de software por meio exclusivo de provas individuais escritas em papel.</li>
+                        <li><strong>II - Correta:</strong> A diversificação dos instrumentos permite atingir os múltiplos estilos de apreensão e expressão do conhecimento (visual, cinestésico, leitura/escrita), estabelecendo um ambiente avaliativo pautado pela equidade e pela justiça.</li>
+                        <li><strong>III - Incorreta:</strong> Equidade em avaliação não significa aplicar rigorosamente o mesmo instrumento estático e uniforme a todos, mas sim oferecer oportunidades diversificadas para que cada estudante demonstre sua aprendizagem por diferentes meios.</li>
+                        <li><strong>IV - Correta:</strong> Integrar a observação do docente, a verificação de repositórios compartilhados e arguições individuais com apresentações em grupo representa um arranjo avaliativo coerente e multidimensional no ensino de computação.</li>
+                    </ul>
+                `
+            },
+            {
+                id: 3,
+                statement: "No contexto da avaliação educacional, contrapõem-se a perspectiva pragmática da área de Tecnologia da Informação (TI) e a perspectiva pedagógica formativa fundamentada por Benigna Villas-Boas. Sobre a concepção e a estrutura do portfólio pedagógico escolar, considere as seguintes afirmações.",
+                items: [
+                    "I - Na perspectiva pedagógica de Benigna Villas-Boas, o portfólio é definido como uma coleção organizada, sistemática e reflexiva das produções do estudante ao longo de determinado período letivo.",
+                    "II - Diferentemente do portfólio em TI, que atua precipuamente como uma vitrine estática de projetos finalizados direcionada a contratantes do mercado, o portfólio pedagógico enfatiza a documentação do processo de aprendizagem, registrando rascunhos, tentativas e erros superados.",
+                    "III - A marca registrada do portfólio pedagógico é a sua caracterização como uma pasta sanfonada destinada ao acúmulo quantitativo e sem ordenação de tarefas cumpridas.",
+                    "IV - O portfólio pedagógico desenvolve a autonomia do estudante ao devolver a ele o protagonismo sobre seu percurso formativo, permitindo-lhe reconhecer o ponto de partida, o modo como superou dúvidas e as metas a alcançar."
+                ],
+                question: "Quais estão corretas?",
+                options: [
+                    "(A) Apenas I e III.",
+                    "(B) Apenas II e IV.",
+                    "(C) Apenas I, II e IV.",
+                    "(D) Apenas II, III e IV.",
+                    "(E) I, II, III e IV."
+                ],
+                correct: 2, // C
+                topic: "Portfólio Pedagógico em Computação",
+                explanation: `
+                    <p class="font-bold text-gray-900 mb-2">Gabarito: (C) Apenas I, II e IV.</p>
+                    <p class="mb-2"><strong>Análise das proposições:</strong></p>
+                    <ul class="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                        <li><strong>I - Correta:</strong> Na concepção pedagógica postulada por Benigna Villas-Boas, o portfólio constitui uma coleção organizada, sistemática e reflexiva das produções do estudante ao longo de um ciclo educativo.</li>
+                        <li><strong>II - Correta:</strong> O portfólio pedagógico diferencia-se do portfólio comercial de TI (que exibe apenas produtos prontos) por focar na trajetória de desenvolvimento, registrando rascunhos, erros superados e o raciocínio aplicado.</li>
+                        <li><strong>III - Incorreta:</strong> O portfólio pedagógico não se reduz a uma \"pasta sanfonada\" de acúmulo burocrático de atividades cumpridas sem reflexão; o mero acúmulo descaracteriza seu valor avaliativo.</li>
+                        <li><strong>IV - Correta:</strong> Ao integrar autoavaliações, o portfólio desenvolve a autonomia do educando, permitindo que ele perceba de onde partiu, como superou desafios e quais metas necessita alcançar.</li>
+                    </ul>
+                `
+            },
+            {
+                id: 4,
+                statement: "No ensino de programação, a implementação de portfólios pode variar entre práticas inadequadas de mero armazenamento digital de arquivos e práticas recomendadas focadas na reflexão processual. Assinale a alternativa que indica uma prática alinhada às recomendações pedagógicas de uso do portfólio reflexivo em ciência da computação.",
+                items: [],
+                question: "",
+                options: [
+                    "(A) Exigir que os estudantes salvem todos os arquivos com extensão .py produzidos na disciplina em uma pasta do Google Drive, atribuindo a nota final com base no volume de arquivos armazenados.",
+                    "(B) Orientar os estudantes a manterem um repositório Git onde publicam as etapas do desenvolvimento do código, contendo a primeira versão com erros, a versão refatorada após feedback e um texto reflexivo em Markdown analisando a otimização da lógica do algoritmo.",
+                    "(C) Determinar que apenas a versão final e otimizada dos scripts seja mantida no repositório, apagando os registros históricos e os testes intermediários para simplificar a correção docente.",
+                    "(D) Utilizar corretores automáticos de código que geram notas imediatas sem a necessidade de inclusão de relatos autoavaliativos ou registros de teste de mesa pelos estudantes.",
+                    "(E) Substituir a documentação do processo de desenvolvimento de software por provas escritas dissertativas focadas na memorização de sintaxe de linguagens de programação."
+                ],
+                correct: 1, // B
+                topic: "Práticas de Portfólio no Ensino de TI",
+                explanation: `
+                    <p class="font-bold text-gray-900 mb-2">Gabarito: (B)</p>
+                    <p class="mb-2"><strong>Análise das alternativas:</strong></p>
+                    <ul class="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                        <li><strong>(B) Correta:</strong> Descreve a conduta pedagógica recomendada: a utilização de repositórios versionados (como o Git) associados a relatos em Markdown possibilita registrar a evolução do código, a refatoração pós-feedback e a análise reflexiva sobre a lógica dos algoritmos.</li>
+                        <li><strong>(A) Incorreta:</strong> Ilustra uma prática inadequada de acúmulo passivo no Google Drive com atribuição de nota quantitativa por volume de arquivos.</li>
+                        <li><strong>(C), (D) e (E) Incorretas:</strong> Descartam o caráter processual, a autoavaliação e o acompanhamento pedagógico, reduzindo o processo avaliativo a checagens meramente somativas ou automatizadas.</li>
+                    </ul>
+                `
+            },
+            {
+                id: 5,
+                statement: "A aplicação de rubricas de avaliação no ensino de tecnologia busca conferir objetividade, transparência e clareza aos critérios de correção de atividades complexas. Considere as afirmações a seguir relativas às funções pedagógicas das rubricas.",
+                items: [
+                    "I - A avaliação de trabalhos de programação realizada sem critérios transparentes definidos em rubricas favorece a subjetividade na correção, deixando o estudante sem orientação precisa sobre como evoluir.",
+                    "II - A fim de resguardar a imparcialidade do processo avaliativo, a rubrica de avaliação deve ser mantida em sigilo pelo docente, sendo divulgada ao estudante apenas juntamente com a nota final.",
+                    "III - Quando entregue e explicada aos estudantes antes do início da atividade, a rubrica atua como um guia de autoorientação, estimulando a autonomia na realização das tarefas.",
+                    "IV - A rubrica atua na redução da subjetividade docente ao padronizar os critérios de qualidade e descrever expressamente os níveis de desempenho esperados, garantindo equidade na avaliação de diferentes soluções."
+                ],
+                question: "Quais estão corretas?",
+                options: [
+                    "(A) Apenas I e II.",
+                    "(B) Apenas III e IV.",
+                    "(C) Apenas I, III e IV.",
+                    "(D) Apenas II, III e IV.",
+                    "(E) I, II, III e IV."
+                ],
+                correct: 2, // C
+                topic: "Rubricas e Transparência Avaliativa",
+                explanation: `
+                    <p class="font-bold text-gray-900 mb-2">Gabarito: (C) Apenas I, III e IV.</p>
+                    <p class="mb-2"><strong>Análise das proposições:</strong></p>
+                    <ul class="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                        <li><strong>I - Correta:</strong> A ausência de critérios objetivos expressos em rubricas introduz subjetividade na correção de projetos de programação, deixando o estudante sem clareza sobre suas falhas e necessidades de superação.</li>
+                        <li><strong>II - Incorreta:</strong> Para que a rubrica exerça sua função de guia de aprendizagem, ela deve ser obrigatoriamente apresentada e discutida com os alunos <strong>antes</strong> da realização do trabalho.</li>
+                        <li><strong>III - Correta:</strong> A clareza prévia dos critérios e níveis de desempenho permite que o aluno utilize a rubrica como instrumento de auto-orientação e autorregulação durante o desenvolvimento das tarefas.</li>
+                        <li><strong>IV - Correta:</strong> As rubricas padronizam os parâmetros do professor, assegurando equidade no tratamento de diferentes soluções de software apresentadas pela turma.</li>
+                    </ul>
+                `
+            },
+            {
+                id: 6,
+                statement: "As rubricas no ensino de computação articulam critérios de qualidade e níveis de desempenho em matrizes dinâmicas. Em relação à estrutura, aos elementos e ao uso das rubricas no contexto educacional, assinale a alternativa INCORRETA.",
+                items: [],
+                question: "",
+                options: [
+                    "(A) A matriz de rubrica cruza critérios essenciais (como qualidade da solução, argumentação lógica, documentação e inovação) com níveis graduados de desempenho (como iniciante, intermediário e avançado).",
+                    "(B) A discriminação textual dos níveis de desempenho reduz o espaço para ambiguidades na correção de projetos abertos de desenvolvimento de software.",
+                    "(C) A rubrica funciona como uma ferramenta de autoavaliação, permitindo que o estudante identifique em qual nível de desempenho suas entregas se enquadram.",
+                    "(D) A utilização de rubricas elimina totalmente a necessidade de mediação, diálogos pedagógicos e devoluções presenciais entre o professor e a turma.",
+                    "(E) A clareza conferida pelas rubricas favorece a auto-orientação do estudante quanto às metas acadêmicas e técnicas a serem atingidas no projeto."
+                ],
+                correct: 3, // D
+                topic: "Estrutura da Matriz de Rubricas",
+                explanation: `
+                    <p class="font-bold text-gray-900 mb-2">Gabarito: (D) Assinalar a alternativa INCORRETA.</p>
+                    <p class="mb-2"><strong>Análise das alternativas:</strong></p>
+                    <ul class="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                        <li><strong>(D) Falsa (Opção a ser marcada):</strong> As rubricas não substituem o papel ativo e mediador do docente. A matriz de rubrica qualifica os critérios, mas não elimina a necessidade de feedbacks orais, orientações em sala de aula e diálogo pedagógico contínuo.</li>
+                        <li><strong>(A), (B), (C) e (E) Verdadeiras:</strong> Expressam características reais das rubricas: cruzamento de critérios de qualidade com níveis graduados de desempenho, redução de dubiedades na correção de trabalhos abertos, suporte à autoavaliação e clareza sobre as metas de aprendizagem.</li>
+                    </ul>
+                `
+            },
+            {
+                id: 7,
+                statement: "O desenvolvimento de projetos de software em equipe no ambiente escolar ou acadêmico demanda estratégias específicas para lidar com os desafios da avaliação individual e coletiva. Considere as afirmações a seguir sobre o acompanhamento processual de projetos.",
+                items: [
+                    "I - A atribuição de uma nota única para o grupo ao final do projeto, sem o acompanhamento do processo de desenvolvimento do código e das contribuições individuais, pode encobrir assimetrias e gerar injustiças avaliativas.",
+                    "II - A avaliação focada exclusivamente no produto final do software oculta as dinâmicas de aprendizagem, a divisão de tarefas na equipe e as dificuldades individuais vivenciadas pelos alunos.",
+                    "III - O acompanhamento processual do desenvolvimento do código possibilita intervenções pedagógicas contínuas do docente, respeitando as diferentes velocidades de aprendizagem dos estudantes.",
+                    "IV - Ferramentas de controle de versão (como o Git) inviabilizam a avaliação individualizada em projetos de grupo, uma vez que unificam todas as contribuições em um único arquivo final sem histórico."
+                ],
+                question: "Quais estão corretas?",
+                options: [
+                    "(A) Apenas I e II.",
+                    "(B) Apenas III e IV.",
+                    "(C) Apenas I, II e III.",
+                    "(D) Apenas II, III e IV.",
+                    "(E) I, II, III e IV."
+                ],
+                correct: 2, // C
+                topic: "Avaliação de Projetos de Software (PBL)",
+                explanation: `
+                    <p class="font-bold text-gray-900 mb-2">Gabarito: (C) Apenas I, II e III.</p>
+                    <p class="mb-2"><strong>Análise das proposições:</strong></p>
+                    <ul class="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                        <li><strong>I - Correta:</strong> A atribuição de nota única global para a equipe sem monitoramento do processo gera injustiças avaliativas, pois encobre casos de pouca contribuição individual e oculta o esforço dos alunos mais engajados.</li>
+                        <li><strong>II - Correta:</strong> Avaliar apenas o software pronto (produto final) invisibiliza o processo de aprendizagem, a divisão de tarefas entre os membros e as dificuldades técnicas enfrentadas pela equipe ao longo do projeto.</li>
+                        <li><strong>III - Correta:</strong> O acompanhamento contínuo da evolução das entregas autoriza o professor a fazer intervenções pedagógicas tempestivas, respeitando os ritmos próprios de aprendizagem.</li>
+                        <li><strong>IV - Incorreta:</strong> Os sistemas de controle de versão (como o Git) são altamente recomendados para trabalhos em grupo, pois registram o histórico de alterações e identificam com precisão as contribuições individuais de cada aluno.</li>
+                    </ul>
+                `
+            },
+            {
+                id: 8,
+                statement: "A avaliação do trabalho em equipe em projetos de software requer a combinação de múltiplos instrumentos para capturar o aprendizado individual e o desempenho coletivo. Relacione os modelos de acompanhamento contidos no quadro superior com as respectivas práticas pedagógicas descritas no quadro inferior.<br><br><strong>Modelos de Acompanhamento:</strong><br>1 - Entregas Quinzenais (<em>Milestones</em>)<br>2 - Histórico de Contribuições (Controle de Versão)<br>3 - Coavaliação e Interpares<br><br><strong>Práticas Pedagógicas:</strong><br>( &nbsp; ) Mapeamento contínuo das contribuições por membro do grupo por meio da análise de dados de <em>commits</em>, identificando o volume e o tipo de trabalho realizado individualmente.<br>( &nbsp; ) Aplicação de fichas nas quais os estudantes analisam criticamente a colaboração, o engajamento e a corresponsabilidade dos colegas de equipe durante o projeto.<br>( &nbsp; ) Divisão do cronograma em etapas intermediárias de verificação (ex.: módulo de interface, banco de dados e lógica back-end), permitindo ao professor intervir preventivamente.",
+                items: [],
+                question: "A sequência correta de preenchimento dos parênteses, de cima para baixo, é:",
+                options: [
+                    "(A) 2 - 3 - 1.",
+                    "(B) 1 - 2 - 3.",
+                    "(C) 3 - 2 - 1.",
+                    "(D) 2 - 1 - 3.",
+                    "(E) 3 - 1 - 2."
+                ],
+                correct: 0, // A
+                topic: "Instrumentos de Acompanhamento em Grupo",
+                explanation: `
+                    <p class="font-bold text-gray-900 mb-2">Gabarito: (A) Sequência 2 - 3 - 1.</p>
+                    <p class="mb-2"><strong>Análise da correspondência:</strong></p>
+                    <ul class="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                        <li><strong>( 2 ) Histórico de Contribuições:</strong> Trata do acompanhamento dos logs de <em>commits</em> e contribuições de código em repositórios (como o GitHub), quantificando e qualificando a atuação de cada integrante da equipe.</li>
+                        <li><strong>( 3 ) Coavaliação e Interpares:</strong> Refere-se à avaliação recíproca entre os alunos sobre o compromisso, colaboração e conduta ética do colega durante o desenvolvimento do projeto em grupo.</li>
+                        <li><strong>( 1 ) Entregas Quinzenais (Milestones):</strong> Consiste no fracionamento do projeto em marcos intermediários de verificação (ex.: telas, banco de dados, regras de negócio), garantindo o acompanhamento processual por etapas.</li>
+                    </ul>
+                `
+            },
+            {
+                id: 9,
+                statement: "Com base nos pressupostos teóricos de Cipriano Luckesi, a avaliação deve ser compreendida como um \"ato integrador\", cujo foco reside no diagnóstico, no acolhimento e na inclusão do educando, opondo-se à prática meramente classificatória. No contexto da ciência da computação, assinale a opção que reflete a correta aplicação do feedback formativo e da devolutiva pedagógica segundo esse conceito.",
+                items: [],
+                question: "",
+                options: [
+                    "(A) A aposição de um sinal de visto ou da palavra \"incorreto\" na margem de um algoritmo com erro cumpre integralmente a função do feedback formativo.",
+                    "(B) O feedback formativo qualificado limita-se à emissão rápida da nota numismática no sistema de registro acadêmico ao final do semestre.",
+                    "(C) A devolutiva pedagógica qualificada informa ao estudante o que ele alcançou, detalha a lógica subjacente ao erro (ex.: identificar que a função entra em estouro de pilha para parâmetros negativos) e sugere estratégias para a superação do problema.",
+                    "(D) A correção direta e reescrita integral do código pelo professor substitui a necessidade de retrabalho pelo estudante, assegurando a aprendizagem passiva.",
+                    "(E) A função primordial do feedback no processo formativo consiste em ranquear os estudantes com base no tempo gasto para finalizar a compilação do programa."
+                ],
+                correct: 2, // C
+                topic: "Feedback Formativo e Devolutiva Pedagógica",
+                explanation: `
+                    <p class="font-bold text-gray-900 mb-2">Gabarito: (C)</p>
+                    <p class="mb-2"><strong>Análise das alternativas:</strong></p>
+                    <ul class="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                        <li>Na fundamentação de Cipriano Luckesi, a avaliação como \"ato integrador\" visa diagnosticar e acolher o educando para promover o seu desenvolvimento, opondo-se ao uso da avaliação como mero instrumento de descarte, visto ou punição.</li>
+                        <li><strong>(C) Correta:</strong> Retrata com precisão o feedback formativo qualificado no ensino de algoritmos: o professor aponta o progresso obtido, explica o erro técnico estrutural (por exemplo, a falta de condição de parada na recursão gerando <em>stack overflow</em> para entradas negativas) e indica o caminho reflexivo para a solução.</li>
+                        <li><strong>(A), (B), (D) e (E) Incorretas:</strong> Reduzem o feedback a marcas superficiais (\"visto\"), notas frias em diários, substituição da ação do estudante pela resposta do docente ou ranqueamento competitivo entre pares, violando a dimensão integradora e formativa da avaliação.</li>
+                    </ul>
+                `
+            },
+            {
+                id: 10,
+                statement: "O feedback formativo qualificado e o registro pedagógico sistemático constituem dimensões centrais da avaliação para a aprendizagem em cursos de tecnologia. Considere as proposições a seguir sobre esses procedimentos avaliativos.",
+                items: [
+                    "I - O caráter oportuno (tempestividade) do feedback refere-se à sua oferta no momento adequado durante o processo de desenvolvimento, permitindo ao estudante reorientar suas estratégias de codificação antes da conclusão da tarefa.",
+                    "II - O registro pedagógico do professor deve funcionar como instrumento de punição acadêmica e controle de prazos estritos ao término da unidade letiva.",
+                    "III - A sugestão pedagógica para que o estudante faça um teste de mesa no papel antes de refatorar um algoritmo com erro estimula o pensamento reflexivo e o automonitoramento metacognitivo.",
+                    "IV - O acompanhamento contínuo registrado pelo docente serve de suporte pedagógico para diagnosticar lacunas de aprendizagem e fundamentar o replanejamento das práticas de ensino."
+                ],
+                question: "Quais estão corretas?",
+                options: [
+                    "(A) Apenas I e II.",
+                    "(B) Apenas III e IV.",
+                    "(C) Apenas I, III e IV.",
+                    "(D) Apenas II, III e IV.",
+                    "(E) I, II, III e IV."
+                ],
+                correct: 2, // C
+                topic: "Tempestividade e Registro Pedagógico",
+                explanation: `
+                    <p class="font-bold text-gray-900 mb-2">Gabarito: (C) Apenas I, III e IV.</p>
+                    <p class="mb-2"><strong>Análise das proposições:</strong></p>
+                    <ul class="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                        <li><strong>I - Correta:</strong> A tempestividade é o caráter oportuno da devolução: o feedback fornecido durante o processo de aprendizagem permite ao aluno revisar conceitos e reorientar sua estratégia antes da consolidação do resultado.</li>
+                        <li><strong>II - Incorreta:</strong> O registro pedagógico contínuo destina-se ao acompanhamento da evolução do aluno e à orientação docente, devendo estar desvinculado de funções exclusivamente coercitivas ou punitivas.</li>
+                        <li><strong>III - Correta:</strong> Incentivar o teste de mesa no papel atua diretamente no desenvolvimento da metacognição do estudante, fazendo-o compreender e automonitorar os passos da execução algorítmica.</li>
+                        <li><strong>IV - Correta:</strong> Os registros pedagógicos individuais e coletivos geram diagnósticos que embasam o planejamento e o replanejamento imediato das práticas educativas pelo professor.</li>
+                    </ul>
+                `
+            }
+        ];
+
+        // Estado do Quiz
+        const userAnswers = {};
+        let isSubmitted = false;
+
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            quizData.forEach((q, qIndex) => {
+                const questionCard = document.createElement('div');
+                questionCard.id = `q-card-${q.id}`;
+                questionCard.className = 'bg-white rounded-xl border border-gray-200 p-6 sm:p-8 shadow-sm transition-all';
+
+                // Items list formatting
+                let itemsHtml = '';
+                if (q.items && q.items.length > 0) {
+                    itemsHtml = `
+                        <div class="my-4 p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-2 text-sm sm:text-base text-gray-800 font-sans">
+                            ${q.items.map(item => `<div>${item}</div>`).join('')}
+                        </div>
+                    `;
+                }
+
+                // Question statement / title
+                let questionPromptHtml = '';
+                if (q.question) {
+                    questionPromptHtml = `<div class="font-semibold text-gray-900 mt-3 text-base sm:text-lg">${q.question}</div>`;
+                }
+
+                // Options list
+                const optionsHtml = q.options.map((opt, optIndex) => {
+                    return `
+                        <div 
+                            id="opt-${q.id}-${optIndex}"
+                            onclick="selectOption(${q.id}, ${optIndex})"
+                            class="option-card flex items-start space-x-3 p-4 rounded-xl border border-gray-200 cursor-pointer text-sm sm:text-base text-gray-800"
+                        >
+                            <input 
+                                type="radio" 
+                                name="question-${q.id}" 
+                                id="radio-${q.id}-${optIndex}" 
+                                value="${optIndex}"
+                                class="mt-1 h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 pointer-events-none"
+                            >
+                            <label class="cursor-pointer flex-1 select-none pointer-events-none">${opt}</label>
+                        </div>
+                    `;
+                }).join('');
+
+                // Resolution block (initially hidden)
+                const resolutionHtml = `
+                    <div id="resolution-${q.id}" class="hidden mt-6 pt-6 border-t border-gray-200 fade-in">
+                        <div class="bg-blue-50/80 rounded-xl p-5 border border-blue-100 text-gray-800">
+                            <div class="flex items-center space-x-2 text-brand-700 font-bold mb-2 text-sm uppercase tracking-wider">
+                                <span>🔍 Resolução Comentada</span>
+                            </div>
+                            <div class="reading-text text-sm sm:text-base">
+                                ${q.explanation}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                questionCard.innerHTML = `
+                    <div class="flex items-center justify-between pb-3 mb-4 border-b border-gray-100">
+                        <span class="text-xs font-bold text-brand-600 bg-brand-50 px-3 py-1 rounded-full uppercase tracking-wider">
+                            Questão ${String(q.id).padStart(2, '0')}
+                        </span>
+                        <span class="text-xs text-gray-400 font-medium">${q.topic}</span>
+                    </div>
+
+                    <div class="reading-text mb-2">
+                        ${q.statement}
+                    </div>
+
+                    ${itemsHtml}
+                    ${questionPromptHtml}
+
+                    <div class="mt-6 space-y-3">
+                        ${optionsHtml}
+                    </div>
+
+                    ${resolutionHtml}
+                `;
+
+                container.appendChild(questionCard);
+            });
+        }
+
+        function selectOption(questionId, optionIndex) {
+            if (isSubmitted) return; // Não altera após envio
+
+            userAnswers[questionId] = optionIndex;
+
+            // Atualiza interface do radio selecionado
+            const q = quizData.find(item => item.id === questionId);
+            q.options.forEach((_, idx) => {
+                const optElement = document.getElementById(`opt-${questionId}-${idx}`);
+                const radioElement = document.getElementById(`radio-${questionId}-${idx}`);
+                if (idx === optionIndex) {
+                    optElement.classList.add('selected');
+                    radioElement.checked = true;
+                } else {
+                    optElement.classList.remove('selected');
+                    radioElement.checked = false;
+                }
+            });
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const answeredCount = Object.keys(userAnswers).length;
+            document.getElementById('answered-count').innerText = answeredCount;
+            const percentage = (answeredCount / quizData.length) * 100;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+        }
+
+        function scrollToQuestion(id) {
+            const el = document.getElementById(`q-card-${id}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function finishQuiz() {
+            const answeredCount = Object.keys(userAnswers).length;
+            
+            if (answeredCount < quizData.length) {
+                const confirmSubmit = confirm(`Você respondeu ${answeredCount} de ${quizData.length} questões. Deseja finalizar mesmo assim?`);
+                if (!confirmSubmit) return;
+            }
+
+            isSubmitted = true;
+
+            let score = 0;
+
+            quizData.forEach(q => {
+                const selected = userAnswers[q.id];
+                const isCorrect = (selected === q.correct);
+
+                if (isCorrect) {
+                    score++;
+                }
+
+                // Exibe resolução no card da questão
+                const resBlock = document.getElementById(`resolution-${q.id}`);
+                if (resBlock) {
+                    resBlock.classList.remove('hidden');
+                }
+
+                // Estiliza as opções com correto/incorreto
+                q.options.forEach((_, idx) => {
+                    const optElement = document.getElementById(`opt-${q.id}-${idx}`);
+                    optElement.classList.add('disabled');
+                    optElement.classList.remove('selected');
+
+                    if (idx === q.correct) {
+                        optElement.classList.add('correct-answer');
+                    } else if (idx === selected && selected !== q.correct) {
+                        optElement.classList.add('wrong-answer');
+                    }
+                });
+            });
+
+            // Exibe Dashboard de Resultados no topo
+            const dashboard = document.getElementById('results-dashboard');
+            dashboard.classList.remove('hidden');
+
+            const scoreText = document.getElementById('score-text');
+            const percentageText = document.getElementById('percentage-text');
+
+            scoreText.innerText = `${score} / ${quizData.length}`;
+            const pct = Math.round((score / quizData.length) * 100);
+            percentageText.innerText = `${pct}%`;
+
+            // Oculta botão de submit
+            document.getElementById('submit-block').classList.add('hidden');
+
+            // Rola suavemente até o topo/dashboard
+            dashboard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function filterQuestions(type) {
+            // Atualizar classes dos botões de filtro
+            ['all', 'correct', 'wrong'].forEach(t => {
+                const btn = document.getElementById(`filter-${t}`);
+                if (t === type) {
+                    btn.className = "px-3 py-1 text-xs font-medium rounded-full bg-brand-600 text-white";
+                } else {
+                    btn.className = "px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200";
+                }
+            });
+
+            quizData.forEach(q => {
+                const card = document.getElementById(`q-card-${q.id}`);
+                const selected = userAnswers[q.id];
+                const isCorrect = (selected === q.correct);
+
+                if (type === 'all') {
+                    card.style.display = 'block';
+                } else if (type === 'correct') {
+                    card.style.display = isCorrect ? 'block' : 'none';
+                } else if (type === 'wrong') {
+                    card.style.display = !isCorrect ? 'block' : 'none';
+                }
+            });
+        }
+
+        function restartQuiz() {
+            window.location.reload();
+        }
+
+        // Inicia na carga da página
+        window.onload = function() {
+            renderQuestions();
+        };
+    </script>
+</body>
+</html>
