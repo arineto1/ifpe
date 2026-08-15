@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Interativo - HTML Semântico (Estilo FAURGS)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        paper: '#FBF9F5',
+                        paperCard: '#FFFFFF',
+                        paperBorder: '#E8E3D9',
+                        darkText: '#1C2024',
+                        mutedText: '#525866',
+                        brandAccent: '#2563EB',
+                        brandHover: '#1D4ED8',
+                        correctBg: '#F0FDF4',
+                        correctBorder: '#86EFAC',
+                        correctText: '#166534',
+                        wrongBg: '#FEF2F2',
+                        wrongBorder: '#FECACA',
+                        wrongText: '#991B1B'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        body {
+            background-color: #FBF9F5;
+            color: #1C2024;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .code-block {
+            background-color: #1E293B;
+            color: #F8FAFC;
+            font-family: 'JetBrains Mono', monospace;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+
+        .option-card {
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #E8E3D9;
+        }
+
+        .option-card:hover:not(.disabled) {
+            border-color: #2563EB;
+            background-color: #F4F0E8;
+        }
+
+        .option-card.selected {
+            border-color: #2563EB;
+            background-color: #EFF6FF;
+            box-shadow: 0 0 0 1px #2563EB;
+        }
+
+        /* Styling for correction state */
+        .option-card.is-correct {
+            border-color: #22C55E !important;
+            background-color: #F0FDF4 !important;
+            color: #14532D !important;
+            font-weight: 600;
+        }
+
+        .option-card.is-wrong {
+            border-color: #EF4444 !important;
+            background-color: #FEF2F2 !important;
+            color: #7F1D1D !important;
+        }
+
+        .resolution-box {
+            border-left: 4px solid #2563EB;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom scrollbar for better reading */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1EFE9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-blue-100 selection:text-blue-900">
+
+    <!-- Top Header -->
+    <header class="bg-paperCard border-b border-paperBorder sticky top-0 z-30 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <span class="text-xs font-semibold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">Simulado Interativo</span>
+                <h1 class="text-xl sm:text-2xl font-bold text-darkText mt-1">HTML Semântico e Organização Web</h1>
+                <p class="text-xs sm:text-sm text-mutedText">Estilo Concurso FAURGS • 10 Questões Completas</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="btn-reset-top" onclick="resetQuiz()" class="hidden text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 bg-paper px-3 py-2 rounded-lg border border-paperBorder hover:bg-stone-200 transition">
+                    Reiniciar
+                </button>
+                <a href="#quiz-container" class="text-xs sm:text-sm font-semibold bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow-sm transition">
+                    Ir para Questões
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-4 py-8 flex-1 w-full">
+
+        <!-- Progress and Question Jump Bar -->
+        <div id="progress-card" class="bg-paperCard border border-paperBorder rounded-2xl p-5 mb-8 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                <span id="progress-text" class="text-sm font-semibold text-darkText">Progresso: 0 de 10 respondidas</span>
+                <span id="progress-percentage" class="text-xs font-medium text-mutedText">0% concluído</span>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="w-full bg-stone-200 h-2.5 rounded-full overflow-hidden mb-4">
+                <div id="progress-bar-fill" class="bg-blue-600 h-full w-0 transition-all duration-300"></div>
+            </div>
+
+            <!-- Quick Jump Buttons -->
+            <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-paperBorder">
+                <span class="text-xs font-medium text-mutedText mr-1">Atalhos:</span>
+                <div id="jump-buttons-container" class="flex flex-wrap gap-1.5">
+                    <!-- Dynamic Buttons Generated via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Summary Box (Hidden until submitted) -->
+        <div id="result-summary" class="hidden bg-paperCard border-2 border-blue-500 rounded-2xl p-6 mb-8 shadow-md transition-all">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="text-center md:text-left">
+                    <span id="score-badge" class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2"></span>
+                    <h2 class="text-2xl font-bold text-darkText" id="score-title">Resultado do Simulado</h2>
+                    <p class="text-mutedText text-sm mt-1" id="score-subtitle">Confira seu desempenho e veja as resoluções comentadas abaixo.</p>
+                </div>
+                
+                <div class="flex items-center gap-4 bg-paper px-6 py-4 rounded-xl border border-paperBorder text-center">
+                    <div>
+                        <div class="text-3xl font-extrabold text-blue-600" id="score-count">0/10</div>
+                        <div class="text-xs font-medium text-mutedText">Acertos</div>
+                    </div>
+                    <div class="h-8 w-px bg-paperBorder"></div>
+                    <div>
+                        <div class="text-3xl font-extrabold text-darkText" id="score-percent">0%</div>
+                        <div class="text-xs font-medium text-mutedText">Aproveitamento</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Filter for Answers -->
+            <div class="mt-6 pt-4 border-t border-paperBorder flex flex-wrap items-center justify-between gap-3">
+                <span class="text-xs font-medium text-mutedText">Filtrar questões:</span>
+                <div class="flex gap-2">
+                    <button onclick="filterQuestions('all')" id="filter-all" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-600 text-white transition">Todas (10)</button>
+                    <button onclick="filterQuestions('correct')" id="filter-correct" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-paper text-darkText border border-paperBorder hover:bg-stone-200 transition">Acertos</button>
+                    <button onclick="filterQuestions('wrong')" id="filter-wrong" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-paper text-darkText border border-paperBorder hover:bg-stone-200 transition">Erros / Poupadas</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions List Container -->
+        <div id="quiz-container" class="space-y-8">
+            <!-- Questions dynamically rendered here -->
+        </div>
+
+        <!-- Global Actions Bottom Bar -->
+        <div class="mt-10 bg-paperCard border border-paperBorder rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-center sm:text-left">
+                <h3 class="font-semibold text-darkText">Pronto para corrigir?</h3>
+                <p class="text-xs text-mutedText">Você pode responder a todas as questões e clicar abaixo para ver o resultado e as justificativas.</p>
+            </div>
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <button id="btn-reset" onclick="resetQuiz()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-paperBorder text-darkText font-medium text-sm hover:bg-stone-100 transition">
+                    Limpar Respostas
+                </button>
+                <button id="btn-submit" onclick="submitQuiz()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 shadow-md transition">
+                    Finalizar e Corrigir Simulado
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-paperCard border-t border-paperBorder py-6 mt-12">
+        <div class="max-w-4xl mx-auto px-4 text-center text-xs text-mutedText space-y-2">
+            <p class="font-medium">Simulado com Questões Completas no Padrão FAURGS • HTML Semântico & Arquitetura Web</p>
+            <p>Layout otimizado para leituras extensas com alto conforto visual.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Full dataset containing exact verbatim text from source document
+        const quizData = [
+            {
+                id: 1,
+                topico: "Semântica dos elementos <main>, <article> e <aside>",
+                enunciado: "Em relação aos elementos de estruturação semântica introduzidos e consolidados no HTML5 para a organização e seccionamento de documentos web, analise as assertivas abaixo:",
+                assertivas: [
+                    "I - O elemento <code>&lt;main&gt;</code> representa o conteúdo principal do corpo de um documento HTML. Esse conteúdo deve ser exclusivo do documento em questão e não deve conter blocos repetidos em múltiplos documentos, tais como links de navegação global, cabeçalhos do site ou informações de direitos autorais.",
+                    "II - O elemento <code>&lt;article&gt;</code> é utilizado para representar uma composição autônoma e independente em um documento, página ou site, projetada para ser distribuída ou reutilizada de forma isolada em outros contextos ou canais de sindicação.",
+                    "III - O elemento <code>&lt;aside&gt;</code> deve ser utilizado de forma restrita e exclusiva para a inserção de banners publicitários e anúncios comerciais nas margens laterais da página."
+                ],
+                opcoes: [
+                    { key: "A", text: "Apenas I." },
+                    { key: "B", text: "Apenas II." },
+                    { key: "C", text: "Apenas I e II." },
+                    { key: "D", text: "Apenas II e III." },
+                    { key: "E", text: "I, II e III." }
+                ],
+                gabarito: "C",
+                resolucao: "A primeira assertiva é verdadeira porque o elemento <code>&lt;main&gt;</code> foi concebido pela W3C especificamente para delimitar o conteúdo central da página, estabelecendo que esse conteúdo deve ser exclusivo do documento e não pode conter estruturas repetidas em todo o portal, como menus de navegação, rodapés globais ou barras laterais corporativas. A segunda assertiva também está correta, uma vez que o <code>&lt;article&gt;</code> representa um bloco autônomo e independente, perfeitamente apto para ser republicado isoladamente em agregadores de conteúdo ou canais RSS. Por outro lado, a terceira assertiva é falsa porque o elemento <code>&lt;aside&gt;</code> não se destina unicamente à publicidade comercial. Sua função semântica engloba qualquer conteúdo tangencial ou indiretamente relacionado ao bloco principal, incluindo notas de rodapé, biografias de autores, caixas de citação, listas de links relacionados e painéis auxiliares. Portanto, a alternativa correta é a <strong>C</strong>."
+            },
+            {
+                id: 2,
+                topico: "Ponto de integração de aplicações externas via <embed>",
+                enunciado: "Conforme as especificações do W3C para a arquitetura do HTML5, a marcação semântica provê suporte para a integração de conteúdos interativos e recursos multimídia. Qual elemento HTML5 fornece um ponto de integração para uma aplicação externa ou conteúdo interativo que, tipicamente, não é codificado originalmente na linguagem HTML?",
+                opcoes: [
+                    { key: "A", text: "&lt;section&gt;" },
+                    { key: "B", text: "&lt;embed&gt;" },
+                    { key: "C", text: "&lt;template&gt;" },
+                    { key: "D", text: "&lt;aside&gt;" },
+                    { key: "E", text: "&lt;figure&gt;" }
+                ],
+                gabarito: "B",
+                resolucao: "A questão exige o conhecimento do vocabulário de elementos da especificação HTML5 voltados à integração de recursos externos. O elemento <code>&lt;embed&gt;</code> atua precisamente como um container para a integração de aplicações externas ou conteúdos interativos não pertencentes nativamente ao documento HTML, tais como plug-ins ou objetos dinâmicos de terceiros. O elemento <code>&lt;section&gt;</code> destina-se ao agrupamento temático de conteúdos de texto e mídia, enquanto <code>&lt;template&gt;</code> é utilizado para armazenar código HTML inerte a ser instanciado via JavaScript. O elemento <code>&lt;aside&gt;</code> representa conteúdo periférico e o <code>&lt;figure&gt;</code> encapsula ilustrações autônomas. Dessa forma, a opção correta é a <strong>B</strong>."
+            },
+            {
+                id: 3,
+                topico: "Processamento de documentos, Parsers, Árvore DOM e DOM API",
+                enunciado: "Assinale a alternativa que preenche correta e respectivamente as lacunas do texto abaixo sobre o processamento e a representação de documentos web pelo navegador.",
+                textoLacuna: "Um documento ______ bem formado pode ser analisado por processadores genéricos, denominados ______, que percorrem a estrutura do documento e criam uma representação na memória no formato de ______. A ______ permite que linguagens de script e programas manipulem dinamicamente essa representação contida na memória.",
+                opcoes: [
+                    { key: "A", text: "HTML – parsers – árvore DOM – DOM API" },
+                    { key: "B", text: "CSS – compiladores – tabela hash – HTTP API" },
+                    { key: "C", text: "JavaScript – interpretadores – matriz – CSSOM" },
+                    { key: "D", text: "XML – montadores – grafo direcionado – JSON API" },
+                    { key: "E", text: "JSON – formatadores – pilha – REST API" }
+                ],
+                gabarito: "A",
+                resolucao: "A análise da questão remete ao processo de parsing e à arquitetura interna dos motores de renderização dos navegadores web. Um documento HTML bem-formado é processado por componentes de software conhecidos como parsers (ou analisadores sintáticos), que varrem a estrutura do texto e constroem na memória uma árvore hierárquica de nós denominada Document Object Model (DOM). Essa árvore reflete a relação de parentesco entre as tags e permite que linguagens de programação interajam com a página por meio da DOM API. A substituição correta das lacunas conduz diretamente à alternativa <strong>A</strong>."
+            },
+            {
+                id: 4,
+                topico: "Associação estrutural de tags semânticas (<nav>, <section>, <header>, <footer>)",
+                enunciado: "Relacione os elementos de organização semântica do HTML5, apresentados na primeira coluna, às suas respectivas definições estruturais, contidas na segunda coluna.",
+                colunas: {
+                    col1: [
+                        "1. &lt;header&gt;",
+                        "2. &lt;nav&gt;",
+                        "3. &lt;section&gt;",
+                        "4. &lt;footer&gt;"
+                    ],
+                    col2: [
+                        "( ) Representa um bloco destinado a conter os links de navegação principal da aplicação ou da página.",
+                        "( ) Agrupa um conjunto de conteúdos temáticos genéricos, antecedido comumente por um título especificador.",
+                        "( ) Representa um grupo de suporte introdutório ou de navegação, contendo tipicamente cabeçalhos, logos ou dados do autor.",
+                        "( ) Representa o rodapé de um documento ou de uma seção de conteúdo, contendo informações sobre autoria, dados de copyright ou documentos relacionados."
+                    ]
+                },
+                perguntaColuna: "A sequência correta de preenchimento dos parênteses, de cima para baixo, é:",
+                opcoes: [
+                    { key: "A", text: "2 – 3 – 1 – 4." },
+                    { key: "B", text: "1 – 2 – 3 – 4." },
+                    { key: "C", text: "3 – 1 – 4 – 2." },
+                    { key: "D", text: "2 – 4 – 1 – 3." },
+                    { key: "E", text: "4 – 3 – 2 – 1." }
+                ],
+                gabarito: "A",
+                resolucao: "A correlação entre os elementos e suas definições fundamenta-se nos padrões de marcação semântica estabelecidos no HTML5. O bloco destinado primariamente aos links de navegação principal da aplicação é representado por <code>&lt;nav&gt;</code> (item 2). O agrupamento de conteúdos genéricos em uma mesma área temática refere-se à tag <code>&lt;section&gt;</code> (item 3). O grupo de suporte introdutório que antecede uma seção ou a página inteira, contendo logos e títulos, corresponde a <code>&lt;header&gt;</code> (item 1). Por fim, a seção que encerra um documento ou artigo, fornecendo dados sobre direitos autorais e contatos, é delimitada por <code>&lt;footer&gt;</code> (item 4). A ordem resultante do preenchimento dos parênteses é 2 – 3 – 1 – 4, o que corresponde à alternativa <strong>A</strong>."
+            },
+            {
+                id: 5,
+                topico: "Portabilidade do HTML5, Responsividade e Acessibilidade ARIA",
+                enunciado: "Considere as afirmações a seguir, relativas ao desenvolvimento de páginas web responsivas e acessíveis utilizando a linguagem de marcação HTML5 e folhas de estilo CSS.",
+                assertivas: [
+                    "I - Aplicativos e páginas escritas utilizando a estrutura semântica do HTML5 apresentam a vantagem de oferecer elevada portabilidade entre diferentes plataformas, navegadores e dispositivos móveis.",
+                    "II - O uso exclusivo das tags semânticas <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code> e <code>&lt;footer&gt;</code> garante automaticamente que a página se torne responsiva e adaptável a telas de qualquer dimensão, dispensando o uso de regras CSS ou meta tags de viewport.",
+                    "III - A semântica nativa do HTML5 pode ser complementada com atributos de acessibilidade WAI-ARIA, permitindo que tecnologias assistivas compreendam com maior precisão o papel estrutural dos elementos da página."
+                ],
+                opcoes: [
+                    { key: "A", text: "Apenas I." },
+                    { key: "B", text: "Apenas II." },
+                    { key: "C", text: "Apenas III." },
+                    { key: "D", text: "Apenas I e III." },
+                    { key: "E", text: "I, II e III." }
+                ],
+                gabarito: "D",
+                resolucao: "A assertiva I está correta ao indicar que a marcação semântica padronizada do HTML5 eleva substancialmente a portabilidade das aplicações entre diferentes dispositivos e navegadores. A assertiva II é incorreta porque a responsividade de uma página não resulta de forma automática da escolha de tags semânticas. A capacidade de adaptação visual a diferentes dimensões de tela depende de estilos CSS responsivos e da correta configuração da meta tag de viewport no cabeçalho do documento. A assertiva III é verdadeira, pois a utilização dos atributos ARIA (Accessible Rich Internet Applications) enriquece a árvore semântica do HTML5, viabilizando a interpretação estrutural por leitores de tela e ferramentas assistivas. Assim, a resposta correta é a alternativa <strong>D</strong>."
+            },
+            {
+                id: 6,
+                topico: "Vinculação de CSS externo e recomendações do W3C",
+                enunciado: "O W3C estabelece que o HTML (Hypertext Markup Language) e o CSS (Cascading Style Sheets) constituem as tecnologias centrais para o desenvolvimento web. Em relação à integração entre a marcação HTML e a estilização via CSS, é correto afirmar que:",
+                opcoes: [
+                    { key: "A", text: "As regras de estilo CSS especificadas por meio do atributo <code>style</code> diretamente em uma tag HTML são denominadas estilos externos e possuem menor prioridade que os estilos globais." },
+                    { key: "B", text: "O elemento <code>&lt;link rel=\"stylesheet\" href=\"estilos.css\"&gt;</code> inserido dentro do elemento <code>&lt;head&gt;</code> representa o método recomendado para vincular uma folha de estilo externa ao documento HTML." },
+                    { key: "C", text: "As folhas de estilo CSS são estritamente interdependentes do HTML, não havendo qualquer compatibilidade com outras linguagens de marcação como XML ou SVG." },
+                    { key: "D", text: "O uso das tags semânticas do HTML5 substitui integralmente a necessidade de CSS para a definição de layouts e estilos visuais nos navegadores modernos." },
+                    { key: "E", text: "O elemento <code>&lt;style&gt;</code> deve ser obrigatoriamente alocado dentro do rodapé da página para evitar o bloqueio da renderização do documento HTML." }
+                ],
+                gabarito: "B",
+                resolucao: "A integração entre documentos HTML e folhas de estilo CSS obedece às normas internacionais do W3C. A alternativa A é falsa porque o atributo <code>style</code> configura o estilo inline, o qual apresenta a maior especificidade possível na hierarquia de CSS, sobrepondo estilos globais e externos. A alternativa B é correta, pois a inclusão da tag <code>&lt;link rel=\"stylesheet\" href=\"...\"&gt;</code> no elemento <code>&lt;head&gt;</code> representa a boa prática universal para a conexão de folhas de estilo externas. A alternativa C é incorreta porque o CSS é perfeitamente compatível com outras linguagens de marcação como SVG e XML. As alternativas D e E erram ao sugerir que a semântica substitui o CSS e ao exigir a alocação de declarações de estilo no rodapé do documento. A alternativa correta é a <strong>B</strong>."
+            },
+            {
+                id: 7,
+                topico: "Estruturação semântica de imagem e legenda (<figure> e <figcaption>)",
+                enunciado: "Um desenvolvedor precisa criar a estrutura de uma página de notícias contendo uma matéria jornalística que apresenta uma imagem acompanhada de sua legenda descritiva e indicação de fonte. Para atender rigorosamente aos critérios de semântica do HTML5 e organizar essa unidade de conteúdo visual, qual estrutura de código é a recomendada pela especificação?",
+                opcoes: [
+                    { key: "A", text: "<code>&lt;figure&gt;&lt;img src=\"foto.jpg\" alt=\"Notícia\"&gt;&lt;figcaption&gt;Legenda e fonte da notícia&lt;/figcaption&gt;&lt;/figure&gt;</code>" },
+                    { key: "B", text: "<code>&lt;aside&gt;&lt;img src=\"foto.jpg\"&gt;&lt;label&gt;Legenda e fonte da notícia&lt;/label&gt;&lt;/aside&gt;</code>" },
+                    { key: "C", text: "<code>&lt;section&gt;&lt;picture src=\"foto.jpg\"&gt;&lt;/picture&gt;&lt;span&gt;Legenda e fonte da notícia&lt;/span&gt;&lt;/section&gt;</code>" },
+                    { key: "D", text: "<code>&lt;article&gt;&lt;media src=\"foto.jpg\"&gt;&lt;text&gt;Legenda e fonte da notícia&lt;/text&gt;&lt;/media&gt;&lt;/article&gt;</code>" },
+                    { key: "E", text: "<code>&lt;header&gt;&lt;img src=\"foto.jpg\"&gt;&lt;p&gt;Legenda e fonte da notícia&lt;/p&gt;&lt;/header&gt;</code>" }
+                ],
+                gabarito: "A",
+                resolucao: "Para agrupar elementos gráficos e seus respetivos textos explicativos sob uma única unidade semântica, o HTML5 introduziu o elemento <code>&lt;figure&gt;</code>. Esse elemento é projetado para encapsular imagens, ilustrações ou diagramas e deve ser acompanhado pelo elemento <code>&lt;figcaption&gt;</code>, que assume o papel de legenda textual e indicação de fonte. As demais alternativas utilizam tags inadequadas para a associação entre mídia e legenda ou empregam elementos inexistentes na especificação do HTML5. A estrutura semântica apropriada é fornecida unicamente pela alternativa <strong>A</strong>."
+            },
+            {
+                id: 8,
+                topico: "Regras de aninhamento e escopo do <header> e <footer>",
+                enunciado: "Considere a seguinte estrutura de código HTML5 elaborada para uma publicação digital:",
+                codeSnippet: `<main>
+  <article>
+    <header>
+      <h1>Manchete Principal</h1>
+    </header>
+    <section>
+      <p>Texto detalhado da notícia...</p>
+    </section>
+    <footer>
+      <p>Publicado por Redação em 2025</p>
+    </footer>
+  </article>
+</main>`,
+                perguntaCodigo: "Analisando a hierarquia e as regras de aninhamento dos elementos semânticos do HTML5, considere as seguintes afirmações:",
+                assertivas: [
+                    "I - É válido utilizar os elementos <code>&lt;header&gt;</code> e <code>&lt;footer&gt;</code> no interior de um elemento <code>&lt;article&gt;</code>, representando, respectivamente, o cabeçalho e o rodapé específicos daquele artigo.",
+                    "II - O elemento <code>&lt;main&gt;</code> não aceita o aninhamento direto de elementos <code>&lt;article&gt;</code>, devendo conter apenas divisões genéricas com a tag <code>&lt;div&gt;</code>.",
+                    "III - O elemento <code>&lt;section&gt;</code> é utilizado adequadamente para representar uma subdivisão temática do conteúdo dentro do artigo autônomo."
+                ],
+                opcoes: [
+                    { key: "A", text: "Apenas I." },
+                    { key: "B", text: "Apenas II." },
+                    { key: "C", text: "Apenas I e III." },
+                    { key: "D", text: "Apenas II e III." },
+                    { key: "E", text: "I, II e III." }
+                ],
+                gabarito: "C",
+                resolucao: "A assertiva I é verdadeira porque, no HTML5, os elementos <code>&lt;header&gt;</code> e <code>&lt;footer&gt;</code> não possuem escopo exclusivamente global. Eles podem ser utilizados dentro de blocos de seccionamento como <code>&lt;article&gt;</code> ou <code>&lt;section&gt;</code>, representando a introdução e o encerramento do próprio artigo. A assertiva II é falsa porque o elemento <code>&lt;main&gt;</code> é o recipiente natural para abrigar artigos e seções que compõem o fluxo principal do documento. A assertiva III está correta, pois o uso de <code>&lt;section&gt;</code> no interior de um artigo permite dividir a matéria jornalística em subtemas organizados. Logo, as afirmações corretas são I e III, o que confirma a alternativa <strong>C</strong>."
+            },
+            {
+                id: 9,
+                topico: "Acesso a recursos de hardware em HTML5 e persistência do elemento <div>",
+                enunciado: "Quanto aos recursos de estruturação de aplicações web e integração com dispositivos móveis providos pelo ecossistema HTML5, considere as seguintes afirmações:",
+                assertivas: [
+                    "I - A especificação do HTML5 e suas APIs correlatas permitem acessar recursos nativos do dispositivo móvel, tais como geolocalização e orientação espacial, mediante permissão do usuário.",
+                    "II - O elemento semântico <code>&lt;nav&gt;</code> deve ser empregado unicamente para conter links direcionados a sites externos ao domínio atual da aplicação.",
+                    "III - Com o advento do HTML5, o uso do elemento de agrupamento genérico <code>&lt;div&gt;</code> foi banido da linguagem, gerando erros de compilação em navegadores modernos."
+                ],
+                opcoes: [
+                    { key: "A", text: "Apenas I." },
+                    { key: "B", text: "Apenas II." },
+                    { key: "C", text: "Apenas III." },
+                    { key: "D", text: "Apenas I e II." },
+                    { key: "E", text: "I, II e III." }
+                ],
+                gabarito: "A",
+                resolucao: "A assertiva I é verdadeira, visto que o ecossistema do HTML5 fornece suporte para APIs de hardware que viabilizam o acesso a dados de sensores de geolocalização e orientação em dispositivos móveis, dependendo da confirmação de permissão do usuário. A assertiva II é incorreta porque a tag <code>&lt;nav&gt;</code> pode abrigar links para páginas internas do próprio projeto ou links externos. A assertiva III é incorreta, pois o surgimento do HTML5 não aboliu o elemento <code>&lt;div&gt;</code>. Ele continua sendo uma ferramenta válida para o agrupamento genérico sem valor semântico próprio, voltado para manipulação de layout e CSS. A resposta correta é a alternativa <strong>A</strong>."
+            },
+            {
+                id: 10,
+                topico: "Estrutura básica, DOCTYPE e tags primárias do HTML5",
+                enunciado: "A correta estruturação do documento e a declaração adequada de metadados constituem requisitos fundamentais para o processamento de páginas web por navegadores e mecanismos de busca. Assinale a alternativa que indica a sequência básica padrão de um documento HTML5 válido e bem-formado.",
+                opcoes: [
+                    { key: "A", text: "Declaração <code>&lt;!DOCTYPE html&gt;</code> na primeira linha, seguida pela tag raiz <code>&lt;html&gt;</code>, que encapsula diretamente os elementos descendentes <code>&lt;head&gt;</code> e <code>&lt;body&gt;</code>." },
+                    { key: "B", text: "Tag raiz <code>&lt;html&gt;</code> contendo os elementos <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code> e <code>&lt;footer&gt;</code>, sendo opcional a presença da tag <code>&lt;head&gt;</code> ou do documento DOCTYPE." },
+                    { key: "C", text: "Declaração <code>&lt;!DOCTYPE html5&gt;</code> na primeira linha, seguida pelos elementos estruturais <code>&lt;head&gt;</code>, <code>&lt;body&gt;</code> e <code>&lt;footer&gt;</code>." },
+                    { key: "D", text: "Tag raiz <code>&lt;xml&gt;</code> seguida por <code>&lt;html&gt;</code>, exigindo a inclusão obrigatória das tags semânticas <code>&lt;nav&gt;</code> e <code>&lt;section&gt;</code>." },
+                    { key: "E", text: "Tag raiz <code>&lt;html&gt;</code> contendo obrigatoriamente a tag <code>&lt;main&gt;</code> como elemento de topo e a tag <code>&lt;head&gt;</code> como elemento filho de <code>&lt;body&gt;</code>." }
+                ],
+                gabarito: "A",
+                resolucao: "A construção de um documento HTML5 válido obedece a uma hierarquia sintática bem definida. A instrução inicial <code>&lt;!DOCTYPE html&gt;</code> é indispensável para informar ao navegador o modo de renderização moderno conforme os padrões do W3C. O elemento raiz <code>&lt;html&gt;</code> encapsula toda a estrutura do documento, devendo conter rigorosamente duas seções filhas de primeiro nível: o <code>&lt;head&gt;</code>, responsável pelos metadados, títulos e inclusão de arquivos externos, e o <code>&lt;body&gt;</code>, onde reside o conteúdo visível da aplicação. As alternativas B, C, D e E erram ao indicar DOCTYPEs inválidos, omitir seções obrigatórias ou alterar a hierarquia de parentesco entre as tags fundamentais. A resposta correta é a alternativa <strong>A</strong>."
+            }
+        ];
+
+        // State variables
+        let userAnswers = {};
+        let isSubmitted = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderJumpButtons();
+            renderQuestions();
+            updateProgress();
+        });
+
+        function renderJumpButtons() {
+            const container = document.getElementById('jump-buttons-container');
+            container.innerHTML = '';
+
+            quizData.forEach((q, idx) => {
+                const num = idx + 1;
+                const btn = document.createElement('button');
+                btn.id = `jump-btn-${q.id}`;
+                btn.className = `w-8 h-8 rounded-lg text-xs font-semibold border transition-all flex items-center justify-center bg-paper text-mutedText border-paperBorder hover:border-blue-400`;
+                btn.innerText = num < 10 ? `0${num}` : `${num}`;
+                btn.onclick = () => {
+                    const el = document.getElementById(`q-card-${q.id}`);
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            quizData.forEach((q, index) => {
+                const card = document.createElement('article');
+                card.id = `q-card-${q.id}`;
+                card.className = "q-card bg-paperCard border border-paperBorder rounded-2xl p-6 sm:p-8 shadow-sm transition-all";
+
+                let innerHTML = `
+                    <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-paperBorder">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">
+                                Questão ${q.id < 10 ? '0' + q.id : q.id}
+                            </span>
+                            <span class="text-xs text-mutedText hidden sm:inline">• FAURGS / HTML Semântico</span>
+                        </div>
+                        <span id="status-badge-${q.id}" class="text-xs font-medium text-stone-400">
+                            Não respondida
+                        </span>
+                    </div>
+
+                    <div class="text-xs font-semibold uppercase tracking-wide text-blue-600 mb-2">
+                        Tópico: ${q.topico}
+                    </div>
+
+                    <p class="text-darkText font-medium text-base sm:text-lg mb-4 leading-relaxed">
+                        ${q.enunciado}
+                    </p>
+                `;
+
+                // Add lacuna text if exists
+                if (q.textoLacuna) {
+                    innerHTML += `
+                        <div class="bg-paper p-4 rounded-xl border border-paperBorder text-darkText italic text-sm mb-4 leading-relaxed">
+                            "${q.textoLacuna}"
+                        </div>
+                    `;
+                }
+
+                // Add colunas if exists
+                if (q.colunas) {
+                    innerHTML += `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 bg-paper p-4 rounded-xl border border-paperBorder text-sm">
+                            <div>
+                                <h4 class="font-bold text-xs uppercase tracking-wider text-mutedText mb-2">Primeira Coluna</h4>
+                                <ul class="space-y-1 text-darkText font-mono text-xs">
+                                    ${q.colunas.col1.map(c => `<li>${c}</li>`).join('')}
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-xs uppercase tracking-wider text-mutedText mb-2">Segunda Coluna</h4>
+                                <ul class="space-y-2 text-darkText">
+                                    ${q.colunas.col2.map(c => `<li>${c}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Add pergunta coluna if exists
+                if (q.perguntaColuna) {
+                    innerHTML += `<p class="text-darkText font-medium text-sm mb-4">${q.perguntaColuna}</p>`;
+                }
+
+                // Add code snippet if exists
+                if (q.codeSnippet) {
+                    innerHTML += `
+                        <pre class="code-block mb-4"><code>${escapeHtml(q.codeSnippet)}</code></pre>
+                    `;
+                }
+
+                // Add pergunta codigo if exists
+                if (q.perguntaCodigo) {
+                    innerHTML += `<p class="text-darkText font-medium text-sm mb-4">${q.perguntaCodigo}</p>`;
+                }
+
+                // Add assertivas if exists
+                if (q.assertivas && q.assertivas.length > 0) {
+                    innerHTML += `
+                        <div class="space-y-2 mb-5 bg-paper p-4 rounded-xl border border-paperBorder text-sm">
+                            ${q.assertivas.map(a => `<p class="text-darkText leading-relaxed">${a}</p>`).join('')}
+                        </div>
+                    `;
+                }
+
+                // Render Options
+                innerHTML += `<div class="space-y-2.5 mt-4">`;
+                q.opcoes.forEach(opt => {
+                    innerHTML += `
+                        <button 
+                            type="button" 
+                            id="opt-${q.id}-${opt.key}"
+                            onclick="selectOption(${q.id}, '${opt.key}')"
+                            class="option-card w-full text-left p-3.5 sm:p-4 rounded-xl flex items-start gap-3 text-sm text-darkText"
+                        >
+                            <span class="w-6 h-6 rounded-lg bg-stone-100 text-mutedText font-bold text-xs flex items-center justify-center shrink-0 border border-stone-200 mt-0.5 option-letter">
+                                ${opt.key}
+                            </span>
+                            <span class="flex-1 leading-normal">${opt.text}</span>
+                        </button>
+                    `;
+                });
+                innerHTML += `</div>`;
+
+                // Resolution Box Container (Initially hidden until submit or individual reveal)
+                innerHTML += `
+                    <div id="resolution-${q.id}" class="hidden mt-6 pt-5 border-t border-paperBorder">
+                        <div class="resolution-box bg-paper p-5 rounded-r-xl border-l-4 border-blue-600">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold uppercase tracking-wider text-blue-700">Resolução Comentada</span>
+                                <span class="text-xs font-bold px-2.5 py-0.5 rounded bg-blue-100 text-blue-800">
+                                    Gabarito: Alternative (${q.gabarito})
+                                </span>
+                            </div>
+                            <div class="text-sm text-darkText leading-relaxed space-y-2 mt-2">
+                                ${q.resolucao}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                card.innerHTML = innerHTML;
+                container.appendChild(card);
+            });
+        }
+
+        function selectOption(qId, key) {
+            if (isSubmitted) return; // Freeze selection after correction
+
+            userAnswers[qId] = key;
+
+            // Update option styles for this question
+            const q = quizData.find(item => item.id === qId);
+            q.opcoes.forEach(opt => {
+                const el = document.getElementById(`opt-${qId}-${opt.key}`);
+                if (el) {
+                    if (opt.key === key) {
+                        el.classList.add('selected');
+                        el.querySelector('.option-letter').classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+                        el.querySelector('.option-letter').classList.remove('bg-stone-100', 'text-mutedText');
+                    } else {
+                        el.classList.remove('selected');
+                        el.querySelector('.option-letter').classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                        el.querySelector('.option-letter').classList.add('bg-stone-100', 'text-mutedText');
+                    }
+                }
+            });
+
+            // Update status badge
+            const badge = document.getElementById(`status-badge-${qId}`);
+            if (badge) {
+                badge.innerText = `Opção (${key}) selecionada`;
+                badge.className = "text-xs font-semibold text-blue-600";
+            }
+
+            // Update jump button state
+            const jumpBtn = document.getElementById(`jump-btn-${qId}`);
+            if (jumpBtn) {
+                jumpBtn.className = "w-8 h-8 rounded-lg text-xs font-semibold border transition-all flex items-center justify-center bg-blue-50 text-blue-600 border-blue-300";
+            }
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const answeredCount = Object.keys(userAnswers).length;
+            const total = quizData.length;
+            const percent = Math.round((answeredCount / total) * 100);
+
+            document.getElementById('progress-text').innerText = `Progresso: ${answeredCount} de ${total} respondidas`;
+            document.getElementById('progress-percentage').innerText = `${percent}% concluído`;
+            document.getElementById('progress-bar-fill').style.width = `${percent}%`;
+        }
+
+        function submitQuiz() {
+            isSubmitted = true;
+            let correctCount = 0;
+
+            quizData.forEach(q => {
+                const userChoice = userAnswers[q.id];
+                const card = document.getElementById(`q-card-${q.id}`);
+                const statusBadge = document.getElementById(`status-badge-${q.id}`);
+                const jumpBtn = document.getElementById(`jump-btn-${q.id}`);
+                const resBox = document.getElementById(`resolution-${q.id}`);
+
+                // Reveal Resolution on same page
+                if (resBox) {
+                    resBox.classList.remove('hidden');
+                }
+
+                // Mark option buttons
+                q.opcoes.forEach(opt => {
+                    const btn = document.getElementById(`opt-${q.id}-${opt.key}`);
+                    btn.classList.add('disabled');
+                    btn.style.cursor = 'default';
+
+                    if (opt.key === q.gabarito) {
+                        btn.classList.add('is-correct');
+                    } else if (opt.key === userChoice && userChoice !== q.gabarito) {
+                        btn.classList.add('is-wrong');
+                    }
+                });
+
+                // Update Question Card Status
+                if (userChoice === q.gabarito) {
+                    correctCount++;
+                    card.classList.add('border-green-300', 'bg-emerald-50/20');
+                    statusBadge.innerText = "✓ Correto";
+                    statusBadge.className = "text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded";
+
+                    if (jumpBtn) {
+                        jumpBtn.className = "w-8 h-8 rounded-lg text-xs font-semibold border flex items-center justify-center bg-green-500 text-white border-green-600";
+                    }
+                } else {
+                    card.classList.add('border-red-300', 'bg-rose-50/20');
+                    statusBadge.innerText = userChoice ? `✕ Incorreto (Sua resposta: ${userChoice})` : "✕ Não respondida";
+                    statusBadge.className = "text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded";
+
+                    if (jumpBtn) {
+                        jumpBtn.className = "w-8 h-8 rounded-lg text-xs font-semibold border flex items-center justify-center bg-red-500 text-white border-red-600";
+                    }
+                }
+            });
+
+            // Display Score Summary
+            const percentage = Math.round((correctCount / quizData.length) * 100);
+            const summaryBox = document.getElementById('result-summary');
+            const scoreCount = document.getElementById('score-count');
+            const scorePercent = document.getElementById('score-percent');
+            const scoreBadge = document.getElementById('score-badge');
+            const scoreTitle = document.getElementById('score-title');
+
+            scoreCount.innerText = `${correctCount}/${quizData.length}`;
+            scorePercent.innerText = `${percentage}%`;
+
+            if (percentage >= 80) {
+                scoreBadge.innerText = "Excelente Desempenho!";
+                scoreBadge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 bg-green-100 text-green-800";
+                scoreTitle.innerText = "Parabéns! Excelente domínio do HTML Semântico.";
+            } else if (percentage >= 50) {
+                scoreBadge.innerText = "Bom Resultado";
+                scoreBadge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 bg-blue-100 text-blue-800";
+                scoreTitle.innerText = "Bom trabalho! Revise os detalhes dos erros abaixo.";
+            } else {
+                scoreBadge.innerText = "Necessita Revisão";
+                scoreBadge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 bg-amber-100 text-amber-800";
+                scoreTitle.innerText = "Recomendado reforçar a leitura da especificação W3C.";
+            }
+
+            summaryBox.classList.remove('hidden');
+            document.getElementById('btn-submit').classList.add('hidden');
+            document.getElementById('btn-reset-top').classList.remove('hidden');
+
+            // Scroll smoothly to top summary
+            summaryBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function filterQuestions(type) {
+            quizData.forEach(q => {
+                const card = document.getElementById(`q-card-${q.id}`);
+                const isCorrect = userAnswers[q.id] === q.gabarito;
+
+                if (type === 'all') {
+                    card.classList.remove('hidden');
+                } else if (type === 'correct') {
+                    if (isCorrect) card.classList.remove('hidden');
+                    else card.classList.add('hidden');
+                } else if (type === 'wrong') {
+                    if (!isCorrect) card.classList.remove('hidden');
+                    else card.classList.add('hidden');
+                }
+            });
+
+            // Update filter buttons appearance
+            ['all', 'correct', 'wrong'].forEach(t => {
+                const btn = document.getElementById(`filter-${t}`);
+                if (t === type) {
+                    btn.className = "text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-600 text-white transition";
+                } else {
+                    btn.className = "text-xs font-semibold px-3 py-1.5 rounded-lg bg-paper text-darkText border border-paperBorder hover:bg-stone-200 transition";
+                }
+            });
+        }
+
+        function resetQuiz() {
+            userAnswers = {};
+            isSubmitted = false;
+
+            document.getElementById('result-summary').classList.add('hidden');
+            document.getElementById('btn-submit').classList.remove('hidden');
+            document.getElementById('btn-reset-top').classList.add('hidden');
+
+            renderJumpButtons();
+            renderQuestions();
+            updateProgress();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Utility to escape HTML code inside pre tags
+        function escapeHtml(string) {
+            return String(string)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
