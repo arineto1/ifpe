@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado Estilo FAURGS - Arquitetura de Computadores e Sistemas Operacionais</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: {
+                            50: '#FDFBF7',
+                            100: '#F8F5EE',
+                            200: '#EFEAD8',
+                        },
+                        paper: '#FFFFFF',
+                        charcoal: {
+                            700: '#334155',
+                            800: '#1E293B',
+                            900: '#0F172A',
+                        },
+                        faurgs: {
+                            primary: '#1E3A8A',
+                            accent: '#2563EB',
+                            light: '#EFF6FF',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Georgia', 'Cambria', 'serif'],
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom smooth scrolling and print optimization */
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            background-color: #F8F6F0;
+            color: #1E293B;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+        }
+        .reading-container {
+            max-width: 860px;
+        }
+        .radio-custom:checked + label {
+            border-color: #2563EB;
+            background-color: #EFF6FF;
+            font-weight: 600;
+        }
+        .radio-custom:checked + label .radio-dot {
+            border-color: #2563EB;
+            background-color: #2563EB;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .resolution-box { display: block !important; }
+            body { background-color: #ffffff !important; }
+            .card-question { break-inside: avoid; border: 1px solid #ccc !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 antialiased selection:bg-blue-200">
+
+    <!-- Top Bar / Progress Tracker -->
+    <header class="sticky top-0 z-50 bg-slate-900 text-white shadow-md no-print">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="bg-blue-600 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded">FAURGS</span>
+                <h1 class="text-sm md:text-base font-semibold truncate">Arquitetura & Sistemas Operacionais</h1>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div class="text-xs md:text-sm font-medium text-slate-300">
+                    Respondidas: <span id="answered-count" class="text-white font-bold">0</span> / 10
+                </div>
+                <button onclick="confirmReset()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded transition border border-slate-700">
+                    Reiniciar
+                </button>
+            </div>
+        </div>
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-800 h-1.5">
+            <div id="progress-bar" class="bg-blue-500 h-1.5 w-0 transition-all duration-300"></div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="reading-container mx-auto px-4 py-8 md:py-12">
+
+        <!-- Quiz Document Header -->
+        <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-stone-200 mb-8">
+            <div class="border-b border-stone-200 pb-5 mb-5">
+                <div class="text-xs font-semibold uppercase tracking-wider text-blue-700 mb-1">Caderno de Questões - Simulado Interativo</div>
+                <h2 class="text-2xl md:text-3xl font-bold text-slate-900 font-serif">Prova de Conhecimentos Específicos</h2>
+                <p class="text-slate-600 text-sm mt-1">Banca FAURGS • Tópicos: Memória Principal (DRAM/SRAM), Memória Virtual, Paginação e Thrashing</p>
+            </div>
+            <p class="text-slate-700 text-sm md:text-base leading-relaxed">
+                Este simulado contém <strong>10 questões em nível de concurso público</strong>, elaborado estritamente segundo as referências teóricas de Tanenbaum, Stallings e Monteiro. Selecione a alternativa desejada para cada questão. Ao concluir, clique em <strong>"Finalizar e Ver Desempenho"</strong> para conferir seu resultado e acessar a gabarito comentado com as resoluções detalhadas na mesma página.
+            </p>
+        </div>
+
+        <!-- Quick Question Navigation Bar -->
+        <div class="bg-stone-100 rounded-xl p-4 mb-8 border border-stone-200 no-print">
+            <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Navegação Rápida</div>
+            <div class="flex flex-wrap gap-2" id="nav-dots">
+                <!-- Nav buttons generated via JS -->
+            </div>
+        </div>
+
+        <!-- Questions Form -->
+        <form id="quiz-form" onsubmit="event.preventDefault(); finishQuiz();">
+            <div id="questions-container" class="space-y-8">
+                <!-- Questions injected dynamically via JS -->
+            </div>
+
+            <!-- Submit Button Area -->
+            <div id="submit-area" class="mt-10 mb-12 text-center no-print">
+                <button type="submit" class="w-full md:w-auto px-8 py-4 bg-blue-700 hover:bg-blue-800 text-white font-semibold text-lg rounded-xl shadow-lg hover:shadow-xl transition transform active:scale-95 cursor-pointer">
+                    Finalizar e Ver Desempenho
+                </button>
+            </div>
+        </form>
+
+        <!-- Performance Summary Section (Initially Hidden) -->
+        <section id="results-section" class="hidden my-12 bg-white rounded-2xl p-6 md:p-8 shadow-md border border-stone-200">
+            <div class="text-center pb-6 border-b border-stone-200">
+                <span id="score-badge" class="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide mb-3 bg-blue-100 text-blue-800">
+                    Resultado Final
+                </span>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2 font-serif">Desempenho no Simulado</h2>
+                <div class="flex justify-center items-baseline gap-2 my-4">
+                    <span id="score-text" class="text-5xl md:text-6xl font-black text-blue-700">0</span>
+                    <span class="text-2xl text-slate-500 font-bold">/ 10</span>
+                </div>
+                <p id="feedback-message" class="text-slate-700 font-medium text-base md:text-lg max-w-lg mx-auto">
+                    <!-- Feedback injected by JS -->
+                </p>
+                <div class="w-full bg-stone-100 rounded-full h-4 max-w-md mx-auto my-4 overflow-hidden border border-stone-200">
+                    <div id="score-progress" class="bg-blue-600 h-full w-0 transition-all duration-1000"></div>
+                </div>
+                <div class="text-xs text-slate-500">
+                    Aproveitamento: <span id="score-percent" class="font-bold text-slate-800">0%</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons inside Summary -->
+            <div class="flex flex-wrap justify-center gap-4 mt-6 no-print">
+                <button onclick="scrollToTop()" class="px-5 py-2.5 bg-stone-100 hover:bg-stone-200 text-slate-700 font-semibold rounded-lg text-sm border border-stone-300 transition">
+                    Voltar ao Topo
+                </button>
+                <button onclick="window.print()" class="px-5 py-2.5 bg-stone-800 hover:bg-slate-900 text-white font-semibold rounded-lg text-sm transition">
+                    Imprimir / Salvar PDF
+                </button>
+                <button onclick="confirmReset()" class="px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-lg text-sm shadow transition">
+                    Refazer Simulado
+                </button>
+            </div>
+
+            <!-- Official Answer Table -->
+            <div class="mt-8 pt-6 border-t border-stone-200">
+                <h3 class="text-xl font-bold text-slate-900 mb-4 font-serif">Gabarito Oficial e Tópicos Avaliados</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-stone-100 text-slate-700 border-b border-stone-300">
+                                <th class="p-3 font-semibold">Questão</th>
+                                <th class="p-3 font-semibold text-center">Gabarito</th>
+                                <th class="p-3 font-semibold text-center">Sua Resposta</th>
+                                <th class="p-3 font-semibold">Tópico Avaliado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summary-table-body" class="divide-y divide-stone-200">
+                            <!-- Rows injected dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Data structure containing the exact questions, choices, and detailed resolutions from the document
+        const quizData = [
+            {
+                id: 1,
+                topic: "Tecnologia DRAM, Capacitores e Processo de Refresh",
+                questionText: "Considere as seguintes afirmações relativas às memórias do tipo DRAM (Dynamic Random Access Memory) e SRAM (Static Random Access Memory), com base nos fundamentos de arquitetura de computadores e organização de memória principal:",
+                statements: [
+                    "I. A memória DRAM utiliza tecnologia de semicondutores na qual cada bit de informação é armazenado como uma carga elétrica acumulada em um condensador microscópico.",
+                    "II. Devido à perda natural e progressiva da carga elétrica dos capacitores ao longo do tempo, a memória DRAM necessita de um processo periódico de recarga denominado refresh para manter a integridade das informações armazenadas.",
+                    "III. A memória SRAM apresenta maior densidade de integração e menor custo por bit do que a DRAM, razão pela qual é a tecnologia empregada na construção dos módulos da memória RAM principal dos computadores."
+                ],
+                options: [
+                    { key: "A", text: "Apenas I." },
+                    { key: "B", text: "Apenas III." },
+                    { key: "C", text: "Apenas I e II." },
+                    { key: "D", text: "Apenas II e III." },
+                    { key: "E", text: "I, II e III." }
+                ],
+                correctAnswer: "C",
+                resolution: `<strong>Gabarito: C</strong><br><br>
+                A afirmativa <strong>I</strong> é verdadeira porque a memória DRAM (<em>Dynamic Random Access Memory</em>) é fundamentada em tecnologia de semicondutores de silício, na qual cada bit individual de informação é armazenado sob a forma de uma carga elétrica presente em um capacitor microscópico.<br><br>
+                A afirmativa <strong>II</strong> é verdadeira porque os capacitores sofrem uma perda natural e contínua dessa carga eletrostática acumulada, fenômeno decorrente de correntes de fuga nos semicondutores. Para evitar a corrupção do dado e a perda do estado lógico, o circuito controlador da memória executa ciclos periódicos de <em>refresh</em> (recarga), restaurando o nível de carga antes que ocorra a degradação do bit.<br><br>
+                A afirmativa <strong>III</strong> é falsa porque estabelece uma inversão entre as características da SRAM e da DRAM. A memória DRAM apresenta densidade de integração significativamente superior e custo por bit mais reduzido do que a SRAM. Isso possibilita a alocação de múltiplos gigabytes de memória principal em áreas físicas reduzidas de circuito impresso, enquanto a SRAM, composta por arranjos de transistores mais complexos (flip-flops), é mais cara e menos densa, sendo restrita à construção de memórias Cache.`
+            },
+            {
+                id: 2,
+                topic: "Conceito de Memória Virtual e Abstração do Disco",
+                questionText: "A memória principal (RAM) é caracterizada por sua volatilidade, dependendo de alimentação elétrica constante para a preservação dos dados armazenados. Para expandir a capacidade de endereçamento e permitir a execução de programas complexos, os sistemas operacionais modernos utilizam o mecanismo de Memória Virtual.<br><br>A respeito dos conceitos e do funcionamento da Memória Virtual, assinale a alternativa correta.",
+                statements: [],
+                options: [
+                    { key: "A", text: "A memória virtual consiste em uma técnica de hardware pura que opera independentemente do sistema operacional, realizando a tradução direta dos elétrons nos capacitores de silício." },
+                    { key: "B", text: "A memória virtual é um mecanismo de gerência que permite tratar o armazenamento secundário em disco como uma extensão da memória principal, automatizando a movimentação de dados e proporcionando a ilusão de um espaço de endereçamento contíguo e vasto." },
+                    { key: "C", text: "O objetivo fundamental da memória virtual é equiparar o tempo de acesso do disco rígido à velocidade de transferência da memória Cache L1 do processador." },
+                    { key: "D", text: "A adoção da memória virtual substitui a necessidade do barramento de endereços na arquitetura do processador, permitindo a leitura direta dos blocos do disco sem tabelas de mapeamento." },
+                    { key: "E", text: "A memória virtual converte a natureza volátil da DRAM em não volátil, garantindo que o estado de um processo seja preservado fisicamente mesmo após o desligamento da alimentação elétrica." }
+                ],
+                correctAnswer: "B",
+                resolution: `<strong>Gabarito: B</strong><br><br>
+                A alternativa A é incorreta pois a gerência de memória virtual exige uma integração entre suporte de hardware (com a Unidade de Gerenciamento de Memória - MMU) e o sistema operacional, não funcionando de forma puramente isolada.<br><br>
+                A alternativa <strong>B</strong> é correta porque reflete rigorosamente os conceitos formulados por Stallings e Monteiro. A memória virtual funciona como um esquema de gerência automatizado que permite tratar o disco secundário como uma extensão do espaço de memória principal. Esse mecanismo coordena a movimentação de dados entre a RAM física e a unidade de armazenamento secundário, abstraindo os limites físicos da máquina e entregando aos processos executados pela CPU a ilusão de um espaço de endereçamento contíguo, vasto e isolado dos demais processos.<br><br>
+                A alternativa C é incorreta porque o uso do disco no esquema de memória virtual introduz uma latência de acesso ordens de grandeza maior do que a da memória RAM e das caches, não buscando equiparar velocidades, mas sim expandir capacidade de armazenamento.<br><br>
+                A alternativa D é incorreta porque o barramento de endereços e as tabelas de mapeamento são elementos indispensáveis para calcular a tradução de endereços virtuais em endereços físicos.<br><br>
+                A alternativa E é incorreta porque a natureza volátil da memória DRAM mantida na RAM física permanece inalterada; se houver interrupção no suprimento de energia, os dados presentes nos capacitores da RAM são perdidos.`
+            },
+            {
+                id: 3,
+                topic: "Estrutura da Paginação: Páginas e Molduras (Frames)",
+                questionText: "Na gerência de memória por paginação (paging), o espaço de endereçamento do sistema é estruturado em blocos de tamanho fixo para otimizar o mapeamento entre os ambientes de memória virtual e física.<br><br>Em relação à nomenclatura e à organização desses blocos, assinale a alternativa correta.",
+                statements: [],
+                options: [
+                    { key: "A", text: "Páginas (Pages) constituem os blocos fixos na memória RAM física, enquanto Molduras (Frames) são as divisões no espaço de endereçamento virtual." },
+                    { key: "B", text: "Páginas (Pages) são os blocos fixos do espaço de endereçamento virtual, ao passo que Molduras ou Quadros (Frames) correspondem aos blocos de igual tamanho localizados na memória RAM física." },
+                    { key: "C", text: "O tamanho das páginas virtuais é ajustado dinamicamente pelo sistema operacional em função do volume de dados processado pela CPU em cada instrução." },
+                    { key: "D", text: "As molduras de página na memória física possuem dimensões obrigatoriamente quatro vezes maiores do que as páginas virtuais para impedir estouros de buffer." },
+                    { key: "E", text: "A paginação exige que o espaço de endereçamento virtual de um programa seja mapeado exclusivamente em molduras físicas que ocupem posições contíguas na RAM." }
+                ],
+                correctAnswer: "B",
+                resolution: `<strong>Gabarito: B</strong><br><br>
+                A alternativa A é incorreta porque inverte a localização conceitual das estruturas.<br><br>
+                A alternativa <strong>B</strong> é correta pois fundamenta-se na definição formal da gerência de memória paginada. O espaço de endereçamento virtual atribuído ao programa é dividido pelo sistema operacional em blocos lógicos de tamanho fixo denominados Páginas (<em>Pages</em>), cujo tamanho padrão no mercado é usualmente de 4 KB. Paralelamente, o espaço de memória física RAM disponível no hardware é dividido em blocos de dimensão idêntica chamados Molduras de Página ou Quadros (<em>Frames</em>).<br><br>
+                A alternativa C é incorreta porque as páginas virtuais possuem dimensão fixa estabelecida pela arquitetura e pelo sistema operacional (ex.: 4 KB), não variando dinamicamente em função da carga da CPU.<br><br>
+                A alternativa D é incorreta porque exige-se simetria exata de tamanho entre páginas e molduras para permitir o alinhamento de endereços por meio de um mesmo deslocamento (<em>offset</em>).<br><br>
+                A alternativa E é incorreta porque uma das principais virtudes da paginação é permitir a alocação não contígua de um processo, alocando suas páginas em qualquer moldura física que esteja livre, independentemente da sequência espacial na RAM.`
+            },
+            {
+                id: 4,
+                topic: "Evento de Interrupção por Falta de Página (Page Fault)",
+                questionText: "Em um ambiente operando com memória virtual paginada, quando o processador faz referência a um endereço contido em uma página virtual que não se encontra atualmente carregada em nenhuma moldura da memória física RAM, é gerada uma interrupção de hardware para o sistema operacional.<br><br>Esse evento é denominado",
+                statements: [],
+                options: [
+                    { key: "A", text: "Thrashing (ou hiperpágina)." },
+                    { key: "B", text: "Fragmentação Externa de Memória." },
+                    { key: "C", text: "Page Fault (ou Falta de Página)." },
+                    { key: "D", text: "Cycle Stealing no barramento de dados." },
+                    { key: "E", text: "Refresh de Célula de Silício." }
+                ],
+                correctAnswer: "C",
+                resolution: `<strong>Gabarito: C</strong><br><br>
+                A alternativa A é incorreta porque o <em>thrashing</em> designa um estado de sobrecarga geral de trocas na memória, e não o evento isolado de interrupção.<br><br>
+                A alternativa B é incorreta porque a fragmentação externa diz respeito ao surgimento de lacunas inutilizadas no espaço de endereçamento, problema este solucionado pela paginação.<br><br>
+                A alternativa <strong>C</strong> é correta porque traz a definição clássica de Stallings para o evento de Falta de Página (<em>Page Fault</em>). Quando o processador necessita acessar uma instrução ou dado e, ao consultar a tabela de páginas, verifica que o bit de presença indica que a página correspondente não reside em nenhuma moldura da memória RAM física, a MMU sinaliza uma interrupção de <em>Page Fault</em>. Essa interrupção suspende temporariamente a execução do processo, fazendo com que o sistema operacional interceda para localizar a página solicitada na área de troca do disco secundário e carregá-la em uma moldura física livre na RAM.<br><br>
+                A alternativa D é incorreta porque o roubo de ciclo (<em>cycle stealing</em>) é um método de transferência de dados associado a controladores de Acesso Direto à Memória (DMA).<br><br>
+                A alternativa E é incorreta porque o <em>refresh</em> refere-se à manutenção de carga nos capacitores da DRAM.`
+            },
+            {
+                id: 5,
+                topic: "Paginação e Eliminação da Fragmentação Externa",
+                questionText: "O gerenciamento de memória em sistemas operacionais busca otimizar a alocação de espaço e minimizar desperdícios decorrentes de fragmentação.<br><br>Assinale a alternativa que apresenta a principal vantagem estrutural da técnica de paginação em relação à organização da memória, segundo a literatura clássica de sistemas operacionais.",
+                statements: [],
+                options: [
+                    { key: "A", text: "Eliminação completa do problema da fragmentação externa, visto que qualquer página virtual pode ser alocada em qualquer moldura física disponível na memória RAM." },
+                    { key: "B", text: "Erradicação integral da fragmentação interna em todas as alocações de processos executadas pelo sistema operacional." },
+                    { key: "C", text: "Redução do tempo de latência de leitura dos discos magnéticos para a escala de nanossegundos durante a troca de contexto." },
+                    { key: "D", text: "Eliminação da necessidade de manter tabelas de páginas registradas na estrutura do sistema operacional." },
+                    { key: "E", text: "Garantia de que a totalidade do código e dados de um processo permaneça ininterruptamente residente na memória RAM física." }
+                ],
+                correctAnswer: "A",
+                resolution: `<strong>Gabarito: A</strong><br><br>
+                A alternativa <strong>A</strong> é correta porque reflete a análise de Tanenbaum referente às vantagens estruturais do gerenciamento paginado. Na alocação contígua tradicional, o surgimento de espaços vazios entre blocos alocados gera a fragmentação externa, impedindo a alocação de novos processos caso não haja um bloco único de tamanho suficiente. A paginação resolve esse obstáculo dividindo o espaço virtual e o espaço físico em blocos fixos e de idênticas dimensões (páginas e molduras). Como qualquer página virtual pode ser posicionada em qualquer moldura física livre, a fragmentação externa é completamente eliminada.<br><br>
+                A alternativa B é incorreta porque a paginação ainda pode gerar uma pequena fragmentação interna na última página do processo, caso o volume total de dados do programa não ocupe a totalidade do espaço de 4 KB daquele bloco final.<br><br>
+                A alternativa C é incorreta porque a paginação não altera os tempos físicos de busca e transferência mecânica ou eletrônica dos discos secundários.<br><br>
+                A alternativa D é incorreta porque a tabela de páginas é o instrumento central sem o qual o sistema operacional torna-se incapaz de efetuar a tradução do endereço virtual para o físico.<br><br>
+                A alternativa E é incorreta porque a paginação por demanda permite que apenas as páginas ativas do programa fiquem na RAM física, mantendo o restante no armazenamento secundário.`
+            },
+            {
+                id: 6,
+                topic: "Conceito e Causas do Fenômeno de Thrashing",
+                questionText: "Considere as seguintes afirmações sobre o fenômeno do Thrashing (hiperpágina ou bateção) em sistemas operacionais:",
+                statements: [
+                    "I. O Thrashing ocorre quando o sistema operacional despende mais tempo realizando a movimentação de páginas (swapping/paging) entre o disco secundário e a memória RAM do que executando instruções úteis das aplicações.",
+                    "II. Um sistema entra em thrashing quando a soma das páginas ativas (working set) de todos os processos em execução excede a capacidade física da memória RAM disponível.",
+                    "III. O Thrashing é decorrente da redução do grau de multiprogramação, cenário em que a CPU permanece ociosa devido à escassez de processos na fila de pronto."
+                ],
+                options: [
+                    { key: "A", text: "Apenas I." },
+                    { key: "B", text: "Apenas III." },
+                    { key: "C", text: "Apenas I e II." },
+                    { key: "D", text: "Apenas II e III." },
+                    { key: "E", text: "I, II e III." }
+                ],
+                correctAnswer: "C",
+                resolution: `<strong>Gabarito: C</strong><br><br>
+                A afirmativa <strong>I</strong> é verdadeira pois retrata a definição técnica do fenômeno de <em>Thrashing</em> (ou hiperpágina). Quando um sistema entra em <em>thrashing</em>, a frequência de faltas de página eleva-se a níveis críticos, fazendo com que o sistema operacional passe a dedicar a maior parte do seu tempo operacional executando rotinas de leitura e escrita de páginas no disco (<em>paging/swapping</em>) em vez de processar as instruções das aplicações.<br><br>
+                A afirmativa <strong>II</strong> é verdadeira conforme os fundamentos de Tanenbaum. A causa estrutural do <em>thrashing</em> reside no fato de que a soma das páginas que constituem o conjunto de trabalho ativo (<em>working set</em>) de todos os processos que estão sendo executados simultaneamente supera a capacidade física total da memória RAM instalada. Com isso, para carregar a página de um processo, o sistema é obrigado a remover a página de outro que também está em execução, gerando uma cadeia ininterrupta de <em>page faults</em>.<br><br>
+                A afirmativa <strong>III</strong> é falsa porque o <em>thrashing</em> é desencadeado pelo aumento excessivo do grau de multiprogramação (tentativa de manter muitos programas abertos ao mesmo tempo), e não pela sua redução.`
+            },
+            {
+                id: 7,
+                topic: "Temporização do Refresh e Volatilidade da DRAM",
+                questionText: "As memórias RAM Dinâmicas (DRAM) requerem um procedimento periódico de atualização de carga eletrostática denominado refresh.<br><br>A respeito desse procedimento e de sua janela temporal de operação, assinale a alternativa correta.",
+                statements: [],
+                options: [
+                    { key: "A", text: "O ciclo de refresh é uma operação de software executada exclusivamente sob demanda direta do usuário através do sistema operacional." },
+                    { key: "B", text: "O ciclo de refresh consiste na recarga periódica dos capacitores da DRAM realizada em intervalos regulares, como a cada 64 milissegundos, para evitar a perda do estado lógico dos dados." },
+                    { key: "C", text: "O procedimento de refresh converte a memória DRAM em uma mídia não volátil, imune à perda de dados em caso de corte de energia elétrica." },
+                    { key: "D", text: "Durante o refresh, a taxa de transferência de dados da RAM para a CPU atinge seu valor máximo, acelerando o processamento de rotinas do núcleo." },
+                    { key: "E", text: "As memórias SRAM demandam ciclos de refresh mais frequentes do que a DRAM em função da instabilidade de seus capacitores internos." }
+                ],
+                correctAnswer: "B",
+                resolution: `<strong>Gabarito: B</strong><br><br>
+                A alternativa A é incorreta porque o ciclo de <em>refresh</em> na memória DRAM é um procedimento de baixo nível executado pelo controlador de memória no hardware, ocorrendo sem necessidade de intervenção do usuário por software.<br><br>
+                A alternativa <strong>B</strong> é correta porque descreve a janela operacional do procedimento em memórias dinâmicas. Como cada célula armazena o bit como carga em um condensador e este descarrega naturally com o tempo, o controlador realiza varreduras em intervalos regulares (usualmente dentro de uma janela de 64 milissegundos) para reenergizar os capacitores e preservar o valor lógico dos dados.<br><br>
+                A alternativa C é incorreta porque o <em>refresh</em> depende inteiramente de alimentação elétrica. O desligamento do sistema interrompe a recarga, provocando o descarregamento imediato dos capacitores e confirmando a volatilidade da DRAM.<br><br>
+                A alternativa D é incorreta porque a execução do <em>refresh</em> torna a linha de memória momentaneamente indisponível para operações normais de leitura e escrita da CPU, introduzindo pequenas pausas no barramento.<br><br>
+                A alternativa E é incorreta porque memórias SRAM utilizam transistores estáticos (flip-flops) e não exigem qualquer ciclo de <em>refresh</em>.`
+            },
+            {
+                id: 8,
+                topic: "Comparativo na Hierarquia: SRAM versus DRAM",
+                questionText: "A hierarquia de memória equilibra capacidade de armazenamento, velocidade de acesso e custo financeiro.<br><br>Em relação à comparação técnica entre as memórias SRAM (usadas na Cache) e DRAM (usadas na Memória Principal), assinale a alternativa correta.",
+                statements: [],
+                options: [
+                    { key: "A", text: "A DRAM é mais rápida que a SRAM e apresenta menor densidade de integração, exigindo maior área de silício por bit armazenado." },
+                    { key: "B", text: "A SRAM possui menor tempo de acesso e maior custo por bit que a DRAM, sendo empregada em memórias Cache; a DRAM oferece maior densidade e menor custo, permitindo gigabytes de memória principal." },
+                    { key: "C", text: "A DRAM armazena informações em flip-flops de transistores, enquanto a SRAM armazena bits sob a forma de cargas em condensadores." },
+                    { key: "D", text: "A SRAM e a DRAM são classificadas como memórias secundárias permanentes e não voláteis." },
+                    { key: "E", text: "A memória principal construída em DRAM dispensa o suporte do sistema operacional para gerenciamento por não apresentar limitações físicas de latência." }
+                ],
+                correctAnswer: "B",
+                resolution: `<strong>Gabarito: B</strong><br><br>
+                <div class="overflow-x-auto my-3">
+                    <table class="min-w-full text-xs border border-stone-300 divide-y divide-stone-200">
+                        <thead class="bg-stone-100">
+                            <tr>
+                                <th class="p-2 border">Métrica / Parâmetro</th>
+                                <th class="p-2 border">Memória SRAM (Static RAM)</th>
+                                <th class="p-2 border">Memória DRAM (Dynamic RAM)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-stone-200">
+                            <tr><td class="p-2 font-semibold border">Elemento Físico</td><td class="p-2 border">Transistores em flip-flop</td><td class="p-2 border">Capacitor e transistor de acesso</td></tr>
+                            <tr><td class="p-2 font-semibold border">Necessidade de Refresh</td><td class="p-2 border">Não exige recarga</td><td class="p-2 border">Exige recarga periódica (Refresh)</td></tr>
+                            <tr><td class="p-2 font-semibold border">Velocidade de Acesso</td><td class="p-2 border">Alta velocidade / Latência reduzida</td><td class="p-2 border">Menor velocidade (tempo de carga)</td></tr>
+                            <tr><td class="p-2 font-semibold border">Densidade de Integração</td><td class="p-2 border">Baixa densidade por área</td><td class="p-2 border">Alta densidade (Gigabytes reduzidos)</td></tr>
+                            <tr><td class="p-2 font-semibold border">Custo por Bit</td><td class="p-2 border">Muito elevado</td><td class="p-2 border">Reduzido</td></tr>
+                            <tr><td class="p-2 font-semibold border">Aplicação Principal</td><td class="p-2 border">Memória Cache (L1, L2, L3)</td><td class="p-2 border">Memória Principal (RAM)</td></tr>
+                        </tbody>
+                    </table>
+                </div><br>
+                A alternativa A é incorreta porque a DRAM é mais lenta e mais densa do que a SRAM.<br><br>
+                A alternativa <strong>B</strong> é correta pois sintetiza a distribuição da hierarquia de memória proposta por Tanenbaum e Monteiro. A SRAM oferece maior rapidez de resposta a um custo mais elevado por bit, configurando a escolha ideal para as memórias Cache. A DRAM fornece maior densidade e menor custo por bit, viabilizando a construção da memória principal com grande capacidade de armazenamento.<br><br>
+                A alternativa C é incorreta porque inverte a tecnologia de armazenamento: a SRAM utiliza flip-flops e a DRAM utiliza capacitores.<br><br>
+                A alternativa D é incorreta porque ambas são memórias voláteis de acesso aleatório.<br><br>
+                A alternativa E é incorreta porque a DRAM exige gerenciamento técnico pelo sistema operacional devido à sua volatilidade e latência.`
+            },
+            {
+                id: 9,
+                topic: "Tradução de Endereços e Mapeamento de Blocos",
+                questionText: "Considere as seguintes afirmações sobre a movimentação de dados e a tradução de endereços em ambientes com memória virtual paginada:",
+                statements: [
+                    "I. O sistema de gerência de memória automatiza a movimentação de dados entre a RAM e o disco secundário, proporcionando ao programa a ilusão de um espaço de memória contíguo e vasto.",
+                    "II. Na técnica de paginação, o tamanho de uma página virtual (geralmente de 4 KB) deve coincidir com o tamanho da moldura física na RAM para viabilizar a tradução direta de endereços.",
+                    "III. Em uma janela temporal de 64 ms de refresh, a execução de 192 milhões de ciclos de clock pelo processador obriga o sistema operacional a desativar temporariamente a tabela de páginas."
+                ],
+                options: [
+                    { key: "A", text: "Apenas I." },
+                    { key: "B", text: "Apenas II." },
+                    { key: "C", text: "Apenas III." },
+                    { key: "D", text: "Apenas I e II." },
+                    { key: "E", text: "I, II e III." }
+                ],
+                correctAnswer: "D",
+                resolution: `<strong>Gabarito: D</strong><br><br>
+                A afirmativa <strong>I</strong> é verdadeira porque retrata a função do mecanismo de gerência automatizada de memória virtual conforme Monteiro. O sistema operacional e a MMU movimentam páginas entre a RAM e o disco secundário sem a necessidade de interferência do programador, entregando à aplicação um espaço de endereçamento virtual contíguo.<br><br>
+                A afirmativa <strong>II</strong> é verdadeira conforme estabelecido na teoria de paginação. O tamanho fixo de uma página virtual (tipicamente 4 KB) é idêntico ao tamanho da moldura física na RAM. Essa equivalência possibilita que a tradução de endereços converta apenas o número da página no número da moldura, mantendo o deslocamento (<em>offset</em>) do byte inalterado dentro do bloco.<br><br>
+                A afirmativa <strong>III</strong> é falsa porque a taxa de execução de ciclos de clock do processador dentro da janela de 64 ms ilustra a disparidade de velocidade entre os circuitos do processador e o ciclo do hardware de memória. Essa relação temporal não interrompe a paginação nem desencadeia reorganização física no disco magnético.`
+            },
+            {
+                id: 10,
+                topic: "Diagnóstico Prático e Resolução de Thrashing",
+                questionText: "Um analista de infraestrutura de Tecnologia da Informação constatou degradação no desempenho de um servidor corporativo. A investigação revelou que a taxa de utilização do disco rígido permanecia em 100% devido a operações ininterruptas de transferência de páginas (paging/swapping), enquanto o nível de processamento útil da CPU encontrava-se extremamente baixo. A soma das páginas ativas dos processos ultrapassava a capacidade física da memória RAM do servidor.<br><br>Com base na teoria de Sistemas Operacionais exposta por Tanenbaum e Stallings, assinale a alternativa que indica o diagnóstico correto e a ação recomendada.",
+                statements: [],
+                options: [
+                    { key: "A", text: "Diagnóstico: Falha física no ciclo de refresh da SRAM. Ação: Substituir os módulos de memória Cache." },
+                    { key: "B", text: "Diagnóstico: Ocorrência do problema de Thrashing (hiperpágina). Ação: Reduzir o grau de multiprogramação ou expandir a memória RAM física." },
+                    { key: "C", text: "Diagnóstico: Fragmentação Externa crítica na RAM. Ação: Formatar o disco secundário para alterar o tamanho das páginas virtuais." },
+                    { key: "D", text: "Diagnóstico: Falta irreversível de páginas no barramento. Ação: Desativar os circuitos de entrada e saída do processador." },
+                    { key: "E", text: "Diagnóstico: Sobrecarga nos circuitos de silício da DRAM. Ação: Reduzir a frequência de relógio do processador para suspender o consumo do capacitor." }
+                ],
+                correctAnswer: "B",
+                resolution: `<strong>Gabarito: B</strong><br><br>
+                A análise da situação hipotética expõe o quadro clássico de um sistema operando sob colapso de memória conhecido como <strong>Thrashing</strong> (hiperpágina):<br>
+                • A atividade do disco em 100% decorre da necessidade ininterrupta de transferir páginas de processos entre a memória física e a área de troca do disco secundário.<br>
+                • A utilidade da CPU despenca porque o processador passa a maior parte do tempo aguardando a conclusão das transferências de E/S do disco.<br>
+                • A causa primária é a sobrecarga no grau de multiprogramação, no qual a soma das páginas dos conjuntos de trabalho (<em>working sets</em>) de todos os processos ativos excede a RAM disponível.<br><br>
+                Com base na teoria de Tanenbaum e Stallings, as soluções técnicas apropriadas envolvem a redução do grau de multiprogramação (suspensão ou encerramento de parte dos processos até que os restantes caibam na RAM) ou a expansão física da capacidade de memória RAM do servidor.<br><br>
+                As demais alternativas descrevem erros incompatíveis com a teoria: falhas de <em>refresh</em> dizem respeito a memórias DRAM; fragmentação externa é inexistente em sistemas paginados; e a desativação de circuitos ou alteração de tensão elétrica não solucionam problemas de alocação de memória virtual.`
+            }
+        ];
+
+        // State variables
+        let userAnswers = {};
+        let isSubmitted = false;
+
+        function renderQuiz() {
+            const container = document.getElementById('questions-container');
+            const navDots = document.getElementById('nav-dots');
+            container.innerHTML = '';
+            navDots.innerHTML = '';
+
+            quizData.forEach((q, index) => {
+                const qNum = index + 1;
+
+                // Create Nav Dot
+                const dot = document.createElement('a');
+                dot.href = `#questao-${qNum}`;
+                dot.id = `nav-dot-${qNum}`;
+                dot.className = 'w-9 h-9 rounded-lg border border-stone-300 bg-white text-slate-700 text-xs font-bold flex items-center justify-center hover:bg-stone-200 transition';
+                dot.innerText = qNum;
+                navDots.appendChild(dot);
+
+                // Create Question Card
+                const card = document.createElement('div');
+                card.id = `questao-${qNum}`;
+                card.className = 'card-question bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-stone-200 transition scroll-mt-20';
+
+                let statementsHtml = '';
+                if (q.statements && q.statements.length > 0) {
+                    statementsHtml = `
+                        <div class="my-4 p-4 bg-stone-50 rounded-xl border border-stone-200 space-y-2 text-slate-800 text-sm md:text-base leading-relaxed">
+                            ${q.statements.map(s => `<p class="font-sans">${s}</p>`).join('')}
+                        </div>
+                    `;
+                }
+
+                let optionsHtml = q.options.map(opt => {
+                    return `
+                        <div class="option-wrapper relative">
+                            <input type="radio" 
+                                   name="q_${q.id}" 
+                                   id="q_${q.id}_${opt.key}" 
+                                   value="${opt.key}" 
+                                   class="radio-custom sr-only" 
+                                   onchange="selectOption(${q.id}, '${opt.key}')" 
+                                   ${isSubmitted ? 'disabled' : ''}>
+                            <label for="q_${q.id}_${opt.key}" 
+                                   id="label_q_${q.id}_${opt.key}"
+                                   class="flex items-start gap-3 p-3.5 md:p-4 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 transition cursor-pointer text-sm md:text-base">
+                                <span class="radio-dot mt-0.5 flex-shrink-0 w-5 h-5 rounded-full border-2 border-stone-300 flex items-center justify-center transition">
+                                </span>
+                                <span class="font-bold text-slate-900 w-5">(${opt.key})</span>
+                                <span class="text-slate-700 flex-1">${opt.text}</span>
+                                <span id="badge_q_${q.id}_${opt.key}" class="hidden text-xs font-bold px-2.5 py-1 rounded"></span>
+                            </label>
+                        </div>
+                    `;
+                }).join('');
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-stone-200 pb-3 mb-4">
+                        <span class="text-xs font-extrabold uppercase tracking-wider text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+                            Questão ${qNum}
+                        </span>
+                        <span id="status-tag-${q.id}" class="text-xs font-bold text-stone-400">
+                            Não respondida
+                        </span>
+                    </div>
+
+                    <div class="text-slate-900 font-medium text-base md:text-lg mb-3 leading-relaxed">
+                        ${q.questionText}
+                    </div>
+
+                    ${statementsHtml}
+
+                    <div class="space-y-3 my-5">
+                        ${optionsHtml}
+                    </div>
+
+                    <!-- Hidden Resolution Box Revealed after Submission -->
+                    <div id="resolution-${q.id}" class="resolution-box hidden mt-6 p-5 rounded-xl bg-amber-50/80 border border-amber-200/80 text-slate-800 text-sm md:text-base">
+                        <div class="flex items-center gap-2 text-amber-900 font-bold font-serif text-base mb-3 border-b border-amber-200/60 pb-2">
+                            <svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0 1 18 0z"></path>
+                            </svg>
+                            Resolução Detalhada & Fundamentação
+                        </div>
+                        <div class="leading-relaxed text-slate-800 space-y-2">
+                            ${q.resolution}
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function selectOption(qId, key) {
+            if (isSubmitted) return;
+            userAnswers[qId] = key;
+            updateProgress();
+
+            // Update UI status tag
+            const tag = document.getElementById(`status-tag-${qId}`);
+            if (tag) {
+                tag.innerText = "Selecionada (" + key + ")";
+                tag.className = "text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded";
+            }
+
+            // Update Nav Dot
+            const dot = document.getElementById(`nav-dot-${qId}`);
+            if (dot) {
+                dot.className = "w-9 h-9 rounded-lg bg-blue-600 text-white text-xs font-bold flex items-center justify-center shadow-sm transition";
+            }
+        }
+
+        function updateProgress() {
+            const count = Object.keys(userAnswers).length;
+            document.getElementById('answered-count').innerText = count;
+            const percentage = (count / 10) * 100;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+        }
+
+        function finishQuiz() {
+            if (isSubmitted) return;
+            isSubmitted = true;
+
+            let score = 0;
+            const tableBody = document.getElementById('summary-table-body');
+            tableBody.innerHTML = '';
+
+            quizData.forEach((q) => {
+                const selected = userAnswers[q.id] || null;
+                const isCorrect = (selected === q.correctAnswer);
+                if (isCorrect) score++;
+
+                // Reveal Resolution Card
+                const resBox = document.getElementById(`resolution-${q.id}`);
+                if (resBox) resBox.classList.remove('hidden');
+
+                // Update Question Card Styling and Labels
+                const card = document.getElementById(`questao-${q.id}`);
+                const statusTag = document.getElementById(`status-tag-${q.id}`);
+
+                if (isCorrect) {
+                    card.classList.add('ring-2', 'ring-emerald-500/50', 'bg-emerald-50/10');
+                    if (statusTag) {
+                        statusTag.innerText = "Correta ✔";
+                        statusTag.className = "text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full";
+                    }
+                } else {
+                    card.classList.add('ring-2', 'ring-rose-500/50', 'bg-rose-50/10');
+                    if (statusTag) {
+                        statusTag.innerText = selected ? "Incorreta ✖" : "Não Respondida ✖";
+                        statusTag.className = "text-xs font-bold text-rose-700 bg-rose-100 px-2.5 py-1 rounded-full";
+                    }
+                }
+
+                // Highlight each option
+                q.options.forEach(opt => {
+                    const label = document.getElementById(`label_q_${q.id}_${opt.key}`);
+                    const badge = document.getElementById(`badge_q_${q.id}_${opt.key}`);
+                    
+                    if (opt.key === q.correctAnswer) {
+                        label.classList.remove('bg-white', 'hover:bg-stone-50');
+                        label.classList.add('bg-emerald-100/80', 'border-emerald-500', 'font-semibold', 'text-emerald-950');
+                        badge.innerText = "Gabarito";
+                        badge.className = "text-xs font-bold px-2.5 py-1 rounded bg-emerald-700 text-white block ml-auto";
+                    } else if (opt.key === selected && !isCorrect) {
+                        label.classList.remove('bg-white', 'hover:bg-stone-50');
+                        label.classList.add('bg-rose-100/80', 'border-rose-400', 'text-rose-950');
+                        badge.innerText = "Sua Escolha";
+                        badge.className = "text-xs font-bold px-2.5 py-1 rounded bg-rose-600 text-white block ml-auto";
+                    }
+                });
+
+                // Update Nav Dot color
+                const dot = document.getElementById(`nav-dot-${q.id}`);
+                if (dot) {
+                    if (isCorrect) {
+                        dot.className = "w-9 h-9 rounded-lg bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shadow-sm";
+                    } else {
+                        dot.className = "w-9 h-9 rounded-lg bg-rose-600 text-white text-xs font-bold flex items-center justify-center shadow-sm";
+                    }
+                }
+
+                // Add Row to Summary Table
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-stone-50 border-b border-stone-200 text-xs md:text-sm";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-slate-900">Questão ${q.id}</td>
+                    <td class="p-3 text-center font-black text-emerald-700 font-mono">(${q.correctAnswer})</td>
+                    <td class="p-3 text-center font-bold font-mono ${isCorrect ? 'text-emerald-700' : 'text-rose-600'}">
+                        ${selected ? `(${selected})` : '—'}
+                    </td>
+                    <td class="p-3 text-slate-700">${q.topic}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            // Update Summary Display
+            const percent = Math.round((score / 10) * 100);
+            document.getElementById('score-text').innerText = score;
+            document.getElementById('score-percent').innerText = `${percent}%`;
+            document.getElementById('score-progress').style.width = `${percent}%`;
+
+            const resultsSection = document.getElementById('results-section');
+            resultsSection.classList.remove('hidden');
+
+            const feedbackMsg = document.getElementById('feedback-message');
+            const scoreBadge = document.getElementById('score-badge');
+
+            if (score >= 8) {
+                scoreBadge.className = "inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide mb-3 bg-emerald-100 text-emerald-800";
+                feedbackMsg.innerHTML = "Excelente desempenho! Você demonstrou forte domínio dos conceitos de Arquitetura e Sistemas Operacionais exigidos pela banca FAURGS.";
+            } else if (score >= 5) {
+                scoreBadge.className = "inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide mb-3 bg-amber-100 text-amber-800";
+                feedbackMsg.innerHTML = "Bom resultado! Você obteve aprovação na média. Verifique a fundamentação teórica das questões incorretas abaixo para consolidar seu aprendizado.";
+            } else {
+                scoreBadge.className = "inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide mb-3 bg-rose-100 text-rose-800";
+                feedbackMsg.innerHTML = "Atenção necessária. Sugerimos revisar os capítulos sobre gerência de memória, paginação e o fenômeno de Thrashing nas resoluções comentadas abaixo.";
+            }
+
+            // Hide Submit Button
+            document.getElementById('submit-area').classList.add('hidden');
+
+            // Scroll Smoothly to Results Summary
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function confirmReset() {
+            if (Object.keys(userAnswers).length > 0 || isSubmitted) {
+                userAnswers = {};
+                isSubmitted = false;
+                document.getElementById('results-section').classList.add('hidden');
+                document.getElementById('submit-area').classList.remove('hidden');
+                document.getElementById('answered-count').innerText = '0';
+                document.getElementById('progress-bar').style.width = '0%';
+                renderQuiz();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize App on Load
+        window.onload = function() {
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
