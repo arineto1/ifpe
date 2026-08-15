@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado FAURGS - Conhecimentos Pedagógicos em TI</title>
+    <style>
+        :root {
+            --bg-color: #F8F6F0;
+            --card-bg: #FFFFFF;
+            --text-main: #2A2A2A;
+            --text-muted: #575757;
+            --accent-color: #2B579A;
+            --accent-hover: #1E3F72;
+            --border-color: #E2DDD5;
+            --selected-bg: #EBF2FA;
+            --selected-border: #2B579A;
+            --correct-bg: #E8F5E9;
+            --correct-border: #2E7D32;
+            --correct-text: #1B5E20;
+            --incorrect-bg: #FFEBEE;
+            --incorrect-border: #C62828;
+            --incorrect-text: #B71C1C;
+            --radius-md: 10px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.75;
+            font-size: 1.05rem;
+            padding: 20px 15px 60px 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.98rem;
+        }
+
+        .progress-bar-container {
+            margin-top: 18px;
+            background-color: #EAE7E1;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            margin-top: 8px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .question-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+            transition: border-color 0.2s ease;
+        }
+
+        .question-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #F0ECE4;
+        }
+
+        .question-number {
+            font-weight: 700;
+            color: var(--accent-color);
+            font-size: 1.15rem;
+        }
+
+        .question-statement {
+            font-size: 1.05rem;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .options-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-item {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background-color: #FAFAFA;
+        }
+
+        .option-item:hover {
+            border-color: var(--accent-color);
+            background-color: #F4F7FC;
+        }
+
+        .option-item.selected {
+            background-color: var(--selected-bg);
+            border-color: var(--selected-border);
+            font-weight: 600;
+        }
+
+        .option-radio {
+            margin-top: 4px;
+            accent-color: var(--accent-color);
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .option-label {
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: #FFFFFF;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: #E2DDD5;
+            color: #333333;
+        }
+
+        .btn-secondary:hover {
+            background-color: #D3CDC3;
+        }
+
+        .results-section {
+            display: none;
+            background-color: var(--card-bg);
+            border: 2px solid var(--accent-color);
+            border-radius: var(--radius-md);
+            padding: 32px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-md);
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .results-header {
+            text-align: center;
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .results-score {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--accent-color);
+            margin: 10px 0;
+        }
+
+        .results-feedback {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .status-correct {
+            background-color: var(--correct-bg);
+            color: var(--correct-text);
+            border: 1px solid var(--correct-border);
+        }
+
+        .status-incorrect {
+            background-color: var(--incorrect-bg);
+            color: var(--incorrect-text);
+            border: 1px solid var(--incorrect-border);
+        }
+
+        .resolution-box {
+            margin-top: 16px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            background-color: #F8F6F0;
+            border-left: 4px solid var(--accent-color);
+            font-size: 0.96rem;
+            color: #333333;
+        }
+
+        .resolution-box h4 {
+            color: var(--accent-color);
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+
+        /* Option result states when showing feedback */
+        .option-item.correct-answer {
+            background-color: var(--correct-bg) !important;
+            border-color: var(--correct-border) !important;
+            color: var(--correct-text) !important;
+            font-weight: 600;
+        }
+
+        .option-item.wrong-answer {
+            background-color: var(--incorrect-bg) !important;
+            border-color: var(--incorrect-border) !important;
+            color: var(--incorrect-text) !important;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px 10px 40px 10px;
+            }
+            header, .question-card, .results-section {
+                padding: 20px;
+            }
+            .controls {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Simulado FAURGS</h1>
+        <p>Organização do Trabalho Pedagógico e Planejamento Escolar em TI</p>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="progress-text">
+            <span>Progresso</span>
+            <span id="progress-label">0 de 10 respondidas</span>
+        </div>
+    </header>
+
+    <div id="quiz-container">
+        <!-- Questions will be injected dynamically -->
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-secondary" onclick="resetQuiz()">Reiniciar Respostas</button>
+        <button class="btn btn-primary" onclick="finishQuiz()">Concluir e Ver Resultado</button>
+    </div>
+
+    <div class="results-section" id="results-section">
+        <div class="results-header">
+            <h2>Resultado Geral</h2>
+            <div class="results-score" id="results-score">0 / 10</div>
+            <p class="results-feedback" id="results-feedback"></p>
+        </div>
+        <p style="text-align: center; color: var(--text-muted);">
+            Role a página para cima para conferir as correções e resoluções detalhadas de cada questão.
+        </p>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    {
+        id: 1,
+        statement: `No tocante à organização do trabalho pedagógico e à concepção do planejamento escolar no contexto do ensino de Tecnologia da Informação (TI), a literatura pedagógica contrapõe a visão burocrática à perspectiva dialógica do planejar. Considere as assertivas abaixo sobre o conceito de planejamento dialógico versus formulário burocrático:<br><br>
+I. O planejamento concebido como formulário burocrático reduz o ato pedagógico ao preenchimento formal de relatórios e grelhas administrativas, priorizando o cumprimento do calendário e a padronização de conteúdos em detrimento das especificidades dos estudantes.<br>
+II. A abordagem dialógica do planejamento entende a ação planejadora como um processo dinâmico, contínuo e reflexivo de tomada de decisões, no qual as necessidades da comunidade escolar e a realidade sociocultural orientam os objetivos didáticos.<br>
+III. No ensino de Computação e TI, o planejamento dialógico invalida a necessidade de estruturação prévia de rotinas de laboratório e planos de curso, uma vez que toda a ação docente deve emergir espontaneamente durante a aula.<br>
+IV. A dimensão burocrática do planejamento fortalece a autonomia docente ao isolar a prática de sala de aula das diretrizes institucionais do Projeto Político-Pedagógico (PPP).<br><br>
+Quais estão corretas?`,
+        options: [
+            { letter: "A", text: "Apenas I e IV." },
+            { letter: "B", text: "Apenas II e III." },
+            { letter: "C", text: "Apenas I e II." },
+            { letter: "D", text: "Apenas I, II e IV." },
+            { letter: "E", text: "I, II, III e IV." }
+        ],
+        correct: "C",
+        resolution: "A análise da questão exige a diferenciação paradigmática entre a concepção burocrática e a visão dialógica do planejamento escolar. A assertiva I está correta porque retrata precisamente o planejamento burocrático como uma exigência formal cartorial, voltada apenas ao cumprimento de rotinas administrativas e prazos, desprovida de escuta sensível da realidade dos estudantes. A assertiva II está correta ao definir o planejamento dialógico como uma ação práxica, reflexiva e flexível, que ajusta os objetivos educacionais às demandas socioculturais do contexto escolar. A assertiva III é incorreta porque o planejamento dialógico não se confunde com o espontaneísmo irresponsável; ele exige rigor e preparação prévia dos espaços e roteiros de aprendizagem. A assertiva IV é incorreta pois a burocratização promove a alienação e o isolamento docente, enfraquecendo a autonomia e rompendo o vínculo orgânico com o Projeto Político-Pedagógico. Portanto, apenas I e II estão corretas. Gabarito: C."
+    },
+    {
+        id: 2,
+        statement: `A mediação da tecnologia no ambiente educativo exige a superação do planejamento puramente instrumental. Segundo as concepções críticas acerca do trabalho pedagógico e do planejamento escolar, assinale a alternativa que expressa corretamente a relação entre o planejamento e a prática docente em laboratórios de informática:`,
+        options: [
+            { letter: "A", text: "O planejamento escolar deve restringir-se à alocação de software e à verificação da infraestrutura física, eximindo o professor de articular objetivos pedagógicos mais amplos." },
+            { letter: "B", text: "O planejamento dialógico transforma a aula de informática em um espaço de investigação crítica, no qual as ferramentas tecnológicas figuram como meios para o desenvolvimento do pensamento computacional e da resolução de problemas reais." },
+            { letter: "C", text: "O caráter técnico da disciplina de TI prescinde do alinhamento com o Projeto Político-Pedagógico da escola, dado que os conteúdos de programação são neutros e universais." },
+            { letter: "D", text: "A burocratização do planejamento é benéfica para o ensino de tecnologia, pois garante que todos os alunos sigam o mesmo passo a passo instrumental sem desvios cognitivos." },
+            { letter: "E", text: "A avaliação do planejamento em TI deve mensurar unicamente a memorização de sintaxes e comandos de programas, descartando processos reflexivos e colaborativos." }
+        ],
+        correct: "B",
+        resolution: "O ensino de Tecnologia da Informação sob uma perspectiva pedagógica crítica supera a mera transmissão de conhecimentos instrumentais e operacionais. A alternativa B é a única correta ao expressar que o planejamento dialógico utiliza os recursos computacionais como mediadores do desenvolvimento do pensamento lógico, da investigação crítica e da solução de problemas reais da sociedade. A alternativa A reduz equivocadamente o planejamento ao suporte técnico. A alternativa C incorre no erro de neutralidade da ciência e da tecnologia, desconsiderando a necessária vinculação ao PPP. A alternativa D defende o adestramento sequencial rígido, inerente à burocratização. A alternativa E restringe a avaliação à memorização de sintaxe, opondo-se à avaliação formativa e processual do fazer tecnológico. Gabarito: B."
+    },
+    {
+        id: 3,
+        statement: `O planejamento escolar organiza-se em diferentes níveis de abrangência e complexidade, articulando desde as diretrizes institucionais até a intervenção direta em sala de aula ou laboratório. Em relação aos níveis de planejamento — Projeto Político-Pedagógico (PPP), Plano de Ensino e Plano de Aula —, considere as seguintes afirmações:<br><br>
+I. O Projeto Político-Pedagógico constitui o nível macro do planejamento escolar, definindo a identidade, a missão e as concepções pedagógicas que orientam a instituição.<br>
+II. O Plano de Ensino desdobra as diretrizes do PPP em objetivos gerais, conteúdos programáticos e estratégias metodológicas para uma determinada disciplina ao longo de um período letivo.<br>
+III. O Plano de Aula representa o nível de maior detalhamento e operacionalização da prática pedagógica, organizando o tempo, os recursos e as mediações para uma situação específica de aprendizagem.<br><br>
+Quais estão corretas?`,
+        options: [
+            { letter: "A", text: "Apenas I, II e III." },
+            { letter: "B", text: "Apenas I e II." },
+            { letter: "C", text: "Apenas I e III." },
+            { letter: "D", text: "Apenas II e III." },
+            { letter: "E", text: "Nenhuma das afirmações." }
+        ],
+        correct: "A",
+        resolution: "A questão aborda os três níveis de articulação do planejamento escolar. A assertiva I está correta ao identificar o Projeto Político-Pedagógico como o nível institucional (macro), no qual se estabelecem os princípios políticos, filosóficos e pedagógicos da escola. A assertiva II está correta ao conceituar o Plano de Ensino como a sistematização das intenções pedagógicas de uma área ou disciplina para o período letivo, articulando objetivos, conteúdos e procedimentos. A assertiva III está correta ao caracterizar o Plano de Aula como o nível micro e operacional, que prevê detalhadamente o tempo didático, a gestão do espaço e as interações pedagógicas. Como todas as assertivas estão corretas, a alternativa A é a resposta certa. Gabarito: A."
+    },
+    {
+        id: 4,
+        statement: `A construção do Projeto Político-Pedagógico (PPP) em instituições de ensino requer a integração do ensino de tecnologia com os fins sociais e éticos da educação. Nesse contexto, a elaboração do PPP sob uma perspectiva transformadora e democrática no ensino de TI deve:`,
+        options: [
+            { letter: "A", text: "Conceber as tecnologias da informação como meros recursos neutros de apoio administrativo, sem impacto na formação cidadã dos educandos." },
+            { letter: "B", text: "Priorizar a aquisição de equipamentos de última geração em detrimento da formação continuada do corpo docente e da discussão curricular." },
+            { letter: "C", text: "Adotar um modelo centralizado e tecnocrático, no qual especialistas externos definem as diretrizes curriculares sem a participação da comunidade escolar." },
+            { letter: "D", text: "Articular a inclusão digital ao desenvolvimento da consciência crítica, estimulando o uso ético, produtivo e reflexivo das tecnologias na sociedade." },
+            { letter: "E", text: "Tratar a informática educativa como uma disciplina isolada, sem convergência com os projetos interdisciplinares das demais áreas do conhecimento." }
+        ],
+        correct: "D",
+        resolution: "A inclusão da Tecnologia da Informação nos Projetos Político-Pedagógicos das escolas não pode dar-se de forma acrítica ou mercantil. A alternativa D consolida a perspectiva transformadora do PPP ao associar o domínio técnico do ambiente digital à emancipação, ao exercício ético da cidadania e à leitura crítica dos fluxos de informação. As alternativas A, B, C e E são incorretas porque, respectivamente, reduzem a tecnologia ao apoio burocrático, priorizam o fetiche do equipamento sobre o fator humano pedagógico, defendem a tecnocracia antidemocrática na gestão do currículo e promovem a fragmentação disciplinar em detrimento do trabalho interdisciplinar. Gabarito: D."
+    },
+    {
+        id: 5,
+        statement: `O Plano de Ensino é composto por elementos estruturantes que guardam relação de dependência lógica e coerência interna entre si. Considere os elementos: Objetivos, Conteúdos e Metodologia no contexto de uma aula de informática educativa ou programação.<br><br>
+I. Os Objetivos explicitam o que se pretende que o estudante desenvolva em termos de capacidades cognitivas, procedimentais e atitudinais ao longo do processo de aprendizagem.<br>
+II. Os Conteúdos no ensino de TI abrangem não apenas conceitos teóricos e sintaxes de linguagem, mas também a lógica de resolução de problemas e atitudes éticas no ambiente digital.<br>
+III. A Metodologia descreve as mediações pedagógicas, técnicas e caminhos didáticos adotados pelo docente para favorecer a construção ativa do conhecimento pelo estudante.<br>
+IV. Os elementos estruturantes do plano de ensino funcionam de forma estanque, sendo perfeitamente viável determinar a metodologia sem qualquer vinculação aos objetivos educativos.<br><br>
+Quais estão corretas?`,
+        options: [
+            { letter: "A", text: "Apenas I e IV." },
+            { letter: "B", text: "Apenas II e III." },
+            { letter: "C", text: "Apenas III e IV." },
+            { letter: "D", text: "Apenas I, II e III." },
+            { letter: "E", text: "I, II, III e IV." }
+        ],
+        correct: "D",
+        resolution: "Os elementos constituintes do Plano de Ensino guardam viva relação de coerência interna. A assertiva I está correta pois define os objetivos como bússolas da intenção educativa. A assertiva II está correta ao explicitar que os conteúdos de TI superam os conceitos teóricos formais, englobando dimensões procedimentais e atitudinais. A assertiva III está correta ao definir a metodologia como a estratégia de mediação adotada pelo professor para conduzir o aprendizado. A assertiva IV está incorreta porque os elementos do planejamento são visceralmente interdependentes; a escolha metodológica depende fundamentalmente da natureza dos objetivos e dos conteúdos previstos. Logo, apenas I, II e III estão corretas. Gabarito: D."
+    },
+    {
+        id: 6,
+        statement: `No planejamento de uma unidade de ensino voltada ao Aprendizado de Algoritmos e Pensamento Computacional, o docente precisa garantir o alinhamento construtivo entre objetivos, metodologia e avaliação. Assinale a alternativa que reflete uma prática pedagógica coerente com essa articulação:`,
+        options: [
+            { letter: "A", text: "Definir como objetivo o desenvolvimento do trabalho colaborativo em programação e avaliar os estudantes exclusivamente por meio de uma prova teórica e individual." },
+            { letter: "B", text: "Adotar como metodologia aulas expositivas baseadas em cópia passiva de código do quadro e cobrar na avaliação a criação autônoma de softwares complexos." },
+            { letter: "C", text: "Formular objetivos voltados à resolução de problemas práticos, utilizar metodologias ativas baseadas em projetos e avaliar o processo de elaboração e refinamento dos algoritmos." },
+            { letter: "D", text: "Prescindir da definição de objetivos pedagógicos, focando o planejamento apenas no cumprimento mecânico da sequência de exercícios do livro didático." },
+            { letter: "E", text: "Selecionar conteúdos de alta complexidade sem considerar o desenvolvimento cognitivo prévio dos alunos, utilizando a avaliação formativa com finalidade punitiva." }
+        ],
+        correct: "C",
+        resolution: "O alinhamento construtivo exige absoluta coerência entre os objetivos pretendidos, o caminho metodológico percorrido e os critérios de avaliação aplicados. A alternativa C representa esse alinhamento de forma exemplar: ao fixar a resolução de problemas como objetivo, adota metodologias ativas (projetos) e avalia o estudante de forma processual e formativa ao longo da construção e depuração do código. As alternativas A e B apresentam fraturas metodológicas gritantes entre o ensinar e o avaliar. A alternativa D elimina a intencionalidade do ato pedagógico em favor do cumprimento de apostilas. A alternativa E utiliza a prática avaliativa com caráter coercitivo e descontextualizado. Gabarito: C."
+    },
+    {
+        id: 7,
+        statement: `A gestão do Laboratório de Informática exige a superação da visão meramente instrumental para se consolidar como a gestão de um espaço pedagógico dinâmico. A respeito da organização e gestão do laboratório de informática na escola, considere as assertivas abaixo:<br><br>
+I. O laboratório de informática deve ser estruturado como um ambiente dinâmico de aprendizagem e investigação, e não como um espaço de custódia de equipamentos sob supervisão puramente técnica.<br>
+II. A gestão pedagógica do laboratório envolve o estabelecimento de combinados de convivência, o zelo coletivo pelos recursos e a garantia de acesso equitativo a todos os estudantes.<br>
+III. Para assegurar o controle disciplinar e a preservação dos computadores, o docente deve proibir qualquer tipo de interação colaborativa entre os estudantes durante as atividades práticas.<br>
+IV. A mediação pedagógica no laboratório inclui a antecipação de contingências técnicas e a disponibilização de alternativas metodológicas para assegurar a continuidade da aprendizagem.<br><br>
+Quais estão corretas?`,
+        options: [
+            { letter: "A", text: "Apenas I e III." },
+            { letter: "B", text: "Apenas I, II e IV." },
+            { letter: "C", text: "Apenas II e IV." },
+            { letter: "D", text: "Apenas III e IV." },
+            { letter: "E", text: "I, II, III e IV." }
+        ],
+        correct: "B",
+        resolution: "A gestão do laboratório de informática precisa transcender a vigilância técnica de máquinas. A assertiva I está correta pois defende o laboratório como espaço dinâmico de produção cultural e cognitiva. A assertiva II está correta ao pautar a gestão pedagógica na construção de regras coletivas, cuidado ético com o patrimônio público e garantia de equidade no acesso. A assertiva III está incorreta porque a proibição do diálogo impede a aprendizagem colaborativa e a construção conjunta de soluções no ensino de TI. A assertiva IV está correta pois a mediação pedagógica envolve prever planos alternativos diante de imprevistos tecnológicos. Assim, as assertivas I, II e IV estão corretas. Gabarito: B."
+    },
+    {
+        id: 8,
+        statement: `Em diversas instituições de ensino, o uso do laboratório de informática é demarcado por rotinas burocráticas e regulamentos coercitivos que inviabilizam a inovação pedagógica. Sob a perspectiva da gestão pedagógica inclusiva desse espaço, assinale a alternativa correta:`,
+        options: [
+            { letter: "A", text: "As normas de uso do laboratório devem ser construídas coletivamente com os estudantes, promovendo a autonomia moral e o uso responsável da tecnologia em vez da mera imposição coercitiva." },
+            { letter: "B", text: "O acesso à internet no laboratório deve ser bloqueado de forma irrestrita para impedir pesquisas autônomas dos estudantes durante as aulas de TI." },
+            { letter: "C", text: "A manutenção técnica preventiva e corretiva dos computadores é atribuição pedagógica do professor da disciplina, devendo este priorizar o conserto de hardware durante o horário de aula." },
+            { letter: "D", text: "A disposição física dos computadores em fileiras individuais voltadas para a parede é a única configuração espacial eficiente para o trabalho pedagógico colaborativo." },
+            { letter: "E", text: "O acesso ao laboratório de informática deve ser restrito aos estudantes que apresentam os melhores desempenhos acadêmicos em disciplinas teóricas como forma de premiação." }
+        ],
+        correct: "A",
+        resolution: "A gestão inclusiva de ambientes de aprendizagem tecnológica baseia-se na autonomia e na coesão social. A alternativa A é a única correta, pois a pactuação coletiva de combinados fomenta a responsabilidade ética e o pertencimento dos estudantes. A alternativa B inviabiliza a pesquisa e a autonomia de busca de informações. A alternativa C desvia a função primordial do docente (que é a mediação pedagógica) para transformá-lo em técnico de manutenção predial/hardware. A alternativa D impõe uma arquitetura rígida que desfavorece o trabalho em equipe. A alternativa E fere o princípio constitutional do direito universal e equitativo à educação. Gabarito: A."
+    },
+    {
+        id: 9,
+        statement: `A flexibilidade do planejamento e a mediação docente constituem elementos decisivos nas aulas de Tecnologia da Informação devido à fluidez das ferramentas e à imprevista ocorrência de falhas técnicas ou de conexão. Sobre a flexibilidade do planejamento pedagógico em TI, considere:<br><br>
+I. Flexibilidade no planejamento equivale à ausência de rigor pedagógico, permitindo ao docente conduzir o processo de ensino sem delimitação prévia de objetivos intencionais.<br>
+II. Um planejamento flexível permite ao professor reorientar a rota metodológica quando identifica que uma ferramenta de software prevista não responde às necessidades cognitivas da turma.<br>
+III. O erro e a falha de execução do código (bug) devem ser aproveitados pela mediação docente como oportunidades pedagógicas para a análise metacognitiva e o desenvolvimento do raciocínio lógico.<br>
+IV. A mediação docente em TI restringe-se a fornecer respostas prontas e códigos corrigidos assim que os estudantes encontram a primeira dificuldade de implementação.<br><br>
+Quais estão corretas?`,
+        options: [
+            { letter: "A", text: "Apenas I e II." },
+            { letter: "B", text: "Apenas I e IV." },
+            { letter: "C", text: "Apenas III e IV." },
+            { letter: "D", text: "Apenas II e III." },
+            { letter: "E", text: "I, II, III e IV." }
+        ],
+        correct: "D",
+        resolution: "A flexibilidade do planejamento representa uma virtude profissional do docente consciente. A assertiva I é incorreta porque flexibilidade não significa improviso desorganizado ou ausência de rumo. A assertiva II é correta ao prever a reorganização da ação didática quando determinado software ou percurso não surte o efeito cognitivo esperado. A assertiva III é correta ao tomar o erro (bug) como elemento estruturante da aprendizagem no ensino de TI, incentivando a depuração e o pensamento metacognitivo. A assertiva IV é incorreta porque a entrega de respostas prontas anula a construção ativa do raciocínio pelo estudante. Portanto, estão corretas apenas as assertivas II e III. Gabarito: D."
+    },
+    {
+        id: 10,
+        statement: `Em uma aula de programação no laboratório de informática, a conexão com a rede local cai inesperadamente, impossibilitando a execução do ambiente de desenvolvimento (IDE) online planejado pelo docente. Diante dessa situação imprevista, qual conduta demonstra uma mediação docente pautada pela flexibilidade pedagógica dialógica?`,
+        options: [
+            { letter: "A", text: "Encerrar a aula e liberar os estudantes, uma vez que o trabalho pedagógico em TI depende de modo absoluto do funcionamento dos computadores conectáveis." },
+            { letter: "B", text: "Aplicar uma punição disciplinar à turma em virtude da interrupção do cronograma previsto para o laboratório." },
+            { letter: "C", text: "Exigir que os estudantes preencham relatórios burocráticos sobre a falha técnica para encaminhamento à direção da escola durante o restante do período." },
+            { letter: "D", text: "Manter os estudantes em silêncio copiando definições teóricas do livro didático até o restabelecimento da rede, ignorando o tema prático da aula." },
+            { letter: "E", text: "Reorganizar a dinâmica da aula utilizando estratégias de computação desplugada, simulação de algoritmos no quadro ou em papel e discussão reflexiva sobre a lógica envolvida." }
+        ],
+        correct: "E",
+        resolution: "Diante de falhas tecnológicas imprevistas, o docente pautado pela pedagogia dialógica demonstra repertório e flexibilidade. A alternativa E exprime a conduta pedagogicamente adequada ao utilizar a computação desplugada (atividades desplugadas) para simular algoritmos e estruturas lógicas no quadro ou no papel, mantendo o foco nos objetivos de aprendizagem do pensamento computacional sem dependência exclusiva da máquina. As alternativas A, B, C e D revelam posturas burocráticas, punitivas, passivas ou de abandono da mediação pedagógica, incapazes de transformar o imprevisto técnico em oportunidade educativa. Gabarito: E."
+    }
+];
+
+// State variables
+let userAnswers = {};
+let isFinished = false;
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderQuiz();
+});
+
+function renderQuiz() {
+    const container = document.getElementById('quiz-container');
+    container.innerHTML = '';
+
+    quizData.forEach((q, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.id = `q-card-${q.id}`;
+
+        let optionsHtml = '';
+        q.options.forEach(opt => {
+            optionsHtml += `
+                <li class="option-item" id="opt-item-${q.id}-${opt.letter}" onclick="selectOption(${q.id}, '${opt.letter}')">
+                    <input type="radio" 
+                           name="q_${q.id}" 
+                           id="radio_${q.id}_${opt.letter}" 
+                           value="${opt.letter}" 
+                           class="option-radio"
+                           ${userAnswers[q.id] === opt.letter ? 'checked' : ''}
+                           ${isFinished ? 'disabled' : ''}>
+                    <label for="radio_${q.id}_${opt.letter}" class="option-label">
+                        <strong>(${opt.letter})</strong> ${opt.text}
+                    </label>
+                </li>
+            `;
+        });
+
+        card.innerHTML = `
+            <div class="question-header">
+                <span class="question-number">Questão ${q.id}</span>
+                <span id="status-badge-${q.id}"></span>
+            </div>
+            <div class="question-statement">${q.statement}</div>
+            <ul class="options-list">
+                ${optionsHtml}
+            </ul>
+            <div id="resolution-${q.id}"></div>
+        `;
+
+        container.appendChild(card);
+    });
+
+    updateProgress();
+}
+
+function selectOption(questionId, letter) {
+    if (isFinished) return;
+
+    userAnswers[questionId] = letter;
+
+    // Update styling for options in this question
+    const qData = quizData.find(q => q.id === questionId);
+    qData.options.forEach(opt => {
+        const item = document.getElementById(`opt-item-${questionId}-${opt.letter}`);
+        const radio = document.getElementById(`radio_${questionId}_${opt.letter}`);
+
+        if (opt.letter === letter) {
+            item.classList.add('selected');
+            radio.checked = true;
+        } else {
+            item.classList.remove('selected');
+            radio.checked = false;
+        }
+    });
+
+    updateProgress();
+}
+
+function updateProgress() {
+    const answeredCount = Object.keys(userAnswers).length;
+    const totalCount = quizData.length;
+    const percentage = (answeredCount / totalCount) * 100;
+
+    document.getElementById('progress-bar').style.width = `${percentage}%`;
+    document.getElementById('progress-label').innerText = `${answeredCount} de ${totalCount} respondidas`;
+}
+
+function finishQuiz() {
+    const answeredCount = Object.keys(userAnswers).length;
+    
+    if (answeredCount < quizData.length) {
+        const confirmFinish = confirm(`Você respondeu ${answeredCount} de 10 questões. Deseja finalizar assim mesmo e ver os resultados?`);
+        if (!confirmFinish) return;
+    }
+
+    isFinished = true;
+    let score = 0;
+
+    quizData.forEach(q => {
+        const selected = userAnswers[q.id];
+        const isCorrect = selected === q.correct;
+        const statusBadgeContainer = document.getElementById(`status-badge-${q.id}`);
+        const resolutionContainer = document.getElementById(`resolution-${q.id}`);
+
+        if (isCorrect) score++;
+
+        // Render badge
+        if (selected) {
+            if (isCorrect) {
+                statusBadgeContainer.innerHTML = `<span class="status-badge status-correct">✓ Correto</span>`;
+            } else {
+                statusBadgeContainer.innerHTML = `<span class="status-badge status-incorrect">✕ Incorreto</span>`;
+            }
+        } else {
+            statusBadgeContainer.innerHTML = `<span class="status-badge status-incorrect">Não Respondida</span>`;
+        }
+
+        // Highlight option items
+        q.options.forEach(opt => {
+            const item = document.getElementById(`opt-item-${q.id}-${opt.letter}`);
+            const radio = document.getElementById(`radio_${q.id}_${opt.letter}`);
+            radio.disabled = true;
+
+            if (opt.letter === q.correct) {
+                item.classList.add('correct-answer');
+            } else if (opt.letter === selected && !isCorrect) {
+                item.classList.add('wrong-answer');
+            }
+        });
+
+        // Show detailed resolution on the question card
+        resolutionContainer.innerHTML = `
+            <div class="resolution-box">
+                <h4>Gabarito & Resolução Comentada</h4>
+                <p>${q.resolution}</p>
+            </div>
+        `;
+    });
+
+    // Display summary results block below
+    const resultsSection = document.getElementById('results-section');
+    const resultsScore = document.getElementById('results-score');
+    const resultsFeedback = document.getElementById('results-feedback');
+
+    resultsScore.innerText = `${score} / ${quizData.length}`;
+    
+    const percentage = (score / quizData.length) * 100;
+    if (percentage >= 80) {
+        resultsFeedback.innerText = "Excelente desempenho! Domínio consolidado dos conceitos da FAURGS.";
+    } else if (percentage >= 50) {
+        resultsFeedback.innerText = "Bom trabalho! Vale a pena revisar as resoluções comentadas para afiar os conceitos.";
+    } else {
+        resultsFeedback.innerText = "Aproveite para estudar detalhadamente cada uma das resoluções apresentadas acima.";
+    }
+
+    resultsSection.style.display = 'block';
+
+    // Scroll smoothly to results section
+    resultsSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetQuiz() {
+    userAnswers = {};
+    isFinished = false;
+
+    document.getElementById('results-section').style.display = 'none';
+    renderQuiz();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
