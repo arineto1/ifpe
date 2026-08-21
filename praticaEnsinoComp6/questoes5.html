@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado FAURGS - Legislação Educacional e Ensino de Computação</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter e Merriweather -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif']
+                    },
+                    colors: {
+                        warmbg: '#FBF9F5',
+                        cardbg: '#FFFFFF',
+                        bordercolor: '#E2E8F0',
+                        brand: {
+                            50: '#EFF6FF',
+                            100: '#DBEAFE',
+                            600: '#2563EB',
+                            700: '#1D4ED8',
+                            800: '#1E40AF',
+                            900: '#1E3A8A'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FBF9F5;
+            color: #2D3748;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+        }
+        .prose-text {
+            font-family: 'Merriweather', serif;
+            color: #2D3748;
+        }
+        .option-card {
+            transition: all 0.2s ease-in-out;
+        }
+        .option-card:hover {
+            border-color: #3B82F6;
+            background-color: #F8FAFC;
+        }
+        .option-card.selected {
+            border-color: #2563EB;
+            background-color: #EFF6FF;
+            box-shadow: 0 0 0 1px #2563EB;
+        }
+        .option-card.correct-answer {
+            border-color: #10B981;
+            background-color: #ECFDF5;
+        }
+        .option-card.wrong-answer {
+            border-color: #EF4444;
+            background-color: #FEF2F2;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-16">
+
+    <!-- Top Progress Bar Container -->
+    <header class="sticky top-0 z-50 bg-[#FBF9F5]/95 backdrop-blur-md border-b border-stone-200 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-3 sm:px-6 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="bg-blue-800 text-white font-bold text-xs px-2.5 py-1 rounded-md uppercase tracking-wider">Banca FAURGS</span>
+                <h1 class="text-sm sm:text-base font-semibold text-stone-800 truncate">Simulado - Legislação & Computação</h1>
+            </div>
+            <div class="flex items-center space-x-4 text-xs sm:text-sm font-medium text-stone-600">
+                <span id="progress-text">0/10 respondidas</span>
+                <button onclick="scrollToResults()" id="nav-results-btn" class="hidden text-blue-600 hover:text-blue-800 font-semibold underline">
+                    Ver Gabarito
+                </button>
+            </div>
+        </div>
+        <!-- Progress Bar Line -->
+        <div class="w-full bg-stone-200 h-1.5">
+            <div id="progress-bar" class="bg-blue-600 h-1.5 w-0 transition-all duration-300"></div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 mt-8">
+
+        <!-- Quiz Banner Header -->
+        <div class="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-sm mb-8">
+            <div class="border-b border-stone-100 pb-4 mb-4">
+                <h2 class="text-2xl sm:text-3xl font-bold text-stone-900 leading-tight">
+                    Prova Objetiva – Políticas Públicas, Legislação Educacional e a Prática Avaliativa no Ensino de Computação
+                </h2>
+                <p class="text-sm text-stone-500 mt-2">
+                    <strong>Modelo:</strong> FAURGS &bull; <strong>Atribuição:</strong> Conhecimentos Pedagógicos, Legislação Educacional e Ensino de Computação &bull; <strong>Total:</strong> 10 Questões de Múltipla Escolha
+                </p>
+            </div>
+            <p class="text-stone-600 text-sm sm:text-base">
+                Selecione uma alternativa para cada questão abaixo. Ao finalizar, clique no botão ao final da página para calcular o seu desempenho e acessar o gabarito comentado com os dispositivos legais e fundamentações teóricas completas.
+            </p>
+        </div>
+
+        <!-- Questions Container -->
+        <div id="questions-container" class="space-y-8">
+            <!-- Questions rendered via JS -->
+        </div>
+
+        <!-- Submit Button Section -->
+        <div id="submit-section" class="mt-12 text-center bg-white rounded-2xl p-8 border border-stone-200 shadow-sm">
+            <h3 class="text-lg font-semibold text-stone-800 mb-2">Concluiu todas as questões?</h3>
+            <p class="text-sm text-stone-500 mb-6">Você pode revisar suas escolhas a qualquer momento antes de enviar.</p>
+            <button id="btn-submit" onclick="finishQuiz()" class="inline-flex items-center justify-center bg-blue-700 hover:bg-blue-800 text-white font-semibold text-base px-8 py-3.5 rounded-xl shadow-md transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                Finalizar e Ver Resultado
+            </button>
+        </div>
+
+        <!-- Results & Resolution Section (Hidden initially) -->
+        <section id="results-section" class="hidden mt-12 space-y-8">
+            
+            <!-- Summary Result Card -->
+            <div id="score-summary-card" class="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-sm text-center">
+                <span class="inline-block px-3 py-1 bg-stone-100 text-stone-700 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">Resultado do Simulado</span>
+                <h2 id="score-percentage" class="text-4xl sm:text-5xl font-extrabold text-stone-900 mb-2">0%</h2>
+                <p id="score-details" class="text-lg text-stone-700 font-medium mb-4">Você acertou 0 de 10 questões.</p>
+                <p id="score-feedback" class="text-sm sm:text-base text-stone-600 max-w-2xl mx-auto mb-6 leading-relaxed"></p>
+                
+                <!-- Quick Filter Buttons -->
+                <div class="flex flex-wrap justify-center gap-3 border-t border-stone-100 pt-6">
+                    <button onclick="filterResolutions('all')" id="filter-all" class="px-4 py-2 rounded-lg text-sm font-medium bg-stone-800 text-white shadow-sm">
+                        Todas as Questões (10)
+                    </button>
+                    <button onclick="filterResolutions('wrong')" id="filter-wrong" class="px-4 py-2 rounded-lg text-sm font-medium bg-stone-100 text-stone-700 hover:bg-stone-200">
+                        Incorretas (<span id="wrong-count">0</span>)
+                    </button>
+                    <button onclick="filterResolutions('correct')" id="filter-correct" class="px-4 py-2 rounded-lg text-sm font-medium bg-stone-100 text-stone-700 hover:bg-stone-200">
+                        Corretas (<span id="correct-count">0</span>)
+                    </button>
+                    <button onclick="restartQuiz()" class="px-4 py-2 rounded-lg text-sm font-medium border border-stone-300 text-stone-700 hover:bg-stone-50">
+                        Refazer Simulado
+                    </button>
+                </div>
+            </div>
+
+            <!-- Detailed Resolutions Header -->
+            <div class="flex items-center justify-between pt-4 border-b border-stone-200 pb-3">
+                <h3 class="text-xl font-bold text-stone-900">Gabarito e Resoluções Comentadas</h3>
+                <span class="text-xs text-stone-500 font-medium">Conforme fundamentação legal e bibliográfica</span>
+            </div>
+
+            <!-- Resolutions List Container -->
+            <div id="resolutions-container" class="space-y-8">
+                <!-- Resolutions rendered via JS -->
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        // Database of Questions, Options, Answers and Resolutions
+        const quizData = [
+            {
+                id: 1,
+                number: "01",
+                context: "A Lei de Diretrizes e Bases da Educação Nacional (LDB nº 9.394/1996), em seu artigo 24, inciso V, regulamenta os critérios constitutivos para a verificação do rendimento escolar na Educação Básica. Tendo em vista a concepção legal e pedagógica de avaliação estabelecida pela norma, considere as afirmações abaixo:",
+                statements: [
+                    "I. A verificação do rendimento escolar exige a avaliação contínua e cumulativa do desempenho do estudante, com prevalência dos aspectos qualitativos sobre os quantitativos e dos resultados ao longo do período sobre os de eventuais provas finais.",
+                    "II. É obrigatória a oferta de estudos de recuperação, de preferência paralelos ao período letivo, disciplinados pelas instituições de ensino em seus regimentos, voltados aos casos de baixo rendimento escolar.",
+                    "III. O texto legal autoriza a prevalência jurídica e pedagógica da nota obtida em um exame final isolado sobre o histórico de desenvolvimento e aprendizagem demonstrado pelo estudante durante o semestre letivo.",
+                    "IV. A legislação prevê explicitamente a possibilidade de aceleração de estudos para alunos com atraso escolar, bem como o avanço nos cursos e nas séries mediante verificação do aprendizado."
+                ],
+                question: "Quais estão corretas?",
+                options: [
+                    { key: "A", text: "(A) Apenas I e II." },
+                    { key: "B", text: "(B) Apenas III e IV." },
+                    { key: "C", text: "(C) Apenas I, II e IV." },
+                    { key: "D", text: "(D) Apenas II, III e IV." },
+                    { key: "E", text: "(E) I, II, III e IV." }
+                ],
+                correct: "C",
+                legalRef: "LDB nº 9.394/1996, Art. 24, Inciso V, alíneas \"a\", \"b\", \"c\" e \"e\"",
+                resolution: "A verificação do rendimento escolar na Educação Básica é regulamentada pelo Artigo 24, Inciso V, da LDB nº 9.394/1996. A alínea \"a\" estabelece expressamente a obrigatoriedade da avaliação contínua e cumulativa do desempenho do estudante, estipulando a prevalência absoluta dos aspectos qualitativos sobre os quantitativos, bem como a prevalência dos resultados alcançados ao longo do período sobre os de eventuais exames finais. A alínea \"e\" torna obrigatória a oferta de estudos de recuperação, indicando que estes devem ocorrer preferencialmente de forma paralela ao período letivo, a fim de garantir intervenções pedagógicas imediatas antes do encerramento do ano escolar. Por fim, as alíneas \"b\" e \"c\" asseguram a possibilidade de aceleração de estudos para alunos com atraso escolar e o avanço nas séries mediante verificação do aprendizado. A afirmativa III é incorreta porque a LDB veda o uso da prova final pontual como mecanismo soberano para anular o processo qualitativo do estudante construído ao longo do período. O gabarito correto é a Alternativa C."
+            },
+            {
+                id: 2,
+                number: "02",
+                context: "Na obra pedagógica crítica brasileira, Dermeval Saviani analisa a formação profissional e técnica denunciando o fenômeno da dualidade estrutural no sistema educacional. Sob essa ótica teórico-crítica, assinale a alternativa que expressa corretamente o diagnóstico e a proposta de superação dessa dualidade no ensino de tecnologias e computação.",
+                statements: [],
+                question: "",
+                options: [
+                    { key: "A", text: "(A) A dualidade estrutural consolida a fusão homogênea entre o ensino propedêutico e o treinamento prático, garantindo igualdade de oportunidades no mercado de trabalho sem necessidade de reformas institucionais." },
+                    { key: "B", text: "(B) A dualidade estrutural manifesta-se na cisão histórica que reserva a formação acadêmica, científica e intelectual às classes dirigentes, enquanto destina às classes populares o adestramento manual e instrumental; sua superação dá-se mediante a politecnia e a formação omnilateral." },
+                    { key: "C", text: "(C) A superação da dualidade ocorre pelo fortalecimento do modelo tecnicista, priorizando a memorização de comandos de software proprietário e a formação rápida voltada às demandas operacionais do mercado de TI." },
+                    { key: "D", text: "(D) A politecnia defende o isolamento da dimensão teórica e a eliminação dos fundamentos científicos do currículo, concentrando o ensino exclusivamente no uso de ferramentas tecnológicas utilitárias." },
+                    { key: "E", text: "(E) O trabalho como princípio educativo concebe a atividade laboral estritamente como emprego subordinado e mercadoria, descartando sua dimensão ontológica de transformação da natureza e produção de cultura." }
+                ],
+                correct: "B",
+                legalRef: "Dermeval Saviani: Crítica à Dualidade Estrutural e Politecnia",
+                resolution: "A análise sócio-histórica da educação brasileira desenvolvida por Dermeval Saviani evidencia que o sistema educacional se consolidou sob uma marcante dualidade estrutural. De um lado, organizou-se uma escola de formação propedêutica, acadêmica e científica voltada às classes dirigentes para a preparação ao trabalho intelectual e de direção; de outro, uma rede de ensino profissionalizante e instrumental voltada às classes populares, destinada ao adestramento manual e à formação rápida de mão de obra para o mercado. A superação dessa cisão exige a reconstrução da escola sob as bases da politecnia e da formação omnilateral, integrando os fundamentos científicos, tecnológicos e históricos da produção. As demais alternativas distorcem o pensamento crítico ao defenderem o tecnicismo ou desvincularem a prática dos fundamentos teóricos. O gabarito correto é a Alternativa B."
+            },
+            {
+                id: 3,
+                number: "03",
+                context: "A aprovação do Parecer CNE/CP nº 2/2022 e o Anexo à Base Nacional Comum Curricular (BNCC) normatizaram a inclusão da Computação na Educação Básica, superando o modelo focado na instrumentalização e no mero manuseio de aplicações de escritório. Em relação aos três eixos estruturantes da Computação na Educação Básica, considere as seguintes afirmativas e assinale V para Verdadeiro e F para Falso.",
+                statements: [
+                    "( ) O eixo Pensamento Computacional refere-se ao processo cognitivo de modelar, decompor e resolver problemas de forma sistemática, envolvendo abstração, reconhecimento de padrões e elaboração de algoritmos.",
+                    "( ) O eixo Mundo Digital compreende a dimensão física e conceitual da tecnologia, abordando o funcionamento de hardware, software, redes de computadores, arquitetura de sistemas e representação binária de dados.",
+                    "( ) O eixo Cultura Digital restringe-se ao ensino de habilidades operacionais de digitação, formatação de documentos de texto e construção de planilhas estáticas."
+                ],
+                question: "A ordem correta de preenchimento dos parênteses, de cima para baixo, é:",
+                options: [
+                    { key: "A", text: "(A) V – V – F." },
+                    { key: "B", text: "(B) V – F – V." },
+                    { key: "C", text: "(C) F – V – V." },
+                    { key: "D", text: "(D) F – F – V." },
+                    { key: "E", text: "(E) V – V – V." }
+                ],
+                correct: "A",
+                legalRef: "Anexo à BNCC e Parecer CNE/CP nº 2/2022: Eixos da Computação",
+                resolution: "A normatização do ensino de Computação na Educação Básica, estruturada pelo Parecer CNE/CP nº 2/2022 e incorporada à BNCC, organiza-se em três eixos integrados. O primeiro item é verdadeiro, pois o Pensamento Computacional envolve a habilidade cognitiva de solucionar problemas por meio de decomposição, reconhecimento de padrões, abstração e desenvolvimento de algoritmos. O segundo item é verdadeiro, pois o Mundo Digital compreende a representação da informação, o funcionamento dos componentes físicos (hardware), lógicos (software) e a infraestrutura de redes e comunicação. O terceiro item é falso porque a Cultura Digital não se resume ao aprendizado instrumental de comandos de aplicativos ou digitação; envolve a compreensão crítica, ética, segura e responsável do impacto das tecnologias na sociedade. A sequência correta é V – V – F, correspondendo à Alternativa A."
+            },
+            {
+                id: 4,
+                number: "04",
+                context: "O Plano Nacional de Educação (PNE - Lei nº 13.005/2014) estabeleceu 20 metas para impulsionar a qualidade, o acesso e a equidade da educação brasileira. Em consonância com as Metas 7 e 11 do PNE, assinale a alternativa correta referente à infraestrutura tecnológica e à Educação Profissional e Tecnológica (EPCT).",
+                statements: [],
+                question: "",
+                options: [
+                    { key: "A", text: "(A) A Meta 7 estipula a substituição integral do ensino presencial pelo ensino a distância (EaD) nas redes públicas, condicionando o financiamento à compra de insumos privados." },
+                    { key: "B", text: "(B) A Meta 11 busca a expansão das matrículas da Educação Profissional Técnica de Nível Médio, assegurando a qualidade e a gratuidade, destacando o papel estratégico da Rede Federal de Educação Profissional, Científica e Tecnológica (Institutos Federais) na interiorização do ensino público." },
+                    { key: "C", text: "(C) O PNE determina que a universalização da banda larga nas escolas públicas deve ser restrita ao uso administrativo do corpo diretivo, vedando o acesso aos estudantes no ambiente de laboratório." },
+                    { key: "D", text: "(D) A expansão da educação profissional prevista no PNE desvincula-se da pesquisa e da extensão, focando exclusivamente na oferta de cursos livres de curta duração sem articulação com o ensino médio." },
+                    { key: "E", text: "(E) A inclusão digital na Educação Básica, segundo o PNE, deve limitar-se à doação pontual de equipamentos obsoletos, dispensando a necessidade de diretrizes pedagógicas e formação continuada docente." }
+                ],
+                correct: "B",
+                legalRef: "PNE (Lei nº 13.005/2014): Metas 7 e 11 (Rede Federal e EPCT)",
+                resolution: "O Plano Nacional de Educação (PNE 2014-2024), instituído pela Lei nº 13.005/2014, traça metas estruturantes para a educação pública brasileira. A Meta 11 estabelece a ampliação das matrículas da Educação Profissional Técnica de Nível Médio, priorizando a expansão no segmento público. Nesse cenário, a Rede Federal de Educação Profissional, Científica e Tecnológica, constituída pelos Institutos Federais, exerce papel de liderança na interiorização do ensino técnico e público de alta qualidade. A Meta 7, por sua vez, foca na elevação da qualidade da Educação Básica e na universalização do acesso à internet de alta velocidade e tecnologias educacionais na escola. A Alternativa B é a única que reflete com precisão os objetivos da legislação vigente."
+            },
+            {
+                id: 5,
+                number: "05",
+                context: "De acordo com o Artigo 206 da Constituição Federal de 1988 e os Artigos 14 e 24 da LDB nº 9.394/1996, o ensino público brasileiro pauta-se por princípios fundamentais de gestão e organização pedagógica. Analise as assertivas abaixo relativas à gestão democrática e à autonomia docente no ambiente escolar público:",
+                statements: [
+                    "I. A gestão democrática do ensino público exige a participação dos profissionais da educação na elaboração do Projeto Político-Pedagógico (PPP) da escola e a participação das comunidades escolar e local em conselhos escolares ou equivalentes.",
+                    "II. A avaliação do rendimento escolar, por ser um direito público subjetivo do estudante à aprendizagem, invalida práticas punitivas centradas na prerrogativa arbitrária do professor e na retenção baseada em avaliações pontuais estandardizadas.",
+                    "III. O princípio da gestão democrática concede aos diretores das instituições públicas a prerrogativa de definir soberanamente os regulamentos de promoção e recuperação escolar, dispensando o parecer dos conselhos de classe."
+                ],
+                question: "Quais estão corretas?",
+                options: [
+                    { key: "A", text: "(A) Apenas I." },
+                    { key: "B", text: "(B) Apenas II." },
+                    { key: "C", text: "(C) Apenas I e II." },
+                    { key: "D", text: "(D) Apenas II e III." },
+                    { key: "E", text: "(E) I, II e III." }
+                ],
+                correct: "C",
+                legalRef: "CF/88 Art. 206 e LDB Art. 14 e 24: Gestão Democrática e Direito à Aprendizagem",
+                resolution: "A Constituição Federal de 1988 (Art. 206, VI) e a LDB nº 9.394/1996 (Art. 14) elegem a gestão democrática como princípio basilar do ensino público na Educação Básica. A efetivação da gestão democrática requer a participação ativa dos profissionais do magistério na elaboração do Projeto Político-Pedagógico (PPP) da unidade escolar e a presença da comunidade escolar e local em conselhos escolares. Ademais, no âmbito da prática pedagógica, a avaliação do rendimento escolar é compreendida como um direito público subjetivo do estudante à aprendizagem. Essa concepção afasta a prática avaliativa autoritária e punitiva, pautada exclusivamente em decisões individuais e arbitrárias do docente. A afirmativa III está incorreta porque a gestão democrática veda a centralização soberana e monocrática de decisões no diretor, impondo a deliberação coletiva dos órgãos colegiados. O gabarito correto é a Alternativa C."
+            },
+            {
+                id: 6,
+                number: "06",
+                context: "Um professor da disciplina de Algoritmos em uma escola pública técnica aplicou apenas um exame escrito somativo ao final do semestre letivo, no valor de 100% da nota. Um estudante que apresentou constante evolução nos projetos práticos e nas atividades de laboratório no decorrer do período obteve um desempenho insuficiente nessa prova pontual e foi imediatamente reprovado, sem a oferta de momentos formais de reavaliação ou estudos de apoio ao longo do semestre.",
+                statements: [],
+                question: "Considerando o regramento do artigo 24, V, da LDB nº 9.394/1996, a conduta pedagógica descrita configura ilegalidade porque:",
+                options: [
+                    { key: "A", text: "(A) a legislação estabelece que a nota do exame final deve obrigatoriamente anular todas as demais menções obtidas ao longo do período letivo." },
+                    { key: "B", text: "(B) infringe a determinação legal de prevalência dos aspectos qualitativos sobre os quantitativos, do desempenho ao longo do período sobre a prova final e a obrigatoriedade de estudos de recuperação paralela." },
+                    { key: "C", text: "(C) desrespeita a norma que estabelece a aprovação automática e incondicional de todos os estudantes matriculados na educação profissional técnica." },
+                    { key: "D", text: "(D) contraria o regimento federal que proíbe expressamente a aplicação de exames escritos em disciplinas da área de Ciências Exatas e Tecnológicas." },
+                    { key: "E", text: "(E) desobedece à exigência legal de que a recuperação do rendimento escolar ocorra exclusivamente nas férias escolares do mês de janeiro." }
+                ],
+                correct: "B",
+                legalRef: "LDB nº 9.394/1996, Art. 24, Inciso V, alíneas \"a\" e \"e\"",
+                resolution: "A prática avaliativa relatada contraria frontalmente a legislação educacional brasileira. O artigo 24, inciso V, alínea \"a\", da LDB determina de forma peremptória que os aspectos qualitativos do aprendizado devem prevalecer sobre os quantitativos, e que o desempenho do estudante acumulado ao longo de todo o período letivo tem valor jurídico e pedagógico superior ao resultado de um exame final isolado. Além disso, a alínea \"e\" do mesmo dispositivo impositivamente exige a oferta de estudos de recuperação paralela no decorrer do semestre para alunos com aproveitamento insuficiente. Ao desconsiderar o processo formativo diário do estudante e omitir a recuperação paralela, o docente incorre em ilegalidade pedagógica. O gabarito correto é a Alternativa B."
+            },
+            {
+                id: 7,
+                number: "07",
+                context: "O rendimento escolar na Educação Básica brasileira, conforme normatizado pelo artigo 24 da LDB nº 9.394/1996, orienta-se por mecanismos de flexibilização do fluxo escolar que visam mitigar a distorção idade-série e assegurar o direito fundamental à aprendizagem. Em relação a esses mecanismos, analise os seguintes itens:",
+                statements: [
+                    "I. Possibilidade de aceleração de estudos para alunos com atraso escolar.",
+                    "II. Possibilidade de avanço nos cursos e nas séries mediante verificação do aprendizado.",
+                    "III. Aproveitamento de estudos concluídos com êxito.",
+                    "IV. Proibição de reclassificação de alunos transferidos entre instituições de ensino do mesmo sistema."
+                ],
+                question: "Quais estão corretos?",
+                options: [
+                    { key: "A", text: "(A) Apenas I e II." },
+                    { key: "B", text: "(B) Apenas III e IV." },
+                    { key: "C", text: "(C) Apenas I, II e III." },
+                    { key: "D", text: "(D) Apenas II, III e IV." },
+                    { key: "E", text: "(E) I, II, III e IV." }
+                ],
+                correct: "C",
+                legalRef: "LDB nº 9.394/1996, Art. 24, Inciso V, alíneas \"b\", \"c\" e \"d\"",
+                resolution: "O artigo 24 da LDB nº 9.394/1996 institui regras flexíveis de organização do fluxo escolar para assegurar que a trajetória do estudante seja contínua. Os itens I, II e III reproduzem fidedignamente as alíneas \"b\", \"c\" e \"d\" do inciso V, as quais garantem, respectivamente, a aceleração de estudos para alunos em defasagem idade-série, o avanço nos cursos mediante comprovação de aprendizado e o aproveitamento de estudos concluídos com êxito. O item IV está incorreto porque o artigo 24, inciso VII, permite expressamente a reclassificação de alunos, inclusive transferidos, adotando como parâmetro a avaliação do grau de desenvolvimento e maturidade do estudante para a etapa adequada. O gabarito correto é a Alternativa C."
+            },
+            {
+                id: 8,
+                number: "08",
+                context: "No contexto da Educação Profissional e Tecnológica (EPT), a discussão teórica fundamentada no pensamento de Dermeval Saviani contrapõe a formação instrumental/tecnicista à formação omnilateral. Assinale a alternativa que traduz adequadamente o conceito de Trabalho como Princípio Educativo defendido por esse arcabouço crítico.",
+                statements: [],
+                question: "",
+                options: [
+                    { key: "A", text: "(A) O trabalho é entendido estritamente como fator econômico de produção e adestramento utilitário para atendimento imediato aos requisitos das corporações de tecnologia." },
+                    { key: "B", text: "(B) O trabalho constitui a essência ontológica e histórica pela qual o ser humano produz sua própria existência e conhecimento, devendo o ensino articular ciência, tecnologia, cultura e trabalho para a compreensão integral do processo produtivo." },
+                    { key: "C", text: "(C) A formação técnica deve priorizar a prática manual em detrimento dos conhecimentos teóricos de física, matemática e lógica para garantir inserção profissional rápida." },
+                    { key: "D", text: "(D) O trabalho como princípio educativo determina a fragmentação das disciplinas em módulos independentes e desvinculados do contexto histórico e sociocultural." },
+                    { key: "E", text: "(E) A politecnia sugere a eliminação da formação científica geral, focando a matriz curricular unicamente na operação de equipamentos de computação." }
+                ],
+                correct: "B",
+                legalRef: "Concepção de Trabalho como Princípio Educativo e Formação Omnilateral",
+                resolution: "Na teoria pedagógica proposta por Dermeval Saviani, o trabalho é compreendido como princípio educativo sob um prisma ontológico. Isso significa que o trabalho é a ação transformadora humana fundamental mediante a qual os homens produzem sua própria existência, conhecimento, ciência e cultura. Na Educação Profissional e Tecnológica, conceber o trabalho como princípio educativo implica superar a formação meramente instrumental e adestradora. O currículo deve integrar os conhecimentos das ciências exatas, naturais e humanas aos fundamentos tecnológicos e históricos das forças produtivas, permitindo que o estudante de computação compreenda a totalidade do processo em que está inserido. O gabarito correto é a Alternativa B."
+            },
+            {
+                id: 9,
+                number: "09",
+                context: "A inserção da Computação como componente ou eixos transversal/estruturante no currículo da Educação Básica (Anexo à BNCC e Parecer CNE/CP nº 2/2022) exige a superação da visão instrumental do ensino de tecnologia. Assinale a alternativa que reflete corretamente essa mudança de paradigma curricular.",
+                statements: [],
+                question: "",
+                options: [
+                    { key: "A", text: "(A) O ensino de computação deixa de focar o mero consumo e manuseio de ferramentas de escritório para concentrar-se no desenvolvimento do Pensamento Computacional, na compreensão do Mundo Digital e no exercício crítico da Cultura Digital." },
+                    { key: "B", text: "(B) A nova orientação curricular determina que o ensino de computação seja focado exclusivamente no aprendizado de linguagens de programação de alto nível no ensino infantil." },
+                    { key: "C", text: "(C) O paradigma atual recomenda abolir as discussões sobre ética, segurança e privacidade na rede, concentrando o currículo na montagem física de componentes de hardware." },
+                    { key: "D", text: "(D) O estudo do Pensamento Computacional condiciona-se obrigatoriamente à presença de laboratórios de informática com computadores de última geração, sendo inviável sua abordagem por atividades desplugadas." },
+                    { key: "E", text: "(E) A Cultura Digital é definida pela BNCC como a capacidade de memorização passiva de comandos de sistemas operacionais proprietários." }
+                ],
+                correct: "A",
+                legalRef: "Transição do Modelo Instrumental para Eixos Conceituais na BNCC",
+                resolution: "A consolidação da Computação na Educação Básica (Parecer CNE/CP nº 2/2022 e Anexo à BNCC) representa uma mudança profunda em relação ao antigo modelo de \"informática educativa\" dos anos 1990 e 2000. O paradigma superado centrava-se no adestramento instrumental e no uso de aplicativos comerciais de escritório. O paradigma atual estabelece a Computação como área científica de conhecimento articulada nos eixos do Pensamento Computacional, Mundo Digital e Cultura Digital, capacitando os sujeitos para intervir de forma crítica, autônoma e ética na sociedade contemporânea. As demais alternativas trazem concepções distorcidas e reducionistas que desrespeitam as normativas curriculares nacionais. O gabarito correto é a Alternativa A."
+            },
+            {
+                id: 10,
+                number: "10",
+                context: "Conforme preceitua o artigo 206 da Constituição Federal de 1988, o ensino no Brasil deve ser ministrado com base em princípios universais de garantia de direito e democratização da educação pública. Considere as seguintes afirmações relativas a tais princípios:",
+                statements: [
+                    "I. Igualdade de condições para o acesso e permanência na escola.",
+                    "II. Liberdade de aprender, ensinar, pesquisar e divulgar o pensamento, a arte e o saber.",
+                    "III. Pluralismo de ideias e de concepções pedagógicas, e coexistência de instituições públicas e privadas de ensino.",
+                    "IV. Valorização dos profissionais da educação escolar, garantidos, na forma da lei, planos de carreira, com ingresso exclusivamente por concurso público de provas e títulos, aos das redes públicas."
+                ],
+                question: "Quais estão corretas?",
+                options: [
+                    { key: "A", text: "(A) Apenas I e II." },
+                    { key: "B", text: "(B) Apenas III e IV." },
+                    { key: "C", text: "(C) Apenas I, II e III." },
+                    { key: "D", text: "(D) Apenas II, III e IV." },
+                    { key: "E", text: "(E) I, II, III e IV." }
+                ],
+                correct: "E",
+                legalRef: "Constituição Federal de 1988, Artigo 206, Incisos I, II, III e V",
+                resolution: "O Artigo 206 da Constituição Federal de 1988 estabelece os princípios essenciais sobre os quais o ensino brasileiro deve ser estruturado. A igualdade de condições para o acesso e a permanência na escola (inciso I), a liberdade de aprender, ensinar, pesquisar e divulgar o pensamento (inciso II), o pluralismo de ideias e concepções pedagógicas (inciso III) e a valorização dos profissionais da educação escolar mediante planos de carreira e ingresso exclusivamente por concurso público de provas e títulos nas redes públicas (inciso V) constituem normas constitucionais de eficácia plena. Todas as afirmativas apresentadas traduzem fielmente o texto constitucional vigente. O gabarito correto é a Alternativa E."
+            }
+        ];
+
+        // State variables
+        let userAnswers = {};
+        let isSubmitted = false;
+
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            quizData.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.id = `question-card-${item.id}`;
+                card.className = 'bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-sm transition-all duration-200';
+
+                // Render statements if available
+                let statementsHtml = '';
+                if (item.statements && item.statements.length > 0) {
+                    statementsHtml = `
+                        <div class="bg-stone-50 border-l-4 border-stone-300 p-4 rounded-r-lg my-4 space-y-2 text-stone-700 text-sm sm:text-base">
+                            ${item.statements.map(stmt => `<p>${stmt}</p>`).join('')}
+                        </div>
+                    `;
+                }
+
+                // Render options
+                const optionsHtml = item.options.map(opt => {
+                    const isSelected = userAnswers[item.id] === opt.key;
+                    return `
+                        <label onclick="selectOption(${item.id}, '${opt.key}')" 
+                               id="option-label-${item.id}-${opt.key}"
+                               class="option-card flex items-start p-4 rounded-xl border border-stone-200 cursor-pointer space-x-3 text-stone-800 ${isSelected ? 'selected' : ''}">
+                            <input type="radio" 
+                                   name="question-${item.id}" 
+                                   value="${opt.key}" 
+                                   ${isSelected ? 'checked' : ''} 
+                                   class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-stone-300">
+                            <span class="text-sm sm:text-base font-medium leading-relaxed">${opt.text}</span>
+                        </label>
+                    `;
+                }).join('');
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-stone-100 pb-3 mb-4">
+                        <span class="text-xs sm:text-sm font-bold text-blue-800 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full uppercase tracking-wider">
+                            Questão ${item.number}
+                        </span>
+                        <span id="badge-status-${item.id}" class="text-xs font-semibold text-stone-400">
+                            Pendente
+                        </span>
+                    </div>
+
+                    <div class="prose-text text-stone-800 text-base sm:text-lg mb-3 leading-relaxed">
+                        ${item.context}
+                    </div>
+
+                    ${statementsHtml}
+
+                    ${item.question ? `<p class="font-semibold text-stone-900 text-base sm:text-lg mt-3 mb-4">${item.question}</p>` : ''}
+
+                    <div class="space-y-3 mt-4" id="options-group-${item.id}">
+                        ${optionsHtml}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function selectOption(questionId, optionKey) {
+            if (isSubmitted) return; // Lock if submitted
+
+            userAnswers[questionId] = optionKey;
+            
+            // Update UI radio styles for this question
+            const item = quizData.find(q => q.id === questionId);
+            item.options.forEach(opt => {
+                const label = document.getElementById(`option-label-${questionId}-${opt.key}`);
+                const radio = label.querySelector('input[type="radio"]');
+                if (opt.key === optionKey) {
+                    label.classList.add('selected');
+                    radio.checked = true;
+                } else {
+                    label.classList.remove('selected');
+                    radio.checked = false;
+                }
+            });
+
+            // Update status badge
+            const badge = document.getElementById(`badge-status-${questionId}`);
+            badge.innerText = "Respondida";
+            badge.className = "text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-md";
+
+            updateProgressBar();
+        }
+
+        function updateProgressBar() {
+            const total = quizData.length;
+            const answeredCount = Object.keys(userAnswers).length;
+            const percentage = (answeredCount / total) * 100;
+
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+            document.getElementById('progress-text').innerText = `${answeredCount}/${total} respondidas`;
+        }
+
+        function finishQuiz() {
+            isSubmitted = true;
+
+            // Calculate correct answers
+            let correctCount = 0;
+            quizData.forEach(q => {
+                if (userAnswers[q.id] === q.correct) {
+                    correctCount++;
+                }
+            });
+
+            const total = quizData.length;
+            const percentage = Math.round((correctCount / total) * 100);
+
+            // Hide submit section, show result section
+            document.getElementById('submit-section').classList.add('hidden');
+            document.getElementById('results-section').classList.remove('hidden');
+            document.getElementById('nav-results-btn').classList.remove('hidden');
+
+            // Render Score Header
+            document.getElementById('score-percentage').innerText = `${percentage}%`;
+            document.getElementById('score-details').innerText = `Você acertou ${correctCount} de ${total} questões.`;
+            document.getElementById('correct-count').innerText = correctCount;
+            document.getElementById('wrong-count').innerText = total - correctCount;
+
+            // Custom Feedback
+            let feedback = "";
+            if (percentage >= 80) {
+                feedback = "Excelente desempenho! Você demonstrou forte domínio sobre a LDB, o PNE, os eixos da BNCC em Computação e o pensamento crítico de Dermeval Saviani no padrão da banca FAURGS.";
+            } else if (percentage >= 60) {
+                feedback = "Bom resultado! Você possui uma sólida compreensão geral da legislação e diretrizes pedagógicas. Revise as questões incorretas para consolidar os detalhes normativos.";
+            } else {
+                feedback = "Continuar estudando é essencial! Analise atentamente as resoluções comentadas abaixo, observando os artigos da LDB, metas do PNE e dispositivos constitucionais citados.";
+            }
+            document.getElementById('score-feedback').innerText = feedback;
+
+            // Lock questions and color options
+            quizData.forEach(q => {
+                const userChoice = userAnswers[q.id];
+                const isCorrect = userChoice === q.correct;
+
+                const badge = document.getElementById(`badge-status-${q.id}`);
+                if (isCorrect) {
+                    badge.innerText = "Correta";
+                    badge.className = "text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-md";
+                } else {
+                    badge.innerText = userChoice ? `Incorreta (Sua opção: ${userChoice})` : "Não respondida";
+                    badge.className = "text-xs font-bold text-rose-800 bg-rose-100 px-2.5 py-0.5 rounded-md";
+                }
+
+                // Colorize the question options on top
+                q.options.forEach(opt => {
+                    const label = document.getElementById(`option-label-${q.id}-${opt.key}`);
+                    label.style.cursor = 'default';
+                    label.classList.remove('selected');
+
+                    if (opt.key === q.correct) {
+                        label.classList.add('correct-answer');
+                    } else if (opt.key === userChoice && userChoice !== q.correct) {
+                        label.classList.add('wrong-answer');
+                    }
+                });
+            });
+
+            // Render Detailed Resolutions
+            renderResolutions();
+
+            // Scroll to results card
+            scrollToResults();
+        }
+
+        function renderResolutions(filter = 'all') {
+            const container = document.getElementById('resolutions-container');
+            container.innerHTML = '';
+
+            quizData.forEach(q => {
+                const userChoice = userAnswers[q.id];
+                const isCorrect = userChoice === q.correct;
+
+                // Filtering logic
+                if (filter === 'correct' && !isCorrect) return;
+                if (filter === 'wrong' && isCorrect) return;
+
+                const resCard = document.createElement('div');
+                resCard.className = `bg-white rounded-2xl p-6 sm:p-8 border ${isCorrect ? 'border-emerald-200' : 'border-rose-200'} shadow-sm space-y-4`;
+
+                resCard.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-between border-b border-stone-100 pb-3 gap-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-bold text-stone-900">Questão ${q.number}</span>
+                            <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                                ${isCorrect ? '✓ Acertou' : '✕ Errou'}
+                            </span>
+                        </div>
+                        <div class="text-xs font-semibold text-stone-600">
+                            Gabarito Oficial: <span class="text-blue-700 font-bold text-sm">${q.correct}</span> | Sua Resposta: <span class="${isCorrect ? 'text-emerald-700' : 'text-rose-700'} font-bold text-sm">${userChoice || 'Nenhuma'}</span>
+                        </div>
+                    </div>
+
+                    <!-- Dispositivo Legal / Referência -->
+                    <div class="bg-amber-50/80 border border-amber-200 p-3.5 rounded-xl text-xs sm:text-sm text-amber-900 flex items-start space-x-2">
+                        <svg class="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div>
+                            <strong>Dispositivo Legal / Referência Teórica:</strong> ${q.legalRef}
+                        </div>
+                    </div>
+
+                    <!-- Resolução Detalhada -->
+                    <div class="text-stone-700 text-sm sm:text-base leading-relaxed space-y-2">
+                        <h4 class="font-bold text-stone-900 text-base">Resolução Comentada:</h4>
+                        <p class="prose-text text-stone-800">${q.resolution}</p>
+                    </div>
+                `;
+
+                container.appendChild(resCard);
+            });
+        }
+
+        function filterResolutions(type) {
+            // Update filter button styling
+            ['all', 'wrong', 'correct'].forEach(t => {
+                const btn = document.getElementById(`filter-${t}`);
+                if (t === type) {
+                    btn.className = "px-4 py-2 rounded-lg text-sm font-medium bg-stone-800 text-white shadow-sm";
+                } else {
+                    btn.className = "px-4 py-2 rounded-lg text-sm font-medium bg-stone-100 text-stone-700 hover:bg-stone-200";
+                }
+            });
+
+            renderResolutions(type);
+        }
+
+        function scrollToResults() {
+            const section = document.getElementById('results-section');
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function restartQuiz() {
+            userAnswers = {};
+            isSubmitted = false;
+
+            document.getElementById('submit-section').classList.remove('hidden');
+            document.getElementById('results-section').classList.add('hidden');
+            document.getElementById('nav-results-btn').classList.add('hidden');
+            
+            updateProgressBar();
+            renderQuestions();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initial Load
+        window.onload = function() {
+            renderQuestions();
+            updateProgressBar();
+        };
+    </script>
+</body>
+</html>
