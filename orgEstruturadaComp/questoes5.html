@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz FAURGS - Subsistema de E/S na Arquitetura de Computadores</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap');
+
+    :root {
+      --bg-warm: #FAF9F6;
+      --card-bg: #FFFFFF;
+      --text-primary: #1A202C;
+      --text-secondary: #4A5568;
+      --accent-blue: #2563EB;
+      --correct-bg: #ECFDF5;
+      --correct-border: #10B981;
+      --correct-text: #065F46;
+      --incorrect-bg: #FEF2F2;
+      --incorrect-border: #EF4444;
+      --incorrect-text: #991B1B;
+    }
+
+    body {
+      background-color: var(--bg-warm);
+      color: var(--text-primary);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .serif-text {
+      font-family: 'Merriweather', Georgia, serif;
+      line-height: 1.8;
+    }
+
+    .option-card {
+      transition: all 0.2s ease-in-out;
+      border: 2px solid #E2E8F0;
+    }
+
+    .option-card:hover:not(.disabled) {
+      border-color: #93C5FD;
+      background-color: #F0F9FF;
+      cursor: pointer;
+    }
+
+    .option-card.selected {
+      border-color: #2563EB;
+      background-color: #EFF6FF;
+    }
+
+    /* Styles applied after quiz submission */
+    .option-card.correct-answer {
+      border-color: var(--correct-border) !important;
+      background-color: var(--correct-bg) !important;
+      color: var(--correct-text) !important;
+      font-weight: 600;
+    }
+
+    .option-card.wrong-answer {
+      border-color: var(--incorrect-border) !important;
+      background-color: var(--incorrect-bg) !important;
+      color: var(--incorrect-text) !important;
+      opacity: 0.9;
+    }
+
+    .option-card.dimmed {
+      opacity: 0.5;
+    }
+
+    .resolution-box {
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Custom Scrollbar for long reading comfort */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-20">
+
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xl shadow-inner">
+          F
+        </div>
+        <div>
+          <h1 class="font-bold text-slate-800 text-lg sm:text-xl leading-tight">Simulado Banca FAURGS</h1>
+          <p class="text-xs text-slate-500 font-medium">Subsistema de Entrada e Saída (E/S)</p>
+        </div>
+      </div>
+      
+      <div id="progress-badge" class="hidden sm:flex items-center space-x-2 bg-slate-100 px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600">
+        <span id="answered-count">0</span>/10 Respondidas
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-8">
+    
+    <div class="bg-amber-50/80 border border-amber-200/80 rounded-xl p-5 mb-8 text-slate-700 shadow-sm">
+      <div class="flex items-start space-x-3">
+        <svg class="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+        </svg>
+        <div>
+          <h2 class="font-semibold text-amber-900 text-base mb-1">Caderno de Questões Interativo</h2>
+          <p class="text-sm text-amber-800/90 leading-relaxed">
+            Responda às 10 questões abaixo no estilo característico da banca FAURGS. Ao clicar no botão <strong>"Finalizar Quiz e Ver Gabarito"</strong> no final da página, o sistema calculará seus acertos e exibirá as resoluções detalhadas e comentadas diretamente abaixo de cada questão.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Score Result Container (Hidden by default) -->
+    <div id="score-container" class="hidden bg-white border border-slate-200 rounded-2xl p-6 mb-8 text-center shadow-lg transition-all duration-300">
+      <div id="score-icon" class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center text-3xl">
+        🏆
+      </div>
+      <h2 id="score-title" class="text-2xl font-bold text-slate-800 mb-1">Resultado Final</h2>
+      <p id="score-subtitle" class="text-slate-600 font-medium mb-4">Você completou o simulado!</p>
+      
+      <div class="inline-flex items-center justify-center space-x-6 bg-slate-50 border border-slate-200 rounded-xl px-6 py-3 mb-6">
+        <div>
+          <span class="block text-xs uppercase tracking-wider text-slate-500 font-bold">Acertos</span>
+          <span id="score-correct" class="text-2xl font-extrabold text-emerald-600">0</span>
+        </div>
+        <div class="h-8 w-px bg-slate-200"></div>
+        <div>
+          <span class="block text-xs uppercase tracking-wider text-slate-500 font-bold">Total</span>
+          <span class="text-2xl font-extrabold text-slate-700">10</span>
+        </div>
+        <div class="h-8 w-px bg-slate-200"></div>
+        <div>
+          <span class="block text-xs uppercase tracking-wider text-slate-500 font-bold">Aproveitamento</span>
+          <span id="score-percent" class="text-2xl font-extrabold text-blue-600">0%</span>
+        </div>
+      </div>
+
+      <div class="block">
+        <button onclick="resetQuiz()" class="inline-flex items-center space-x-2 bg-slate-800 hover:bg-slate-900 text-white font-medium px-5 py-2.5 rounded-lg text-sm transition-colors shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          <span>Refazer Simulando</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Questions Container -->
+    <div id="questions-list" class="space-y-8">
+      <!-- Dynamically filled by JavaScript -->
+    </div>
+
+    <!-- Submit Section -->
+    <div class="mt-10 mb-12 text-center">
+      <button id="submit-btn" onclick="submitQuiz()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-lg px-8 py-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5">
+        Finalizar Quiz e Ver Gabarito
+      </button>
+    </div>
+
+  </main>
+
+  <script>
+    const questionsData = [
+      {
+        id: 1,
+        source: "(FAURGS - Adaptada de BANRISUL / TJ-RS)",
+        text: "O acesso aos periféricos dos computadores envolve o controle do fluxo de informação e a transferência dos dados entre os dispositivos de entrada e saída e a memória principal. Para realizar esses acessos, a arquitetura de computadores emprega classicamente três mecanismos fundamentais. Assinale a alternativa que indica corretamente esses três mecanismos.",
+        options: [
+          { letter: "A", text: "Entrada e saída programada, entrada e saída controlada por interrupção e acesso direto à memória (DMA)." },
+          { letter: "B", text: "Entrada e saída programada, barramento de controle sequencial e memória de acesso aleatório dinâmico (DRAM)." },
+          { letter: "C", text: "Entrada e saída controlada por interrupção, escalonamento em tempo real e busca de instruções (fetch)." },
+          { letter: "D", text: "Entrada e saída por varredura passiva, acesso direto à memória (DMA) e registradores de pipeline." },
+          { letter: "E", text: "Entrada e saída síncrona, comutação de circuitos e memória virtual paginada." }
+        ],
+        correct: "A",
+        topic: "Mecanismos Clássicos de Entrada e Saída",
+        resolution: "A alternativa <strong>A</strong> é a correta. O subsistema de Entrada e Saída (E/S) em arquiteturas de computadores baseia-se em três pilares para viabilizar a transferência de dados entre periféricos e a memória: a E/S Programada, a E/S por Interrupção e o Acesso Direto à Memória (DMA). Essa classificação é amplamente documentada na literatura técnica clássica (Stallings e Tanenbaum) e adotada em provas da FAURGS, como a do BANRISUL. As demais alternativas misturam conceitos de gerência de memória (DRAM, memória virtual), execução de instruções (fetch, pipeline) e telecomunicações (comutação de circuitos), os quais não correspondem a técnicas de acesso ao subsistema de E/S."
+      },
+      {
+        id: 2,
+        source: "(Estilo FAURGS)",
+        text: "O gerenciamento do subsistema de Entrada e Saída (E/S) é um dos aspectos mais críticos do projeto de hardware devido à expressiva disparidade de velocidade entre o núcleo de processamento e os periféricos. Sobre essa disparidade e o papel dos módulos de E/S na organização do computador, considere as assertivas abaixo:<br><br>" +
+              "<strong>I.</strong> A CPU opera em frequências na casa dos Gigahertz (GHz), executando bilhões de operações por segundo, enquanto dispositivos periféricos operam em velocidades significativamente menores, situadas nas faixas de Kilohertz (KHz) ou Megahertz (MHz).<br>" +
+              "<strong>II.</strong> Os módulos de E/S atuam como tradutores e buffers de dados, evitando que a CPU permaneça bloqueada em tempo de espera por componentes mecânicos ou de rede mais lentos.<br>" +
+              "<strong>III.</strong> O método de Entrada e Saída Programada (Polling) é o mecanismo recomendado para resolver a disparidade de velocidade em transferências de grande volume, pois garante alocação exclusiva da CPU ao periférico durante todo o processo.<br><br>" +
+              "Quais estão corretas?",
+        options: [
+          { letter: "A", text: "Apenas I." },
+          { letter: "B", text: "Apenas II." },
+          { letter: "C", text: "Apenas I e II." },
+          { letter: "D", text: "Apenas II e III." },
+          { letter: "E", text: "I, II e III." }
+        ],
+        correct: "C",
+        topic: "Disparidade de Velocidade e Módulos de E/S",
+        resolution: "A alternativa <strong>C</strong> é a correta. As assertivas I e II expressam adequadamente a relação de disparidade entre a CPU e os periféricos. Enquanto o processador opera na ordem dos Gigahertz (GHz), realizando bilhões de ciclos por segundo, periféricos de entrada/saída dependem de meios mecânicos, ópticos ou de redes mais lentas, operando na faixa de KHz a MHz. Módulos de E/S funcionam como interfaces tradutoras e buffers para amortecer essa diferença temporal. A assertiva III está incorreta porque o Polling (espera ativa) é extremamente ineficiente para mover volumes massivos de dados, uma vez que mantém a CPU ocupada em verificações repetitivas em vez de liberá-la para tarefas úteis."
+      },
+      {
+        id: 3,
+        source: "(Estilo FAURGS)",
+        text: "No método de Entrada e Saída Programada, também conhecido como Polling ou espera ativa, a transferência de dados é totalmente controlada pelo processador. Assinale a alternativa que descreve corretamente o impacto do Polling no desempenho da Unidade Central de Processamento (CPU).",
+        options: [
+          { letter: "A", text: "A CPU agenda a operação no controlador de E/S e é liberada imediatamente para executar outros programas em segundo plano." },
+          { letter: "B", text: "A CPU entra em um laço de repetição contínuo (loop), consultando repetidamente o estado do dispositivo até que este conclua a operação, desperdiçando bilhões de ciclos de clock úteis." },
+          { letter: "C", text: "O periférico interrompe a CPU por meio de um sinal de hardware assim que o dado está pronto para ser lido." },
+          { letter: "D", text: "O controlador do periférico assume a gestão do barramento de dados e escreve diretamente na memória RAM sem intervenção do processador." },
+          { letter: "E", text: "A taxa de ocupação da CPU diminui à medida que periféricos mais lentos são conectados ao sistema." }
+        ],
+        correct: "B",
+        topic: "Funcionamento da E/S Programada (Polling)",
+        resolution: "A alternativa <strong>B</strong> é a correta. O método de E/S Programada (Polling) caracteriza-se pela espera ativa. A CPU envia um comando de E/S ao controlador e entra em um laço de repetição fechado (loop), consultando ciclicamente o registrador de status do periférico para verificar se a operação foi concluída. Esse processo consome indevidamente o tempo da CPU em velocidades de GHz para aguardar dispositivos que respondem em escalas de tempo muito mais lentas. As opções A e C tratam do comportamento da E/S por Interrupção, a opção D refere-se ao mecanismo de DMA, e a opção E é falsa, pois a taxa de ocupação inútil do processador atinge 100% no laço de consulta."
+      },
+      {
+        id: 4,
+        source: "(Estilo FAURGS)",
+        text: "A técnica de Entrada e Saída por Interrupção visa eliminar a ineficiência do Polling ao permitir que o periférico avise o processador sobre a prontidão de uma operação. Assinale a alternativa que preenche corretamente as lacunas do texto abaixo.<br><br>" +
+              "<em>\"Na E/S por Interrupção, a CPU envia o comando de leitura ou escrita ao controlador de dispositivo e __________. Quando o periférico conclui a tarefa, ele sinaliza a CPU através de um alerta de hardware chamado __________, fazendo com que a CPU interrompa momentaneamente o programa atual e, após tratar o evento, __________.\"</em>",
+        options: [
+          { letter: "A", text: "entra em espera ativa — DMA — reinicie o sistema operacional" },
+          { letter: "B", text: "retorna imediatamente à execução de outros programas — IRQ (Interrupt Request) — retome a execução do programa de onde parou" },
+          { letter: "C", text: "bloqueia o barramento de controle — Pipeline — execute a rotina de limpeza da cache" },
+          { letter: "D", text: "desativa a memória RAM — Snooping — reinicie o ciclo de fetch" },
+          { letter: "E", text: "paralisa as instruções do sistema — Polling — acione o controlador de DMA" }
+        ],
+        correct: "B",
+        topic: "Mecanismo de E/S por Interrupção e Sinal IRQ",
+        resolution: "A alternativa <strong>B</strong> é a correta. Na E/S por Interrupção, o processador é desonerado da espera ativa. Ao disparar um comando para o controlador do periférico, a CPU continua a execução de outras tarefas e programas de forma normal. Assim que o dispositivo fica pronto para transferir dados, a interface de hardware envia um sinal de interrupção conhecido como IRQ (Interrupt Request). O processador faz uma pausa microscópica no programa atual, executa a rotina de tratamento da interrupção (ISR) para transferir o dado e retoma a execução do programa interrompido exatamente no ponto em que havia parado."
+      },
+      {
+        id: 5,
+        source: "(Estilo FAURGS)",
+        text: "Embora a E/S por Interrupção seja adequada para dispositivos interativos de baixa taxa de transferência, sua utilização em dispositivos de armazenamento ou rede de altíssima velocidade gera o fenômeno denominado \"gargalo das interrupções\". Assinale a alternativa que explica a causa primária desse gargalo.",
+        options: [
+          { letter: "A", text: "A elevação da temperatura do barramento barreira provocada pela transferência contínua de pacotes de rede." },
+          { letter: "B", text: "A necessidade de efetuar a troca de contexto e tratar uma interrupção para cada pequeno bloco ou byte transferido, saturando o tempo de processamento da CPU e travando o sistema." },
+          { letter: "C", text: "A incompatibilidade entre a memória ROM e as requisições enviadas pelo controlador do disco rígido." },
+          { letter: "D", text: "O esgotamento dos endereços físicos da memória CMOS quando submetida a transferências simultâneas." },
+          { letter: "E", text: "A impossibilidade de o controlador de interrupções tratar sinalizações de periféricos conectados por portas USB." }
+        ],
+        correct: "B",
+        topic: "Sobrecarga e Gargalo das Interrupções",
+        resolution: "A alternativa <strong>B</strong> é a correta. O gargalo das interrupções surge quando se tenta empregar o mecanismo de interrupções puras para gerenciar dispositivos de transferência de altíssima taxa de dados, como SSDs modernos e placas de rede de alta velocidade. Como a E/S por interrupção tradicional requer a intervenção da CPU a cada byte ou palavra transferida, a chegada massiva de dados gera uma avalanche de requisições de IRQ. A sobrecarga (overhead) de trocar o contexto dos registradores, atender à interrupção e restaurar o contexto milhões de vezes por segundo consome quase a totalidade da capacidade de processamento, impedindo a execução de qualquer outra tarefa no sistema operativo."
+      },
+      {
+        id: 6,
+        source: "(Estilo FAURGS)",
+        text: "O Acesso Direto à Memória (DMA - Direct Memory Access) foi desenvolvido para otimizar a movimentação de grandes blocos de dados entre dispositivos periféricos e a memória principal. Considere as seguintes etapas sobre o funcionamento do DMA:<br><br>" +
+              "1. A CPU envia os parâmetros da transferência (endereço de origem, destino e quantidade de dados) ao controlador de DMA.<br>" +
+              "2. O controlador de DMA assume a gestão dos barramentos do sistema e realiza a transferência diretamente com a memória RAM.<br>" +
+              "3. Durante a transferência, a CPU fica livre para processar outras tarefas operacionais.<br>" +
+              "4. Ao concluir a transferência do bloco de dados completo, o controlador de DMA __________.<br><br>" +
+              "Assinale a alternativa que preenche corretamente a lacuna da etapa 4.",
+        options: [
+          { letter: "A", text: "reinicia o ciclo de power-on self-test (POST) da BIOS" },
+          { letter: "B", text: "efetua uma busca ativa (polling) no barramento de endereços" },
+          { letter: "C", text: "envia uma única interrupção à CPU para notificar o término do processo" },
+          { letter: "D", text: "bloqueia o acesso da GPU à memória VRAM por tempo indeterminado" },
+          { letter: "E", text: "apaga os registradores do processador para evitar a perda de coerência de cache" }
+        ],
+        correct: "C",
+        topic: "Fluxo Operacional e Notificação do DMA",
+        resolution: "A alternativa <strong>C</strong> é a correta. O Acesso Direto à Memória (DMA) foi criado especificamente para contornar a sobrecarga das interrupções e o desperdício da espera ativa. A CPU inicia o processo configurando o controlador de DMA com os endereços e a contagem de bytes, delegando a ele o controle dos barramentos do sistema. O controlador de DMA transfere o bloco completo de dados entre o dispositivo e a memória RAM sem passar pelo núcleo do processador. Somente quando toda a transferência do bloco de dados é concluída, o controlador de DMA gera uma única interrupção para notificar a CPU de que o bloco está pronto na memória."
+      },
+      {
+        id: 7,
+        source: "(Estilo FAURGS)",
+        text: "Considere a tabela abaixo, que compara o comportamento do processador e os mecanismos de término de transferência nas três abordagens clássicas de Entrada e Saída:<br><br>" +
+              "<div class='overflow-x-auto my-3'><table class='min-w-full text-xs sm:text-sm border-collapse border border-slate-300 bg-slate-50/50 rounded-lg'>" +
+              "<thead><tr class='bg-slate-100 text-slate-700 font-semibold border-b border-slate-300'><th class='p-2.5 text-left border-r border-slate-300'>Mecanismo</th><th class='p-2.5 text-left border-r border-slate-300'>Atuação do Processador Durante a Transferência</th><th class='p-2.5 text-left'>Sinalização de Término da Operação</th></tr></thead>" +
+              "<tbody>" +
+              "<tr class='border-b border-slate-200'><td class='p-2.5 font-bold border-r border-slate-300'>Técnica X</td><td class='p-2.5 border-r border-slate-300'>Ocupação total (CPU em laço de verificação contínua)</td><td class='p-2.5'>Nenhuma (A CPU descobre ao consultar o registrador de status)</td></tr>" +
+              "<tr class='border-b border-slate-200'><td class='p-2.5 font-bold border-r border-slate-300'>Técnica Y</td><td class='p-2.5 border-r border-slate-300'>Liberado entre requisições; atua no tratamento a cada unidade de dado</td><td class='p-2.5'>Sinal físico de interrupção (Interrupt Request - IRQ)</td></tr>" +
+              "<tr><td class='p-2.5 font-bold border-r border-slate-300'>Técnica Z</td><td class='p-2.5 border-r border-slate-300'>Liberado durante todo o bloco; atua apenas no início e no término</td><td class='p-2.5'>Única interrupção gerada após a movimentação do bloco completo</td></tr>" +
+              "</tbody></table></div>" +
+              "As técnicas X, Y e Z correspondem, respectivamente, a:",
+        options: [
+          { letter: "A", text: "Entrada e Saída Programada; Entrada e Saída por Interrupção; Acesso Direto à Memória (DMA)." },
+          { letter: "B", text: "Acesso Direto à Memória (DMA); Entrada e Saída Programada; Entrada e Saída por Interrupção." },
+          { letter: "C", text: "Entrada e Saída por Interrupção; Acesso Direto à Memória (DMA); Entrada e Saída Programada." },
+          { letter: "D", text: "Entrada e Saída Programada; Acesso Direto à Memória (DMA); Entrada e Saída por Interrupção." },
+          { letter: "E", text: "Acesso Direto à Memória (DMA); Entrada e Saída por Interrupção; Entrada e Saída Programada." }
+        ],
+        correct: "A",
+        topic: "Análise Comparativa das Arquiteturas de E/S",
+        resolution: "A alternativa <strong>A</strong> é a correta. A análise sistemática das características operacionais permite identificar:<br>" +
+              "• <strong>Técnica X:</strong> Ocupação total da CPU em laço de verificação sem notificação ativa representa a Entrada e Saída Programada (Polling).<br>" +
+              "• <strong>Técnica Y:</strong> Liberação parcial com interrupções geradas a cada unidade de dado caracteriza a Entrada e Saída por Interrupção.<br>" +
+              "• <strong>Técnica Z:</strong> Transmissão autônoma de blocos completos com sinalização apenas no encerramento descreve o Acesso Direto à Memória (DMA).<br>" +
+              "A sequência correspondente às variáveis X, Y e Z é exatamente a apresentada na alternativa A."
+      },
+      {
+        id: 8,
+        source: "(Estilo FAURGS)",
+        text: "Em motores de jogos eletrônicos modernos com cenários expansivos e carregamento contínuo de cenários (seamless open-world), grandes volumes de texturas e modelos geométricos precisam ser movidos do SSD NVMe para a memória RAM/VRAM sem provocar congelamentos na taxa de quadros. Tecnologias de armazenamento otimizado (como a API DirectStorage) apoiam-se no conceito de:",
+        options: [
+          { letter: "A", text: "Entrada e Saída Programada com elevação do clock base da CPU." },
+          { letter: "B", text: "Acesso Direto à Memória (DMA), que transfere dados diretamente do armazenamento secundário para a memória sem sobrecarregar o processador com interrupções por byte." },
+          { letter: "C", text: "Polling de altíssima frequência executado na Unidade Lógica e Aritmética (ULA)." },
+          { letter: "D", text: "Paginação secundária forçada com leitura contínua no firmware CMOS." },
+          { letter: "E", text: "Comutação de tarefas por interrupções síncronas de ciclo fixo a cada instrução." }
+        ],
+        correct: "B",
+        topic: "Aplicação Prática do DMA (DirectStorage)",
+        resolution: "A alternativa <strong>B</strong> é a correta. As arquiteturas modernas de jogos e sistemas operacionais empregam APIs como o DirectStorage para viabilizar a transferência direta de assets do SSD NVMe para a memória de vídeo ou memória RAM. Essa arquitetura é estruturada sobre o controlador de DMA, o qual realiza a leitura e movimentação dos arquivos sem exigir que a CPU intervenha em cada segmento de arquivo. Dessa maneira, a CPU permanece integralmente disponível para processar a física, a inteligência artificial e a lógica do jogo, eliminando pausas e engasgos de carregamento no ambiente virtual."
+      },
+      {
+        id: 9,
+        source: "(Estilo FAURGS)",
+        text: "O sistema operacional Microsoft Windows gerencia os recursos de hardware combinando diferentes técnicas de E/S conforme o perfil do periférico e a exigência da aplicação. Associe as situações de uso listadas na Coluna 1 com o método de E/S predominante indicado na Coluna 2.<br><br>" +
+              "<strong>Coluna 1: Situações de Uso</strong><br>" +
+              "(1) Captura instantânea do clique do mouse ou do pressionamento de uma tecla.<br>" +
+              "(2) Leitura massiva de arquivos de textura de um jogo eletrônico do SSD para a RAM.<br>" +
+              "(3) Rotina rápida de verificação de status durante a falha de um dispositivo em modo de emergência.<br><br>" +
+              "<strong>Coluna 2: Método de E/S</strong><br>" +
+              "( &nbsp; ) Acesso Direto à Memória (DMA)<br>" +
+              "( &nbsp; ) Entrada e Saída por Interrupção<br>" +
+              "( &nbsp; ) Entrada e Saída Programada (Polling)<br><br>" +
+              "A sequência correta de preenchimento dos parênteses, de cima para baixo, é:",
+        options: [
+          { letter: "A", text: "1 – 2 – 3." },
+          { letter: "B", text: "2 – 1 – 3." },
+          { letter: "C", text: "3 – 1 – 2." },
+          { letter: "D", text: "2 – 3 – 1." },
+          { letter: "E", text: "1 – 3 – 2." }
+        ],
+        correct: "B",
+        topic: "Gerenciamento de E/S no Sistema Operacional",
+        resolution: "A alternativa <strong>B</strong> é a correta. A associação entre as situações operacionais e os mecanismos do Windows decorre do perfil de E/S envolvido:<br>" +
+              "• <strong>Item (1):</strong> Eventos imprevisíveis e discretos do usuário, como movimentos do mouse ou cliques no teclado, são processados por Entrada e Saída por Interrupção, garantindo tempo de resposta imediato.<br>" +
+              "• <strong>Item (2):</strong> A leitura contínua e massiva de arquivos de textura de jogos exige altas taxas de transferência, sendo atribuída ao Acesso Direto à Memória (DMA) para não saturar a CPU.<br>" +
+              "• <strong>Item (3):</strong> Em situações de falha ou perda de sincronismo do dispositivo, o sistema operacional utiliza Polling em modo de emergência para consultar os registradores do periférico e tentar diagnosticar a falha antes de emitir um aviso ao usuário.<br>" +
+              "A ordem de preenchimento dos parênteses da Coluna 2 é <strong>2 – 1 – 3</strong>, correspondendo à alternativa B."
+      },
+      {
+        id: 10,
+        source: "(Estilo FAURGS)",
+        text: "Os módulos de Entrada e Saída desempenham o papel de interface entre o barramento interno do computador e os dispositivos periféricos. Dentre as funções essenciais de um módulo de E/S, destaca-se o buffering. A finalidade primária dessa função consiste em:",
+        options: [
+          { letter: "A", text: "Compensar as diferenças de velocidade de transferência entre a memória principal/CPU e os dispositivos periféricos." },
+          { letter: "B", text: "Converter permanentemente dados voláteis da memória RAM em dados não voláteis armazenados na BIOS." },
+          { letter: "C", text: "Aumentar a velocidade física de rotação e leitura de mídias magnéticas e ópticas." },
+          { letter: "D", text: "Executar a tradução direta do código Assembly para linguagem de máquina de alto nível." },
+          { letter: "E", text: "Substituir a necessidade de registradores de controle no núcleo da CPU." }
+        ],
+        correct: "A",
+        topic: "Conceito e Aplicação da Função de Buffering",
+        resolution: "A alternativa <strong>A</strong> é a correta. Os dispositivos periféricos e a memória principal funcionam em barramentos e frequências temporais distintas. A função de buffering integrada ao módulo de E/S consiste em armazenar dados temporariamente em registradores de memória rápida localizados na própria interface. Isso permite acumular dados vindos do periférico lento até formar um bloco que possa ser enviado em alta velocidade para a memória RAM, ou vice-versa, equilibrando o fluxo de dados do sistema e evitando gargalos de barramento."
+      }
+    ];
+
+    // State
+    const userAnswers = {};
+    let isSubmitted = false;
+
+    // Render Questions
+    function renderQuiz() {
+      const container = document.getElementById('questions-list');
+      container.innerHTML = '';
+
+      questionsData.forEach((q, index) => {
+        const qCard = document.createElement('div');
+        qCard.id = `question-card-${q.id}`;
+        qCard.className = 'bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-8 shadow-sm transition-all duration-200';
+
+        // Header Question Info
+        let html = `
+          <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-4 mb-5">
+            <div class="flex items-center space-x-2">
+              <span class="bg-slate-800 text-white text-xs font-bold px-2.5 py-1 rounded-md">
+                Questão ${String(q.id).padStart(2, '0')}
+              </span>
+              <span class="text-xs font-medium text-slate-500 hidden sm:inline-block">
+                ${q.source}
+              </span>
+            </div>
+            <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
+              ${q.topic}
+            </span>
+          </div>
+
+          <!-- Question Enunciate -->
+          <div class="serif-text text-slate-800 text-base sm:text-lg mb-6 leading-relaxed">
+            ${q.text}
+          </div>
+
+          <!-- Options Grid -->
+          <div class="space-y-3 mb-6" id="options-group-${q.id}">
+        `;
+
+        q.options.forEach(opt => {
+          const isSelected = userAnswers[q.id] === opt.letter;
+          html += `
+            <div 
+              id="opt-${q.id}-${opt.letter}"
+              onclick="selectOption(${q.id}, '${opt.letter}')"
+              class="option-card flex items-start p-4 rounded-xl text-sm sm:text-base ${isSelected ? 'selected' : ''}"
+            >
+              <span class="flex-shrink-0 w-7 h-7 rounded-lg border border-slate-300 font-bold text-slate-600 flex items-center justify-center mr-3 mt-0.5 text-xs bg-slate-50 transition-colors">
+                ${opt.letter}
+              </span>
+              <span class="text-slate-700 leading-normal font-normal">
+                ${opt.text}
+              </span>
+            </div>
+          `;
+        });
+
+        html += `</div>`; // End Options
+
+        // Hidden Resolution Container (Revealed upon quiz submission)
+        html += `
+          <div id="resolution-${q.id}" class="hidden resolution-box border-t border-slate-100 pt-5 mt-6">
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
+              <div class="flex items-center space-x-2 mb-3">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h4 class="font-bold text-slate-800 text-sm sm:text-base">Gabarito e Resolução Comentada</h4>
+              </div>
+              <div class="serif-text text-slate-700 text-sm sm:text-base leading-relaxed">
+                ${q.resolution}
+              </div>
+            </div>
+          </div>
+        `;
+
+        qCard.innerHTML = html;
+        container.appendChild(qCard);
+      });
+
+      updateProgress();
+    }
+
+    function selectOption(qId, letter) {
+      if (isSubmitted) return; // Disable changes after submit
+
+      userAnswers[qId] = letter;
+
+      // Unselect all in group
+      const group = document.querySelectorAll(`#options-group-${qId} .option-card`);
+      group.forEach(card => card.classList.remove('selected'));
+
+      // Select clicked
+      const selectedCard = document.getElementById(`opt-${qId}-${letter}`);
+      if (selectedCard) {
+        selectedCard.classList.add('selected');
+      }
+
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const count = Object.keys(userAnswers).length;
+      const badgeCount = document.getElementById('answered-count');
+      if (badgeCount) {
+        badgeCount.innerText = count;
+      }
+    }
+
+    function submitQuiz() {
+      if (isSubmitted) return;
+
+      const answeredCount = Object.keys(userAnswers).length;
+      if (answeredCount < 10) {
+        const confirmSubmit = confirm(`Você respondeu ${answeredCount} de 10 questões. Deseja realmente finalizar e ver o gabarito agora?`);
+        if (!confirmSubmit) return;
+      }
+
+      isSubmitted = true;
+      let correctScore = 0;
+
+      // Evaluate each question
+      questionsData.forEach(q => {
+        const userAns = userAnswers[q.id];
+        const isCorrect = userAns === q.correct;
+        if (isCorrect) correctScore++;
+
+        const optionsGroup = document.getElementById(`options-group-${q.id}`);
+        const allOptions = optionsGroup.querySelectorAll('.option-card');
+
+        allOptions.forEach(optCard => {
+          optCard.classList.add('disabled');
+          optCard.onclick = null; // Disable pointer events logic
+        });
+
+        // Highlight correct and wrong options
+        const correctOptCard = document.getElementById(`opt-${q.id}-${q.correct}`);
+        if (correctOptCard) {
+          correctOptCard.classList.remove('selected');
+          correctOptCard.classList.add('correct-answer');
+          // Add check icon
+          const badge = correctOptCard.querySelector('span');
+          badge.className = 'flex-shrink-0 w-7 h-7 rounded-lg font-bold flex items-center justify-center mr-3 mt-0.5 text-xs bg-emerald-600 text-white';
+          badge.innerHTML = '✓';
+        }
+
+        if (userAns && userAns !== q.correct) {
+          const userOptCard = document.getElementById(`opt-${q.id}-${userAns}`);
+          if (userOptCard) {
+            userOptCard.classList.remove('selected');
+            userOptCard.classList.add('wrong-answer');
+            const badge = userOptCard.querySelector('span');
+            badge.className = 'flex-shrink-0 w-7 h-7 rounded-lg font-bold flex items-center justify-center mr-3 mt-0.5 text-xs bg-red-600 text-white';
+            badge.innerHTML = '✕';
+          }
+        }
+
+        // Show resolution
+        const resolutionBox = document.getElementById(`resolution-${q.id}`);
+        if (resolutionBox) {
+          resolutionBox.classList.remove('hidden');
+        }
+      });
+
+      // Show Score Card at top
+      const percentage = Math.round((correctScore / 10) * 100);
+      document.getElementById('score-correct').innerText = correctScore;
+      document.getElementById('score-percent').innerText = `${percentage}%`;
+
+      const scoreContainer = document.getElementById('score-container');
+      const scoreIcon = document.getElementById('score-icon');
+      const scoreTitle = document.getElementById('score-title');
+
+      if (percentage >= 80) {
+        scoreIcon.innerHTML = '🎉';
+        scoreIcon.className = 'w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center text-3xl bg-emerald-100 text-emerald-800';
+        scoreTitle.innerText = 'Excelente Desempenho!';
+      } else if (percentage >= 60) {
+        scoreIcon.innerHTML = '👏';
+        scoreIcon.className = 'w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center text-3xl bg-blue-100 text-blue-800';
+        scoreTitle.innerText = 'Bom Trabalho!';
+      } else {
+        scoreIcon.innerHTML = '📚';
+        scoreIcon.className = 'w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center text-3xl bg-amber-100 text-amber-800';
+        scoreTitle.innerText = 'Continue Praticando!';
+      }
+
+      scoreContainer.classList.remove('hidden');
+
+      // Hide Submit Button
+      document.getElementById('submit-btn').classList.add('hidden');
+
+      // Smooth scroll to results
+      scoreContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function resetQuiz() {
+      // Reset state
+      for (let key in userAnswers) {
+        delete userAnswers[key];
+      }
+      isSubmitted = false;
+
+      // Hide score container & show submit button
+      document.getElementById('score-container').classList.add('hidden');
+      document.getElementById('submit-btn').classList.remove('hidden');
+
+      // Re-render
+      renderQuiz();
+
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Initialize on load
+    window.onload = function() {
+      renderQuiz();
+    };
+  </script>
+</body>
+</html>
