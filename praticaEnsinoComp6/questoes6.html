@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado FAURGS - Desafios Contemporâneos no Ensino de TI</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Newsreader for optimal long-form reading legibility -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Newsreader', 'serif'],
+                    },
+                    colors: {
+                        paper: {
+                            50: '#fdfbf7',
+                            100: '#f8f5ee',
+                            200: '#eee7d8',
+                            800: '#2c2a29',
+                            900: '#1c1a19'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f8f6f0;
+            color: #2a2927;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .reading-text {
+            font-size: 1.0625rem;
+            line-height: 1.75;
+            color: #2d2b2a;
+        }
+
+        .serif-title {
+            font-family: 'Newsreader', serif;
+        }
+
+        /* Custom scrollbar for comfortable reading */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1ede4;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd2d9;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9aa5b1;
+        }
+
+        .option-card {
+            transition: all 0.2s ease-in-out;
+        }
+        .option-card:hover {
+            border-color: #94a3b8;
+            background-color: #f1ede4;
+        }
+        .option-card.selected {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+            box-shadow: 0 0 0 1px #2563eb;
+        }
+        
+        /* Post-quiz answer status styling */
+        .option-card.correct-answer {
+            border-color: #16a34a !important;
+            background-color: #f0fdf4 !important;
+            box-shadow: 0 0 0 1px #16a34a !important;
+        }
+        .option-card.wrong-answer {
+            border-color: #dc2626 !important;
+            background-color: #fef2f2 !important;
+            box-shadow: 0 0 0 1px #dc2626 !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-16">
+
+    <!-- Sticky Top Bar / Progress Header -->
+    <header class="sticky top-0 z-50 bg-[#f8f6f0]/95 backdrop-blur border-b border-stone-200/80 px-4 py-3 shadow-sm">
+        <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="bg-stone-800 text-amber-50 text-xs font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">FAURGS</span>
+                <h1 class="text-sm md:text-base font-semibold text-stone-800 truncate">Simulado: Ensino de TI & Cultura Digital</h1>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div class="text-xs md:text-sm font-medium text-stone-600">
+                    Respondidas: <span id="answered-count" class="font-bold text-stone-900">0</span>/10
+                </div>
+                <button id="submit-btn" onclick="finishQuiz()" class="bg-stone-900 hover:bg-stone-800 text-stone-50 text-xs md:text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm">
+                    Finalizar Quiz
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-4xl mx-auto px-4 pt-8">
+
+        <!-- Quiz Intro Banner -->
+        <section class="mb-8 bg-white border border-stone-200 rounded-2xl p-6 md:p-8 shadow-sm">
+            <h2 class="serif-title text-2xl md:text-3xl font-bold text-stone-900 mb-3">
+                Caderno de Questões: Desafios Contemporâneos, Cultura Digital e Consciência Crítica
+            </h2>
+            <p class="reading-text text-stone-600 mb-4">
+                Este simulado contém 10 questões inéditas elaboradas rigorosamente no formato da banca <strong>FAURGS</strong>. Ao responder cada questão, selecione uma alternativa. Quando concluir, clique em <strong>"Finalizar Quiz"</strong> para conferir seu desempenho e acessar as resoluções comentadas detalhadamente ao final de cada questão.
+            </p>
+            <div class="flex flex-wrap gap-4 text-xs font-medium text-stone-500 pt-2 border-t border-stone-100">
+                <span class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Estilo de itens propositivos (I, II, III) e múltipla escolha
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    Gabarito e resoluções completas
+                </span>
+            </div>
+        </section>
+
+        <!-- Questions Section -->
+        <div id="questions-container" class="space-y-8">
+            <!-- Questions dynamically generated by JS -->
+        </div>
+
+        <!-- Results Section (Initially Hidden) -->
+        <section id="results-section" class="hidden mt-12 bg-white border border-stone-200 rounded-2xl p-6 md:p-8 shadow-md">
+            <div class="text-center pb-8 border-b border-stone-200">
+                <span id="score-badge" class="inline-block text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-3 bg-blue-100 text-blue-800">
+                    Resultado Concluído
+                </span>
+                <h3 class="serif-title text-3xl font-bold text-stone-900 mb-2">Desempenho Geral</h3>
+                <div class="text-5xl font-extrabold text-stone-900 my-4" id="final-score-text">
+                    0 <span class="text-2xl font-normal text-stone-500">/ 10</span>
+                </div>
+                <p id="score-feedback" class="reading-text text-stone-600 max-w-lg mx-auto">
+                    Você finalizou o simulado. Verifique abaixo o gabarito comentado e a resolução detalhada de cada item!
+                </p>
+                <div class="mt-6 flex justify-center gap-4">
+                    <button onclick="resetQuiz()" class="bg-stone-200 hover:bg-stone-300 text-stone-800 font-medium text-sm px-5 py-2.5 rounded-xl transition-colors">
+                        Refazer Simulado
+                    </button>
+                    <a href="#questions-container" class="bg-stone-900 hover:bg-stone-800 text-white font-medium text-sm px-5 py-2.5 rounded-xl transition-colors inline-block">
+                        Revisar Questões
+                    </a>
+                </div>
+            </div>
+
+            <!-- Complete Answer Key & Resolution Summary Table -->
+            <div class="mt-8">
+                <h4 class="serif-title text-xl font-bold text-stone-900 mb-4">Gabarito Rápido de Respostas</h4>
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-3" id="quick-gabarito-grid">
+                    <!-- Dynamic Answer Key Badges -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Custom Warning Modal (No alert/confirm) -->
+    <div id="modal-warning" class="fixed inset-0 bg-stone-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-stone-200">
+            <h3 class="serif-title text-xl font-bold text-stone-900 mb-2">Atenção</h3>
+            <p class="text-stone-600 text-sm mb-6" id="modal-warning-text">
+                Você ainda possui questões não respondidas. Deseja finalizar mesmo assim?
+            </p>
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeWarningModal()" class="px-4 py-2 text-sm font-medium text-stone-600 hover:bg-stone-100 rounded-lg">
+                    Continuar Respondendo
+                </button>
+                <button onclick="forceFinishQuiz()" class="px-4 py-2 text-sm font-medium bg-stone-900 text-white rounded-lg hover:bg-stone-800">
+                    Finalizar Mesmo Assim
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                id: 1,
+                number: "01",
+                context: "Considere as seguintes afirmações sobre a Sociedade da Informação, o fenômeno da infoxicação e o papel da escola frente à cultura digital:",
+                items: [
+                    "I. A Sociedade da Informação caracteriza-se pelo fato de a criação, distribuição e manipulação de dados constituírem a principal força motriz socioeconômica, reconfigurando o conhecimento e a atividade humana.",
+                    "II. O fenômeno da sobrecarga informacional (infoxicação) decorre do fluxo contínuo e desordenado de dados, o qual impede a análise crítica, gerando desorientação, superficialidade e paralisia no processo de aprendizagem.",
+                    "III. Diante do cenário de conexão contínua e profusão digital, a instituição escolar deve atuar como um espaço de desaceleração, priorizando a curadoria pedagógica e a atribuição de sentido em detrimento do mero processamento técnico e mecânico de dados."
+                ],
+                prompt: "Quais estão corretas?",
+                options: [
+                    { letter: "A", text: "Apenas I." },
+                    { letter: "B", text: "Apenas I e II." },
+                    { letter: "C", text: "Apenas I e III." },
+                    { letter: "D", text: "Apenas II e III." },
+                    { letter: "E", text: "I, II e III." }
+                ],
+                correct: "E",
+                resolutionHtml: `
+                    <p class="mb-2"><strong>Item I: Correto.</strong> A Sociedade da Informação estabelece-se sobre uma infraestrutura socioeconômica na qual a criação, distribuição e manipulação de informações atuam como força motriz principal, integrando tecnologia e conhecimento para reconfigurar a atividade humana.</p>
+                    <p class="mb-2"><strong>Item II: Correto.</strong> O fenômeno da infoxicação (sobrecarga informacional) resulta do fluxo ininterrupto de dados não estruturados. Esse excesso gera paralisia crítica, desorientação e aprendizado superficial, impedindo o processamento reflexivo.</p>
+                    <p class="mb-2"><strong>Item III: Correto.</strong> De acordo com as premissas pedagógicas contemporâneas de autores como Pérez Tornero, a escola deve funcionar como um espaço de desaceleração e reflexão. Diante do ruído e da proliferação digital, a prioridade educacional desloca-se da mera operação mecânica para a curadoria de dados e a atribuição de sentido.</p>
+                    <p class="font-semibold text-stone-900 border-t border-stone-200 pt-2 mt-2">Conclusão: Todos os itens analisados estão corretos. (Gabarito: E)</p>
+                `
+            },
+            {
+                id: 2,
+                number: "02",
+                context: "No tocante às práticas pedagógicas relativas à pesquisa de dados em motores de busca na Internet no âmbito do ensino de TI, assinale a alternativa correta:",
+                items: [],
+                prompt: "",
+                options: [
+                    { letter: "A", text: "A aceitação passiva do primeiro resultado retornado por um motor de busca comercial configura uma prática reducionista, pois desconsidera os critérios algorítmicos de ordenação e a necessidade de verificação crítica das fontes." },
+                    { letter: "B", text: "A mediação docente crítica deve impor a proibição irrestrita do uso de motores de busca públicos, substituindo-os exclusivamente por compêndios impressos tradicionais." },
+                    { letter: "C", text: "A verificação da credibilidade de uma fonte de dados online deve fundamentar-se precipuamente na sofisticação estética e no apelo visual do website analisado." },
+                    { letter: "D", text: "O confronto analítico entre múltiplas fontes de dados, com checagem de autoria, data e discrepâncias, mostra-se prescindível no ensino de computação, dada a neutralidade intrínseca dos indexadores de busca." },
+                    { letter: "E", text: "A prática reducionista fomenta a autonomia do educando ao incentivar a cópia direta de conteúdos patrocinados posicionados no topo dos resultados de pesquisa." }
+                ],
+                correct: "A",
+                resolutionHtml: `
+                    <p class="mb-2"><strong>(A) Correta.</strong> A aceitação passiva e imediata dos primeiros resultados fornecidos por buscadores comerciais reflete uma postura reducionista. Essa prática ignora os mecanismos de ranqueamento, monetização e filtragem algorítmica, comprometendo a análise crítica.</p>
+                    <p class="mb-2"><strong>(B) Incorreta.</strong> A mediação docente crítica não proíbe a pesquisa digital, mas orienta o aluno a analisar criticamente as fontes virtuais, checando autoria, data e inconsistências.</p>
+                    <p class="mb-2"><strong>(C) Incorreta.</strong> O apelo estético ou visual de uma página web não garante a veracidade do conteúdo, tornando necessária a análise metodológica do emissor e dos dados apresentados.</p>
+                    <p class="mb-2"><strong>(D) Incorreta.</strong> A checagem cruzada e o debate de fontes divergentes são fundamentais para combater a desinformação e reconhecer discrepâncias.</p>
+                    <p class="mb-2"><strong>(E) Incorreta.</strong> A cópia não reflexiva de links patrocinados impede a autonomia intelectual do educando.</p>
+                    <p class="font-semibold text-stone-900 border-t border-stone-200 pt-2 mt-2">Conclusão: A alternativa A expressa corretamente a crítica à postura reducionista na pesquisa online. (Gabarito: A)</p>
+                `
+            },
+            {
+                id: 3,
+                number: "03",
+                context: "Considere as seguintes afirmações sobre Educomunicação, Multiletramentos e Autoria Digital:",
+                items: [
+                    "I. A Educomunicação constitui um campo de intersecção entre a Educação e a Comunicação que propõe práticas pedagógicas dialógicas, colaborativas e voltadas à democratização dos meios de expressão.",
+                    "II. Os multiletramentos na cultura digital articulam estritamente o código-fonte textual e a sintaxe de linguagens de programação, excluindo semiose gráfica, som, design de interface e dados estatísticos.",
+                    "III. A autoria digital emancipatória implica a superação do mero consumo passivo de aplicativos proprietários prontos, permitindo que o educando utilize o código-fonte e o design de software como linguagens para intervir criticamente em sua comunidade."
+                ],
+                prompt: "Quais estão corretas?",
+                options: [
+                    { letter: "A", text: "Apenas I." },
+                    { letter: "B", text: "Apenas II." },
+                    { letter: "C", text: "Apenas I e III." },
+                    { letter: "D", text: "Apenas II e III." },
+                    { letter: "E", text: "I, II e III." }
+                ],
+                correct: "C",
+                resolutionHtml: `
+                    <p class="mb-2"><strong>Item I: Correto.</strong> A Educomunicação articula Educação e Comunicação para criar ecossistemas comunicativos abertos, favorecendo o diálogo, a colaboração e a democratização dos meios de expressão.</p>
+                    <p class="mb-2"><strong>Item II: Incorreto.</strong> Os multiletramentos abrangem a capacidade de compreender e produzir textos e artefatos que articulam múltiplas linguagens e semiose, incluindo código-fonte, design visual, som e dados estatísticos. A restrição ao texto escrito descaracteriza a definição.</p>
+                    <p class="mb-2"><strong>Item III: Correto.</strong> A autoria digital emancipatória busca superar a condição de consumidor passivo de software proprietário, capacitando o estudante a programar e criar soluções tecnológicas voltadas à intervenção crítica na sua realidade local.</p>
+                    <p class="font-semibold text-stone-900 border-t border-stone-200 pt-2 mt-2">Conclusão: Estão corretos os itens I e III. (Gabarito: C)</p>
+                `
+            },
+            {
+                id: 4,
+                number: "04",
+                context: "A evolução do ensino de Tecnologia da Informação abrange a transição de uma abordagem estritamente instrumental para uma abordagem educomunicativa e autoral. A respeito dessas abordagens, assinale a alternativa correta:",
+                items: [],
+                prompt: "",
+                options: [
+                    { letter: "A", text: "A abordagem instrumental centra-se na produção de soluções tecnológicas para problemas comunitários locais, priorizando a acessibilidade web e a autonomia de criação." },
+                    { letter: "B", text: "A abordagem educomunicativa foca no treinamento de comandos operacionais básicos, na digitação reprodutiva e na formatação mecânica de documentos segundo normas rígidas." },
+                    { letter: "C", text: "O desenvolvimento de aplicações web acessíveis (utilizando HTML semântico e atributos como alt-text) reflete uma prática de autoria digital alinhada à inclusão e à produção consciente." },
+                    { letter: "D", text: "A substituição do consumo passivo pela criação autoral elimina a necessidade de ensino do código-fonte, restringindo o aprendizado à gestão de mídias sociais." },
+                    { letter: "E", text: "A alfabetização digital instrumental do passado garantia plena consciência crítica aos estudantes ao focar exclusivamente no treinamento de softwares de escritório." }
+                ],
+                correct: "C",
+                resolutionHtml: `
+                    <p class="mb-3 font-semibold text-stone-800">Quadro Comparativo das Abordagens de Ensino de TI:</p>
+                    <div class="overflow-x-auto mb-4">
+                        <table class="w-full text-xs md:text-sm text-left border border-stone-200 rounded-lg overflow-hidden">
+                            <thead class="bg-stone-100 text-stone-800 font-semibold">
+                                <tr>
+                                    <th class="p-2 border.b border-stone-200">Paradigma</th>
+                                    <th class="p-2 border-b border-stone-200">Abordagem Instrumental (Passado)</th>
+                                    <th class="p-2 border-b border-stone-200">Abordagem Educomunicativa e Autoral (Presente/Futuro)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-stone-200">
+                                <tr>
+                                    <td class="p-2 font-medium bg-stone-50">Objetivo</td>
+                                    <td class="p-2">Treinamento operacional em utilitários de escritório e comandos de SO.</td>
+                                    <td class="p-2">Desenvolvimento de projetos autorais, soluções comunitárias e autonomia crítica.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 font-medium bg-stone-50">Prática Pedagógica</td>
+                                    <td class="p-2">Formatação mecânica (ex: margens ABNT, digitação reprodutiva).</td>
+                                    <td class="p-2">Construção de sites e aplicativos com acessibilidade (alt-text, HTML/CSS semântico).</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 font-medium bg-stone-50">Papel do Aluno</td>
+                                    <td class="p-2">Usuário passivo de soluções prontas.</td>
+                                    <td class="p-2">Criador e autor de mídias e artefatos computacionais.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="mb-2"><strong>(A) Incorreta.</strong> A abordagem instrumental focava o adestramento em utilitários fechados, e não em soluções comunitárias.</p>
+                    <p class="mb-2"><strong>(B) Incorreta.</strong> A descrição de comandos operacionais e digitação mecânica refere-se à abordagem instrumental.</p>
+                    <p class="mb-2"><strong>(C) Correta.</strong> O desenvolvimento autoral que emprega código semântico e práticas de acessibilidade exemplifica a convergência entre técnica, autoria e inclusão social.</p>
+                    <p class="mb-2"><strong>(D) Incorreta.</strong> O ensino de programação e código-fonte é reforçado na autoria digital como meio de expressão e criação de autonomia.</p>
+                    <p class="mb-2"><strong>(E) Incorreta.</strong> O foco instrumental restrito ao software de escritório não promovia a reflexão crítica sobre a tecnologia.</p>
+                    <p class="font-semibold text-stone-900 border-t border-stone-200 pt-2 mt-2">Conclusão: A alternativa C explicita uma aplicação autoral e inclusiva. (Gabarito: C)</p>
+                `
+            },
+            {
+                id: 5,
+                number: "05",
+                context: "Considere as seguintes afirmações sobre a opacidade algorítmica e o conceito de \"caixa-preta\" (black box) em sistemas computacionais:",
+                items: [
+                    "I. A opacidade algorítmica é uma característica de sistemas cujas regras de filtragem, ranqueamento e tomada de decisão não são transparentes ou auditáveis para os usuários e afetados.",
+                    "II. A arquitetura de caixa-preta em sistemas de Inteligência Artificial garante a isenção de falhas nas decisões automatizadas, visto que elimina a interferência da entrada de dados humanos.",
+                    "III. Sistemas opacos empregados na concessão de crédito, recrutamento de pessoal ou recomendação de conteúdo em feeds podem produzir saídas discriminatórias sem a devida prestação de contas."
+                ],
+                prompt: "Quais estão corretas?",
+                options: [
+                    { letter: "A", text: "Apenas I." },
+                    { letter: "B", text: "Apenas I e II." },
+                    { letter: "C", text: "Apenas I e III." },
+                    { letter: "D", text: "Apenas II e III." },
+                    { letter: "E", text: "I, II e III." }
+                ],
+                correct: "C",
+                resolutionHtml: `
+                    <p class="mb-2"><strong>Item I: Correto.</strong> A opacidade algorítmica, ou conceito de "caixa-preta", refere-se à ausência de transparência nas regras de decisão, filtragem e classificação adotadas por sistemas computacionais.</p>
+                    <p class="mb-2"><strong>Item II: Incorreto.</strong> O fechamento do algoritmo em caixa-preta não elimina falhas; ao contrário, oculta critérios de decisão e impede que usuários afetados identifiquem distorções ou erros lógicos.</p>
+                    <p class="mb-2"><strong>Item III: Correto.</strong> Decisões automatizadas opacas em áreas como score de crédito, seleção de pessoal ou modulação de feeds digitais podem resultar em saídas injustas ou discriminatórias sem possibilidade de auditoria.</p>
+                    <p class="font-semibold text-stone-900 border-t border-stone-200 pt-2 mt-2">Conclusão: Estão corretos os itens I e III. (Gabarito: C)</p>
+                `
+            },
+            {
+                id: 6,
+                number: "06",
+                context: "Considere as seguintes afirmações sobre Economia da Atenção e Capitalismo de Vigilância:",
+                items: [
+                    "I. O Capitalismo de Vigilância fundamenta-se num modelo de negócios assentado na extração sistemática de dados comportamentais para retenção do usuário e modulação de consumo.",
+                    "II. A Economia da Atenção emprega mecânicas de atração contínua e notificações operadas por algoritmos preditivos, objetivando rentabilizar cada fração do tempo do usuário.",
+                    "III. Constitui dever ético do docente de Tecnologia da Informação problematizar como a manipulação de feeds e a retenção algorítmica afetam a autonomia subjetiva e a formação cidadã."
+                ],
+                prompt: "Quais estão corretas?",
+                options: [
+                    { letter: "A", text: "Apenas I." },
+                    { letter: "B", text: "Apenas I e II." },
+                    { letter: "C", text: "Apenas I e III." },
+                    { letter: "D", text: "Apenas II e III." },
+                    { letter: "E", text: "I, II e III." }
+                ],
+                correct: "E",
+                resolutionHtml: `
+                    <p class="mb-2"><strong>Item I: Correto.</strong> O Capitalismo de Vigilância assenta-se na extração contínua de rastros comportamentais com a finalidade de prever e modular escolhas de consumo.</p>
+                    <p class="mb-2"><strong>Item II: Correto.</strong> A Economia da Atenção utiliza mecanismos algorítmicos projetados para capturar a atenção do indivíduo e retê-lo nas plataformas, monetizando o tempo de navegação.</p>
+                    <p class="mb-2"><strong>Item III: Correto.</strong> Cabe ao educador de TI problematizar a manipulação do comportamento e a opacidade das redes, preparando os alunos para o exercício consciente da cidadania.</p>
+                    <p class="font-semibold text-stone-900 border-t border-stone-200 pt-2 mt-2">Conclusão: Todos os itens estão corretos. (Gabarito: E)</p>
+                `
+            },
+            {
+                id: 7,
+                number: "07",
+                context: "Em relação aos vieses algorítmicos e à discriminação automatizada em sistemas de Inteligência Artificial, assinale a alternativa correta:",
+                items: [],
+                prompt: "",
+                options: [
+                    { letter: "A", text: "Os vieses algorítmicos decorrem unicamente de erros sintáticos intencionais cometidos no momento de compilação do código-fonte." },
+                    { letter: "B", text: "Bases de dados de treinamento distorcidas, que contêm preconceitos históricos ou falta de representatividade, levam o sistema computacional a reproduzir e amplificar discriminações raciais, de gênero ou regionais." },
+                    { letter: "C", text: "A expansão no volume de dados coletados (Big Data) assegura a eliminação automática de qualquer assimetria social presente nos dados históricos de treinamento." },
+                    { letter: "D", text: "Os algoritmos de aprendizado de máquina são intrinsecamente neutros, sendo matematicamente impossível a reprodução de injustiças sociais por meio de modelos estatísticos." },
+                    { letter: "E", text: "A neutralização de vieses algorítmicos exige a vedação do uso de técnicas de Inteligência Artificial em qualquer nível do ambiente educacional." }
+                ],
+                correct: "B",
+                resolutionHtml: `
+                    <p class="mb-2"><strong>(A) Incorreta.</strong> O viés algorítmico resulta primordialmente do uso de bases de dados de treinamento viciadas, e não de meros erros de compilação sintática.</p>
+                    <p class="mb-2"><strong>(B) Correta.</strong> Quando modelos de Inteligência Artificial são treinados com dados históricos que contêm desigualdades ou preconceitos, esses modelos tendem a matematizar, reproduzir e amplificar discriminações históricas raciais, de gênero ou regionais.</p>
+                    <p class="mb-2"><strong>(C) Incorreta.</strong> O volume de dados isoladamente não garante isenção de viés se a amostra coletada contiver distorções estruturais.</p>
+                    <p class="mb-2"><strong>(D) Incorreta.</strong> Algoritmos não são imunes a assimetrias sociais, visto que aprendem a partir de dados produzidos em contextos marcados por desigualdades.</p>
+                    <p class="mb-2"><strong>(E) Incorreta.</strong> A mitigação de vieses exige curadoria crítica de dados e governança ética, e não a proibição do uso da tecnologia.</p>
+                    <p class="font-semibold text-stone-900 border-t border-stone-200 pt-2 mt-2">Conclusão: A alternativa B explica com precisão o mecanismo de replicação de vieses sociais por sistemas de IA. (Gabarito: B)</p>
+                `
+            },
+            {
+                id: 8,
+                number: "08",
+                context: "Considere as seguintes afirmações a respeito dos princípios da Cidadania Digital e da Lei Geral de Proteção de Dados Pessoais (LGPD – Lei nº 13.709/2018):",
+                items: [
+                    "I. O princípio da autodeterminação informativa confere ao titular o direito fundamental de exercer controle sobre o fluxo de seus próprios dados pessoais, definindo a autonomia do seu uso e finalidade.",
+                    "II. O princípio da transparência impõe aos controladores o dever de garantir aos titulares informações claras, precisas e acessíveis sobre o tratamento de seus dados e os respectivos agentes.",
+                    "III. O titular dos dados possui o direito de solicitar a retificação de incorreções e a eliminação definitiva de seus dados, contudo, a LGPD veda expressamente a revogação do consentimento após a primeira autorização."
+                ],
+                prompt: "Quais estão corretas?",
+                options: [
+                    { letter: "A", text: "Apenas I." },
+                    { letter: "B", text: "Apenas I e II." },
+                    { letter: "C", text: "Apenas I e III." },
+                    { letter: "D", text: "Apenas II e III." },
+                    { letter: "E", text: "I, II e III." }
+                ],
+                correct: "B",
+                resolutionHtml: `
+                    <p class="mb-2"><strong>Item I: Correto.</strong> A autodeterminação informativa é o princípio fundamental da LGPD (Lei nº 13.709/2018) que garante ao cidadão o controle autônomo sobre o fluxo de seus dados pessoais.</p>
+                    <p class="mb-2"><strong>Item II: Correto.</strong> O princípio da transparência garante ao titular informações claras, precisas e acessíveis sobre o tratamento de seus dados e as finalidades específicas da coleta.</p>
+                    <p class="mb-2"><strong>Item III: Incorreto.</strong> A LGPD assegura explicitamente ao titular o direito de revogar o consentimento a qualquer momento, além de requerer a exclusão ou anonimização de seus dados.</p>
+                    <p class="font-semibold text-stone-900 border-t border-stone-200 pt-2 mt-2">Conclusão: Estão corretos os itens I e II. (Gabarito: B)</p>
+                `
+            },
+            {
+                id: 9,
+                number: "09",
+                context: "Considere as seguintes afirmações sobre Software Livre e Soberania Tecnológica no contexto educacional:",
+                items: [
+                    "I. O Software Livre define-se por quatro liberdades fundamentais: a liberdade de usar para qualquer propósito, de estudar o código-fonte, de compartilhar cópias e de melhorar o programa distribuindo as alterações.",
+                    "II. A dependência excessiva em relação a plataformas proprietárias de Big Techs expõe instituições educativas a vulnerabilidades de controle externo, custos contínuos de licenciamento e risco de perda de gestão sobre dados institucionais.",
+                    "III. A Soberania Tecnológica busca promover a autonomia técnica, a inovação própria e a independência nacional, sendo um conceito teoricamente oposto ao ecossistema de Software Livre e código aberto."
+                ],
+                prompt: "Quais estão corretas?",
+                options: [
+                    { letter: "A", text: "Apenas I." },
+                    { letter: "B", text: "Apenas I e II." },
+                    { letter: "C", text: "Apenas I e III." },
+                    { letter: "D", text: "Apenas II e III." },
+                    { letter: "E", text: "I, II e III." }
+                ],
+                correct: "B",
+                resolutionHtml: `
+                    <p class="mb-2"><strong>Item I: Correto.</strong> O Software Livre define-se pelas quatro liberdades essenciais: usar para qualquer propósito (liberdade 0), estudar o funcionamento e adaptar o código (liberdade 1), redistribuir cópias (liberdade 2) e melhorar e publicar as alterações (liberdade 3).</p>
+                    <p class="mb-2"><strong>Item II: Correto.</strong> A dependência exclusiva de plataformas proprietárias das Big Techs acarreta riscos de vulnerabilidade, perda de controle sobre dados institucionais e custos recorrentes de manutenção.</p>
+                    <p class="mb-2"><strong>Item III: Incorreto.</strong> A Soberania Tecnológica relaciona-se diretamente com o ecossistema de Software Livre, pois a autonomia técnica e a inovação local dependem do acesso aberto ao conhecimento e ao código-fonte.</p>
+                    <p class="font-semibold text-stone-900 border-t border-stone-200 pt-2 mt-2">Conclusão: Estão corretos os itens I e II. (Gabarito: B)</p>
+                `
+            },
+            {
+                id: 10,
+                number: "10",
+                context: "Considere as seguintes afirmações sobre a avaliação autêntica e emancipatória frente ao avanço da Inteligência Artificial e da cultura digital na educação:",
+                items: [
+                    "I. A abordagem de avaliação emancipatória contrapõe-se ao punitivismo e à vigilância mecânica/policialesca, buscando superar a mera detecção de plágio em favor do diálogo e do raciocínio crítico.",
+                    "II. A avaliação autêntica apoia-se em proposições baseadas em problemas reais e contextualizados, nas quais os estudantes mobilizam conhecimentos para criar soluções inéditas, compreendendo o erro como depuração e aprendizagem.",
+                    "III. Diante do surgimento de ferramentas automatizadas de geração de texto e código, a prática avaliativa emancipatória prega o retorno exclusivo aos exames presenciais de memorização reprodutiva."
+                ],
+                prompt: "Quais estão corretas?",
+                options: [
+                    { letter: "A", text: "Apenas I." },
+                    { letter: "B", text: "Apenas I e II." },
+                    { letter: "C", text: "Apenas I e III." },
+                    { letter: "D", text: "Apenas II e III." },
+                    { letter: "E", text: "I, II e III." }
+                ],
+                correct: "B",
+                resolutionHtml: `
+                    <p class="mb-2"><strong>Item I: Correto.</strong> A avaliação emancipatória rejeita o punitivismo e a vigilância mecânica focada na caça ao plágio, valorizando o acompanhamento dialógico, a ética e o desenvolvimento do raciocínio crítico.</p>
+                    <p class="mb-2"><strong>Item II: Correto.</strong> A avaliação autêntica apoia-se no enfrentamento de problemas reais e contextualizados, nos quais o erro é encarado como etapa do processo de aprendizagem e depuração (debugging).</p>
+                    <p class="mb-2"><strong>Item III: Incorreto.</strong> A resposta pedagógica crítica à automação e à IA gerativa não consiste em retornar a métodos tradicionais de memorização passiva, mas em propor atividades autênticas de autoria, argumentação oral e reflexão ética.</p>
+                    <p class="font-semibold text-stone-900 border-t border-stone-200 pt-2 mt-2">Conclusão: Estão corretos os itens I e II. (Gabarito: B)</p>
+                `
+            }
+        ];
+
+        let userAnswers = {};
+        let isSubmitted = false;
+
+        // Render questions on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            renderQuestions();
+        });
+
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            quizData.forEach((q) => {
+                const card = document.createElement('article');
+                card.id = `question-card-${q.id}`;
+                card.className = "bg-white border border-stone-200 rounded-2xl p-6 md:p-8 shadow-sm relative transition-all";
+
+                // Header / Number
+                let itemsHtml = '';
+                if (q.items && q.items.length > 0) {
+                    itemsHtml = `
+                        <div class="bg-stone-50 border border-stone-200/80 rounded-xl p-4 my-4 space-y-3 reading-text">
+                            ${q.items.map(item => `<p class="text-stone-800">${item}</p>`).join('')}
+                        </div>
+                    `;
+                }
+
+                let promptHtml = q.prompt ? `<p class="font-semibold text-stone-900 mt-3 mb-4">${q.prompt}</p>` : '';
+
+                let optionsHtml = `
+                    <div class="space-y-3 mt-4" id="options-group-${q.id}">
+                        ${q.options.map(opt => `
+                            <div 
+                                id="option-${q.id}-${opt.letter}" 
+                                onclick="selectOption(${q.id}, '${opt.letter}')"
+                                class="option-card flex items-start space-x-3 p-3.5 md:p-4 rounded-xl border border-stone-200 cursor-pointer text-stone-800"
+                            >
+                                <div class="flex items-center h-6">
+                                    <input 
+                                        type="radio" 
+                                        name="question-${q.id}" 
+                                        value="${opt.letter}"
+                                        id="radio-${q.id}-${opt.letter}"
+                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-stone-300"
+                                    >
+                                </div>
+                                <label for="radio-${q.id}-${opt.letter}" class="cursor-pointer text-sm md:text-base leading-relaxed font-medium flex-1">
+                                    <span class="font-bold mr-1 font-mono">${opt.letter})</span> ${opt.text.replace(`(${opt.letter}) `, '')}
+                                </label>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                // Resolution Box (Hidden until submitted)
+                let resolutionBox = `
+                    <div id="resolution-${q.id}" class="hidden mt-6 bg-amber-50/60 border border-amber-200/80 rounded-xl p-5 text-stone-800 text-sm md:text-base">
+                        <div class="flex items-center space-x-2 font-bold text-amber-900 mb-3 border-b border-amber-200/60 pb-2">
+                            <svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>Gabarito Oficial & Resolução Detalhada</span>
+                        </div>
+                        <div class="reading-text leading-relaxed text-stone-800">
+                            ${q.resolutionHtml}
+                        </div>
+                    </div>
+                `;
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-stone-100 pb-3 mb-4">
+                        <span class="serif-title text-xl font-bold text-stone-900">Questão ${q.number}</span>
+                        <span id="badge-q-${q.id}" class="text-xs font-semibold px-3 py-1 rounded-full bg-stone-100 text-stone-600">
+                            Pendente
+                        </span>
+                    </div>
+                    <div class="reading-text mb-2">${q.context}</div>
+                    ${itemsHtml}
+                    ${promptHtml}
+                    ${optionsHtml}
+                    ${resolutionBox}
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function selectOption(questionId, letter) {
+            if (isSubmitted) return; // Freeze selections post-submission
+
+            userAnswers[questionId] = letter;
+
+            // Update UI styles for choices
+            const group = document.querySelectorAll(`#options-group-${questionId} .option-card`);
+            group.forEach(el => el.classList.remove('selected'));
+
+            const selectedOption = document.getElementById(`option-${questionId}-${letter}`);
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+            }
+
+            const radio = document.getElementById(`radio-${questionId}-${letter}`);
+            if (radio) {
+                radio.checked = true;
+            }
+
+            // Update status badge
+            const badge = document.getElementById(`badge-q-${questionId}`);
+            if (badge) {
+                badge.innerText = "Respondida";
+                badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800";
+            }
+
+            updateCounter();
+        }
+
+        function updateCounter() {
+            const count = Object.keys(userAnswers).length;
+            document.getElementById('answered-count').innerText = count;
+        }
+
+        function finishQuiz() {
+            const answeredCount = Object.keys(userAnswers).length;
+            if (answeredCount < quizData.length) {
+                document.getElementById('modal-warning-text').innerText = `Você respondeu ${answeredCount} de ${quizData.length} questões. Deseja finalizar mesmo assim para ver as resoluções?`;
+                document.getElementById('modal-warning').classList.remove('hidden');
+            } else {
+                calculateResults();
+            }
+        }
+
+        function closeWarningModal() {
+            document.getElementById('modal-warning').classList.add('hidden');
+        }
+
+        function forceFinishQuiz() {
+            closeWarningModal();
+            calculateResults();
+        }
+
+        function calculateResults() {
+            isSubmitted = true;
+            let score = 0;
+
+            quizData.forEach(q => {
+                const userChoice = userAnswers[q.id];
+                const isCorrect = userChoice === q.correct;
+                if (isCorrect) score++;
+
+                // Update individual question status badges
+                const badge = document.getElementById(`badge-q-${q.id}`);
+                if (badge) {
+                    if (isCorrect) {
+                        badge.innerText = "Correta";
+                        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800";
+                    } else if (userChoice) {
+                        badge.innerText = `Incorreta (Você marcou ${userChoice})`;
+                        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-rose-100 text-rose-800";
+                    } else {
+                        badge.innerText = "Em Branco";
+                        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-stone-200 text-stone-700";
+                    }
+                }
+
+                // Highlight correct option and wrong option
+                q.options.forEach(opt => {
+                    const optionCard = document.getElementById(`option-${q.id}-${opt.letter}`);
+                    if (optionCard) {
+                        optionCard.classList.remove('selected');
+                        if (opt.letter === q.correct) {
+                            optionCard.classList.add('correct-answer');
+                        } else if (opt.letter === userChoice && userChoice !== q.correct) {
+                            optionCard.classList.add('wrong-answer');
+                        }
+                    }
+                });
+
+                // Unhide resolution block for every question
+                const resBlock = document.getElementById(`resolution-${q.id}`);
+                if (resBlock) {
+                    resBlock.classList.remove('hidden');
+                }
+            });
+
+            // Update top bar button
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.innerText = "Ver Desempenho";
+            submitBtn.onclick = () => {
+                document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+            };
+
+            // Display Score Section
+            const resultsSection = document.getElementById('results-section');
+            resultsSection.classList.remove('hidden');
+
+            document.getElementById('final-score-text').innerHTML = `${score} <span class="text-2xl font-normal text-stone-500">/ 10</span>`;
+
+            const percentage = (score / quizData.length) * 100;
+            const scoreBadge = document.getElementById('score-badge');
+            const scoreFeedback = document.getElementById('score-feedback');
+
+            if (percentage >= 80) {
+                scoreBadge.className = "inline-block text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-3 bg-emerald-100 text-emerald-800";
+                scoreFeedback.innerText = "Excelente desempenho! Você domina os conceitos pedagógicos e tecnológicos exigidos no concurso FAURGS.";
+            } else if (percentage >= 60) {
+                scoreBadge.className = "inline-block text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-3 bg-amber-100 text-amber-800";
+                scoreFeedback.innerText = "Bom trabalho! Revise os tópicos das questões incorretas utilizando o gabarito comentado abaixo.";
+            } else {
+                scoreBadge.className = "inline-block text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-3 bg-rose-100 text-rose-800";
+                scoreFeedback.innerText = "Aproveite as resoluções explicativas abaixo para aprofundar e consolidar cada um dos fundamentos abordados.";
+            }
+
+            // Populate Quick Gabarito Grid
+            const gabaritoGrid = document.getElementById('quick-gabarito-grid');
+            gabaritoGrid.innerHTML = quizData.map(q => {
+                const userChoice = userAnswers[q.id];
+                const isCorrect = userChoice === q.correct;
+                const statusColor = isCorrect 
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900' 
+                    : (userChoice ? 'bg-rose-50 border-rose-300 text-rose-900' : 'bg-stone-100 border-stone-300 text-stone-700');
+
+                return `
+                    <div class="border rounded-xl p-3 text-center ${statusColor}">
+                        <div class="text-xs font-semibold text-stone-500 uppercase">Q${q.number}</div>
+                        <div class="text-lg font-bold">
+                            Gabarito: <span class="text-stone-900 font-mono">${q.correct}</span>
+                        </div>
+                        <div class="text-xs mt-1">
+                            Sua: ${userChoice ? `<strong class="font-mono">${userChoice}</strong>` : '—'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Scroll smoothly down to results
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetQuiz() {
+            userAnswers = {};
+            isSubmitted = false;
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.innerText = "Finalizar Quiz";
+            submitBtn.onclick = finishQuiz;
+
+            document.getElementById('results-section').classList.add('hidden');
+            renderQuestions();
+            updateCounter();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
