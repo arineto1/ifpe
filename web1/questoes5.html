@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado FAURGS - Formulários em HTML5</title>
+    <!-- Tailwind CSS for styling utilities -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom typography and soft colors designed for long reading and zero eye strain */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #fbf9f6; /* Warm off-white soft background */
+            color: #1e293b; /* Soft dark slate text */
+            line-height: 1.75;
+        }
+
+        code, pre {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Reading optimized code block */
+        .code-block {
+            background-color: #f1ede6;
+            border-left: 4px solid #3b82f6;
+            color: #1e293b;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+
+        /* Interactive option label styling */
+        .option-label {
+            transition: all 0.2s ease-in-out;
+            border: 1.5px solid #e2dcd5;
+            background-color: #ffffff;
+        }
+
+        .option-label:hover {
+            border-color: #3b82f6;
+            background-color: #f4f8ff;
+        }
+
+        .option-input:checked + .option-label {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+            box-shadow: 0 0 0 1px #2563eb;
+        }
+
+        /* Post-submit states */
+        .option-label.correct-target {
+            border-color: #16a34a !important;
+            background-color: #f0fdf4 !important;
+            color: #14532d !important;
+            font-weight: 600;
+        }
+
+        .option-label.incorrect-selected {
+            border-color: #dc2626 !important;
+            background-color: #fef2f2 !important;
+            color: #7f1d1d !important;
+        }
+
+        .badge-number {
+            background-color: #e2e8f0;
+            color: #334155;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-16">
+
+    <!-- Sticky Navigation & Progress Header -->
+    <header class="sticky top-0 z-50 bg-[#fbf9f6]/95 backdrop-blur-md border-b border-[#e5dfd5] shadow-sm py-3 px-4 sm:px-8">
+        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div>
+                <h1 class="text-xl font-bold text-slate-900 tracking-tight">Simulado Banca FAURGS</h1>
+                <p class="text-xs text-slate-600">Desenvolvimento Web: Formulários em HTML5</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-xs sm:text-sm font-medium text-slate-700">
+                    Respondidas: <span id="answered-count" class="font-bold text-blue-700">0</span> / 10
+                </div>
+                <button id="btn-submit-top" onclick="finishQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold py-2 px-4 rounded-lg shadow-sm transition-all">
+                    Finalizar Quiz
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-8">
+
+        <!-- Quiz Score Results Section (Hidden by default, shown upon submission) -->
+        <section id="results-summary" class="hidden mb-10 bg-white border border-[#e2dcd5] rounded-2xl p-6 sm:p-8 shadow-sm">
+            <div class="text-center">
+                <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold uppercase tracking-wider mb-2">Resultado Final</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-2">Desempenho no Simulado</h2>
+                <div class="flex justify-center items-center gap-2 text-4xl sm:text-5xl font-extrabold text-blue-600 my-4">
+                    <span id="score-text">0</span>
+                    <span class="text-2xl text-slate-400 font-normal">/ 10</span>
+                </div>
+                <p id="feedback-message" class="text-slate-600 font-medium max-w-lg mx-auto mb-6 text-sm sm:text-base"></p>
+                <div class="flex justify-center gap-3">
+                    <button onclick="resetQuiz()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm py-2.5 px-5 rounded-lg transition-colors">
+                        Refazer Simulado
+                    </button>
+                    <a href="#q1" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-sm py-2.5 px-5 rounded-lg transition-colors">
+                        Revisar Resoluções
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Questions Container -->
+        <form id="quiz-form" onsubmit="return false;">
+
+            <!-- Questão 01 -->
+            <article id="q1" class="bg-white border border-[#e2dcd5] rounded-xl p-6 sm:p-8 mb-8 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="badge-number text-xs px-3 py-1 rounded-full">Questão 01</span>
+                    <span class="text-xs text-slate-500 font-medium">Banca FAURGS • Desenvolvimento Web</span>
+                </div>
+                <p class="text-slate-800 font-medium mb-4 text-base sm:text-lg">
+                    Considere as afirmações abaixo, relativas ao contêiner <code>&lt;form&gt;</code> e aos métodos de envio de dados em formulários na linguagem HTML5.
+                </p>
+                <div class="space-y-3 mb-6 text-slate-700 text-sm sm:text-base pl-2 border-l-2 border-slate-200">
+                    <p><strong>I -</strong> O atributo <code>action</code> especifica o endereço (URL ou <em>endpoint</em>) para onde os dados coletados no formulário deverão ser despachados após a submissão.</p>
+                    <p><strong>II -</strong> O método <code>GET</code> anexa os dados transmitidos diretamente na URL da requisição, sendo o método recomendado para o envio de dados sensíveis, como senhas e dados bancários.</p>
+                    <p><strong>III -</strong> O método <code>POST</code> empacota os dados no corpo (<em>body</em>) da requisição HTTP, impedindo que os dados fiquem visíveis na URL do navegador, sendo essencial para formulários de cadastro e <em>login</em>.</p>
+                </div>
+                <p class="font-semibold text-slate-800 mb-4">Quais estão corretas?</p>
+
+                <div class="space-y-3 mb-6" data-qindex="1">
+                    <div>
+                        <input type="radio" name="q1" id="q1_a" value="A" class="option-input hidden" onchange="markAnswered(1)">
+                        <label for="q1_a" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">A)</span>
+                            <span class="text-slate-700">Apenas I.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q1" id="q1_b" value="B" class="option-input hidden" onchange="markAnswered(1)">
+                        <label for="q1_b" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">B)</span>
+                            <span class="text-slate-700">Apenas II.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q1" id="q1_c" value="C" class="option-input hidden" onchange="markAnswered(1)">
+                        <label for="q1_c" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">C)</span>
+                            <span class="text-slate-700">Apenas III.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q1" id="q1_d" value="D" class="option-input hidden" onchange="markAnswered(1)">
+                        <label for="q1_d" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">D)</span>
+                            <span class="text-slate-700">Apenas I e III.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q1" id="q1_e" value="E" class="option-input hidden" onchange="markAnswered(1)">
+                        <label for="q1_e" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">E)</span>
+                            <span class="text-slate-700">I, II e III.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Resolução Comentada da Questão 01 -->
+                <div id="res-1" class="hidden mt-6 pt-6 border-t border-slate-200">
+                    <div class="bg-amber-50/70 border border-amber-200/80 rounded-lg p-5">
+                        <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Gabarito Comentado: Opção (D)
+                        </div>
+                        <p class="text-slate-700 text-sm leading-relaxed">
+                            A análise funcional das afirmações revela o papel do contêiner <code>&lt;form&gt;</code> e dos verbos HTTP na Web. A afirmação I está correta porque o atributo <code>action</code> é responsável por declarar o destino final dos dados submetidos pelo usuário, apontando para o script ou <em>endpoint</em> do servidor de aplicação que processará a requisição. A afirmação II está incorreta porque o método <code>GET</code> concatenará os pares de chave e valor diretamente na URL da página, tornando as informações totalmente expostas na barra de endereços, nos registros de histórico e nos logs de servidores de proxy. Essa exposição torna o método <code>GET</code> estritamente contraindicado para o envio de dados sensíveis ou confidenciais, devendo ser utilizado primordialmente para operações de consulta ou busca legíveis. A afirmação III está correta pois o método <code>POST</code> encapsula os dados dentro do corpo da mensagem HTTP, garantindo que valores como senhas e dados cadastrais não sejam exibidos na URL, sendo o padrão para operações que alteram o estado da aplicação no backend.
+                        </p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Questão 02 -->
+            <article id="q2" class="bg-white border border-[#e2dcd5] rounded-xl p-6 sm:p-8 mb-8 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="badge-number text-xs px-3 py-1 rounded-full">Questão 02</span>
+                    <span class="text-xs text-slate-500 font-medium">Banca FAURGS • Desenvolvimento Web</span>
+                </div>
+                <p class="text-slate-800 font-medium mb-6 text-base sm:text-lg">
+                    No desenvolvimento de interfaces Web funcionais e acessíveis, a utilização do elemento <code>&lt;label&gt;</code> desempenha papel central na usabilidade e na experiência do usuário (<em>UX</em>). Em relação à amarração sintática entre o rótulo <code>&lt;label&gt;</code> e o campo de entrada <code>&lt;input&gt;</code>, assinale a alternativa correta.
+                </p>
+
+                <div class="space-y-3 mb-6" data-qindex="2">
+                    <div>
+                        <input type="radio" name="q2" id="q2_a" value="A" class="option-input hidden" onchange="markAnswered(2)">
+                        <label for="q2_a" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">A)</span>
+                            <span class="text-slate-700">O atributo <code>name</code> do elemento <code>&lt;label&gt;</code> deve possuir obrigatoriamente valor idêntico ao atributo <code>class</code> da tag <code>&lt;input&gt;</code> correspondente.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q2" id="q2_b" value="B" class="option-input hidden" onchange="markAnswered(2)">
+                        <label for="q2_b" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">B)</span>
+                            <span class="text-slate-700">O atributo <code>for</code> da tag <code>&lt;label&gt;</code> deve conter exatamente o mesmo valor do atributo <code>id</code> presente na tag <code>&lt;input&gt;</code> correspondente.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q2" id="q2_c" value="C" class="option-input hidden" onchange="markAnswered(2)">
+                        <label for="q2_c" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">C)</span>
+                            <span class="text-slate-700">Ao clicar sobre o texto contido na tag <code>&lt;label&gt;</code>, o cursor inativa automaticamente o campo <code>&lt;input&gt;</code> associado para evitar edições acidentais.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q2" id="q2_d" value="D" class="option-input hidden" onchange="markAnswered(2)">
+                        <label for="q2_d" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">D)</span>
+                            <span class="text-slate-700">A utilização da tag <code>&lt;label&gt;</code> elimina a necessidade do atributo <code>name</code> no campo <code>&lt;input&gt;</code> para a transmissão de variáveis ao servidor.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q2" id="q2_e" value="E" class="option-input hidden" onchange="markAnswered(2)">
+                        <label for="q2_e" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">E)</span>
+                            <span class="text-slate-700">A amarração via atributo <code>for</code> aplica-se exclusivamente a campos do tipo <code>type="text"</code>, sendo incompatível com caixas de seleção do tipo <code>checkbox</code> ou <code>radio</code>.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Resolução Comentada da Questão 02 -->
+                <div id="res-2" class="hidden mt-6 pt-6 border-t border-slate-200">
+                    <div class="bg-amber-50/70 border border-amber-200/80 rounded-lg p-5">
+                        <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Gabarito Comentado: Opção (B)
+                        </div>
+                        <p class="text-slate-700 text-sm leading-relaxed">
+                            A integração adequada entre a tag <code>&lt;label&gt;</code> e os elementos de entrada garante a acessibilidade para leitores de tela e a usabilidade em dispositivos móveis ou de toque. O mecanismo de amarração do HTML5 exige que o atributo <code>for</code> do elemento <code>&lt;label&gt;</code> referencie rigorosamente o identificador único definido no atributo <code>id</code> do elemento <code>&lt;input&gt;</code> correspondente. Essa associação cria um vínculo na árvore do DOM que permite que o acionamento do rótulo transfira o foco do sistema diretamente para o campo de entrada associado. As demais alternativas incorrem em equívocos conceituais: o atributo <code>name</code> serve para identificação do dado no backend e não para vinculação visual de rótulos; o clique no rótulo ativa o campo em vez de inativá-lo; a presença do rótulo não substitui o atributo <code>name</code>; e a associação via <code>for</code> aplica-se a todos os tipos de controles, incluindo caixas de seleção e botões de rádio.
+                        </p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Questão 03 -->
+            <article id="q3" class="bg-white border border-[#e2dcd5] rounded-xl p-6 sm:p-8 mb-8 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="badge-number text-xs px-3 py-1 rounded-full">Questão 03</span>
+                    <span class="text-xs text-slate-500 font-medium">Banca FAURGS • Desenvolvimento Web</span>
+                </div>
+                <p class="text-slate-800 font-medium mb-4 text-base sm:text-lg">
+                    Um desenvolvedor Web construiu um formulário de cadastro contendo diversos campos de entrada. Durante os testes de integração com o servidor de aplicação, constatou-se que um dos campos preenchidos pelo usuário no navegador não teve seu valor incluído na requisição HTTP no momento da submissão.
+                </p>
+                <p class="text-slate-800 font-medium mb-6 text-base sm:text-lg">
+                    Considerando as regras de especificação do HTML5, a ausência de qual atributo na tag <code>&lt;input&gt;</code> causou a não transmissão do dado ao servidor?
+                </p>
+
+                <div class="space-y-3 mb-6" data-qindex="3">
+                    <div>
+                        <input type="radio" name="q3" id="q3_a" value="A" class="option-input hidden" onchange="markAnswered(3)">
+                        <label for="q3_a" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">A)</span>
+                            <span class="text-slate-700"><code>id</code></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q3" id="q3_b" value="B" class="option-input hidden" onchange="markAnswered(3)">
+                        <label for="q3_b" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">B)</span>
+                            <span class="text-slate-700"><code>placeholder</code></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q3" id="q3_c" value="C" class="option-input hidden" onchange="markAnswered(3)">
+                        <label for="q3_c" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">C)</span>
+                            <span class="text-slate-700"><code>name</code></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q3" id="q3_d" value="D" class="option-input hidden" onchange="markAnswered(3)">
+                        <label for="q3_d" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">D)</span>
+                            <span class="text-slate-700"><code>for</code></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q3" id="q3_e" value="E" class="option-input hidden" onchange="markAnswered(3)">
+                        <label for="q3_e" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">E)</span>
+                            <span class="text-slate-700"><code>title</code></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Resolução Comentada da Questão 03 -->
+                <div id="res-3" class="hidden mt-6 pt-6 border-t border-slate-200">
+                    <div class="bg-amber-50/70 border border-amber-200/80 rounded-lg p-5">
+                        <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Gabarito Comentado: Opção (C)
+                        </div>
+                        <p class="text-slate-700 text-sm leading-relaxed">
+                            O atributo <code>name</code> funciona como o identificador da variável que transporta o dado do cliente para o servidor. Quando o navegador realiza a leitura dos campos contidos dentro de um contêiner <code>&lt;form&gt;</code> no momento do envio, ele constrói um conjunto de dados conhecido como <em>form data set</em>. Apenas os controles de entrada que possuem o atributo <code>name</code> devidamente preenchido são incluídos nessa estrutura. A ausência de <code>name</code> faz com que o valor digitado pelo usuário seja totalmente desconsiderado no fluxo de montagem do pacote HTTP, fazendo com que o servidor receba uma requisição sem a chave correspondente. Atributos como <code>id</code> e <code>placeholder</code> servem, respectivamente, para manipulação via CSS/JavaScript/rótulos e para exibição de texto de ajuda visual dentro do campo, não interferindo na transmissão das variáveis de backend.
+                        </p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Questão 04 -->
+            <article id="q4" class="bg-white border border-[#e2dcd5] rounded-xl p-6 sm:p-8 mb-8 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="badge-number text-xs px-3 py-1 rounded-full">Questão 04</span>
+                    <span class="text-xs text-slate-500 font-medium">Banca FAURGS • Desenvolvimento Web</span>
+                </div>
+                <p class="text-slate-800 font-medium mb-6 text-base sm:text-lg">
+                    Com relação à interface gráfica e aos elementos de seleção em formulários Web, assinale a alternativa correta quanto à correta aplicação das ferramentas gráficas e à codificação em HTML5.
+                </p>
+
+                <div class="space-y-3 mb-6" data-qindex="4">
+                    <div>
+                        <input type="radio" name="q4" id="q4_a" value="A" class="option-input hidden" onchange="markAnswered(4)">
+                        <label for="q4_a" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">A)</span>
+                            <span class="text-slate-700">Campos em que apenas um valor pode ser escolhido dentro de um grupo de opções devem ser implementados obrigatoriamente com o tipo <code>checkbox</code>.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q4" id="q4_b" value="B" class="option-input hidden" onchange="markAnswered(4)">
+                        <label for="q4_b" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">B)</span>
+                            <span class="text-slate-700">Campos do tipo <code>radio</code> pertencentes ao mesmo grupo de seleção única devem compartilhar obrigatoriamente o mesmo valor no atributo <code>name</code>.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q4" id="q4_c" value="C" class="option-input hidden" onchange="markAnswered(4)">
+                        <label for="q4_c" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">C)</span>
+                            <span class="text-slate-700">Campos que permitem ao usuário selecionar múltiplos valores simultaneamente, ou até mesmo nenhum deles, devem ser codificados obrigatoriamente com o tipo <code>radio</code>.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q4" id="q4_d" value="D" class="option-input hidden" onchange="markAnswered(4)">
+                        <label for="q4_d" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">D)</span>
+                            <span class="text-slate-700">Para pré-selecionar uma opção em um grupo do tipo <code>checkbox</code> na carga inicial da página, utiliza-se o atributo <code>selected</code> no lugar do atributo <code>checked</code>.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q4" id="q4_e" value="E" class="option-input hidden" onchange="markAnswered(4)">
+                        <label for="q4_e" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">E)</span>
+                            <span class="text-slate-700">O uso de caixas de texto multilinha (<code>&lt;textarea&gt;</code>) é recomendado para substituir grupos de botões de rádio quando a quantidade de opções for pequena.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Resolução Comentada da Questão 04 -->
+                <div id="res-4" class="hidden mt-6 pt-6 border-t border-slate-200">
+                    <div class="bg-amber-50/70 border border-amber-200/80 rounded-lg p-5">
+                        <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Gabarito Comentado: Opção (B)
+                        </div>
+                        <p class="text-slate-700 text-sm leading-relaxed">
+                            A modelagem de interfaces de escolha no HTML5 diferencia-se pelo tipo de dado esperado. Quando a regra de negócio exige que o usuário escolha exatamente um único item dentro de um conjunto exclusivo de opções, a ferramenta gráfica correta é o <em>radio button</em> (<code>type="radio"</code>). Para que o navegador compreenda que múltiplos botões de rádio pertencem ao mesmo grupo de exclusão mútua — garantindo que a marcação de uma opção desmarque automaticamente a opção anterior —, todos os botões desse grupo precisam compartilhar obrigatoriamente exatamente o mesmo valor no atributo <code>name</code>. A alternativa A está incorreta pois o tipo <code>checkbox</code> permite seleções múltiplas independentes; a alternativa C inverte a lógica ao atribuir ao botão de rádio a capacidade de seleção múltipla; a alternativa D comete um erro de sintaxe ao citar <code>selected</code>, que pertence a <code>&lt;option&gt;</code>, em vez de <code>checked</code>; e a alternativa E confunde um controle de escolha pré-definida com um campo de texto livre multilinha.
+                        </p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Questão 05 -->
+            <article id="q5" class="bg-white border border-[#e2dcd5] rounded-xl p-6 sm:p-8 mb-8 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="badge-number text-xs px-3 py-1 rounded-full">Questão 05</span>
+                    <span class="text-xs text-slate-500 font-medium">Banca FAURGS • Desenvolvimento Web</span>
+                </div>
+                <p class="text-slate-800 font-medium mb-6 text-base sm:text-lg">
+                    O HTML5 fornece atributos de controle que alteram o comportamento de edição e submissão de campos em formulários, como <code>readonly</code> e <code>disabled</code>. Assinale a alternativa que descreve de forma correta a diferença de comportamento entre esses dois atributos.
+                </p>
+
+                <div class="space-y-3 mb-6" data-qindex="5">
+                    <div>
+                        <input type="radio" name="q5" id="q5_a" value="A" class="option-input hidden" onchange="markAnswered(5)">
+                        <label for="q5_a" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">A)</span>
+                            <span class="text-slate-700">O atributo <code>readonly</code> bloqueia a edição do campo e impede o envio do seu dado ao servidor; já o atributo <code>disabled</code> inativa o campo visualmente, mas submete o dado ao servidor.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q5" id="q5_b" value="B" class="option-input hidden" onchange="markAnswered(5)">
+                        <label for="q5_b" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">B)</span>
+                            <span class="text-slate-700">O atributo <code>readonly</code> bloqueia a alteração do valor pelo usuário, porém envia o dado ao servidor no momento da submissão; já o atributo <code>disabled</code> inativa o campo e faz com que o dado NÃO seja enviado ao servidor.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q5" id="q5_c" value="C" class="option-input hidden" onchange="markAnswered(5)">
+                        <label for="q5_c" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">C)</span>
+                            <span class="text-slate-700">Ambos os atributos impedem a edição do campo e ambos impedem o envio do dado ao servidor, diferindo apenas na estilização gráfica padrão aplicada pelos navegadores.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q5" id="q5_d" value="D" class="option-input hidden" onchange="markAnswered(5)">
+                        <label for="q5_d" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">D)</span>
+                            <span class="text-slate-700">O atributo <code>disabled</code> aplica-se exclusivamente a elementos do tipo <code>&lt;select&gt;</code>, enquanto <code>readonly</code> só pode ser aplicado a campos do tipo <code>&lt;input type="file"&gt;</code>.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q5" id="q5_e" value="E" class="option-input hidden" onchange="markAnswered(5)">
+                        <label for="q5_e" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">E)</span>
+                            <span class="text-slate-700">O atributo <code>disabled</code> permite que o campo receba foco via navegação por teclado (tecla Tab), enquanto o atributo <code>readonly</code> remove completamente o elemento da árvore acessível do documento.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Resolução Comentada da Questão 05 -->
+                <div id="res-5" class="hidden mt-6 pt-6 border-t border-slate-200">
+                    <div class="bg-amber-50/70 border border-amber-200/80 rounded-lg p-5">
+                        <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Gabarito Comentado: Opção (B)
+                        </div>
+                        <p class="text-slate-700 text-sm leading-relaxed">
+                            A especificação do HTML5 estabelece diferenças comportamentais marcantes entre os atributos booleanos <code>readonly</code> e <code>disabled</code>. O atributo <code>readonly</code> impede a alteração direta do valor do campo pelo usuário final, mas preserva a sua participação ativa no formulário. Consequentemente, o elemento com <code>readonly</code> continua sendo focalizável via navegação por teclado e seu valor é empacotado e enviado normalmente ao servidor durante a submissão. Em contrapartida, o atributo <code>disabled</code> inativa o elemento por completo. Um controle marcado como <code>disabled</code> não recebe foco, não pode ser editado e tem sua participação revogada na construção do conjunto de dados de submissão, fazendo com que o navegador omita totalmente seu nome e seu valor do pacote HTTP despachado ao servidor.
+                        </p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Questão 06 -->
+            <article id="q6" class="bg-white border border-[#e2dcd5] rounded-xl p-6 sm:p-8 mb-8 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="badge-number text-xs px-3 py-1 rounded-full">Questão 06</span>
+                    <span class="text-xs text-slate-500 font-medium">Banca FAURGS • Desenvolvimento Web</span>
+                </div>
+                <p class="text-slate-800 font-medium mb-4 text-base sm:text-lg">
+                    Assinale as afirmações abaixo com <strong>V</strong> (verdadeiro) ou <strong>F</strong> (falso) no que se refere aos mecanismos de validação nativa sem JavaScript e aos atributos de suporte em HTML5.
+                </p>
+                <div class="space-y-2 mb-4 text-slate-700 text-sm sm:text-base pl-2 border-l-2 border-slate-200">
+                    <p>( ) O atributo <code>required</code> torna o preenchimento ou a seleção do campo obrigatório antes que o formulário possa ser submetido ao servidor.</p>
+                    <p>( ) O atributo <code>placeholder</code> fornece uma dica de preenchimento dentro do campo, substituindo a necessidade semântica da utilização da tag <code>&lt;label&gt;</code>.</p>
+                    <p>( ) O atributo <code>pattern</code> permite aplicar restrições de formato aos dados do campo por meio de expressões regulares (<em>regex</em>).</p>
+                    <p>( ) Os atributos <code>minlength</code> e <code>maxlength</code> estabelecem, respectivamente, a quantidade mínima e máxima de caracteres permitidos em um campo de entrada textual.</p>
+                </div>
+                <p class="font-semibold text-slate-800 mb-4">A sequência correta de preenchimento dos parênteses, de cima para baixo, é:</p>
+
+                <div class="space-y-3 mb-6" data-qindex="6">
+                    <div>
+                        <input type="radio" name="q6" id="q6_a" value="A" class="option-input hidden" onchange="markAnswered(6)">
+                        <label for="q6_a" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">A)</span>
+                            <span class="text-slate-700">V – F – V – V.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q6" id="q6_b" value="B" class="option-input hidden" onchange="markAnswered(6)">
+                        <label for="q6_b" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">B)</span>
+                            <span class="text-slate-700">V – V – F – V.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q6" id="q6_c" value="C" class="option-input hidden" onchange="markAnswered(6)">
+                        <label for="q6_c" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">C)</span>
+                            <span class="text-slate-700">F – V – V – F.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q6" id="q6_d" value="D" class="option-input hidden" onchange="markAnswered(6)">
+                        <label for="q6_d" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">D)</span>
+                            <span class="text-slate-700">F – F – V – V.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q6" id="q6_e" value="E" class="option-input hidden" onchange="markAnswered(6)">
+                        <label for="q6_e" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">E)</span>
+                            <span class="text-slate-700">V – F – F – V.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Resolução Comentada da Questão 06 -->
+                <div id="res-6" class="hidden mt-6 pt-6 border-t border-slate-200">
+                    <div class="bg-amber-50/70 border border-amber-200/80 rounded-lg p-5">
+                        <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Gabarito Comentado: Opção (A)
+                        </div>
+                        <p class="text-slate-700 text-sm leading-relaxed">
+                            A verificação das assertivas sobre validação nativa sem uso de scripts em HTML5 confirma a sequência V – F – V – V. A primeira afirmativa é verdadeira pois o atributo <code>required</code> instrui o motor do navegador a validar o estado de preenchimento do campo antes de permitir o envio dos dados. A segunda afirmativa é falsa porque o atributo <code>placeholder</code> exibe apenas uma dica textual transiente dentro do campo, não possuindo valor semântico de acessibilidade nem substituindo o papel estrutural do elemento <code>&lt;label&gt;</code>. A terceira afirmativa é verdadeira pois o atributo <code>pattern</code> aceita expressões regulares com base nas quais a entrada textual do usuário é validada nativamente. A quarta afirmativa é verdadeira pois <code>minlength</code> e <code>maxlength</code> controlam diretamente a quantidade mínima e máxima de caracteres aceitos na entrada de dados textuais.
+                        </p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Questão 07 -->
+            <article id="q7" class="bg-white border border-[#e2dcd5] rounded-xl p-6 sm:p-8 mb-8 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="badge-number text-xs px-3 py-1 rounded-full">Questão 07</span>
+                    <span class="text-xs text-slate-500 font-medium">Banca FAURGS • Desenvolvimento Web</span>
+                </div>
+                <p class="text-slate-800 font-medium mb-4 text-base sm:text-lg">
+                    Considere o trecho de código HTML5 extraído de uma aplicação Web de gestão de projetos:
+                </p>
+
+                <div class="code-block mb-4">
+<pre><code>&lt;div&gt;
+    &lt;label for="campo-arquivo"&gt;Resumo do Projeto (PDF): &lt;/label&gt;
+    &lt;input type="file" id="campo-arquivo" name="documento_resumo" accept=".pdf"&gt;
+&lt;/div&gt;
+&lt;div&gt;
+    &lt;label for="campo-horas"&gt;Dedicação Semanal Estimada (Horas):&lt;/label&gt;
+    &lt;input type="range" id="campo-horas" name="horas_semanais" min="2" max="20" value="4" step="2"&gt;
+&lt;/div&gt;</code></pre>
+                </div>
+
+                <p class="text-slate-800 font-medium mb-4 text-base sm:text-lg">
+                    Em relação aos elementos e atributos do trecho acima, considere as seguintes afirmações:
+                </p>
+                <div class="space-y-3 mb-6 text-slate-700 text-sm sm:text-base pl-2 border-l-2 border-slate-200">
+                    <p><strong>I -</strong> O atributo <code>accept=".pdf"</code> no elemento <code>&lt;input type="file"&gt;</code> restringe os tipos de arquivos aceitos na caixa de diálogo de seleção do sistema operacional para extensões <code>.pdf</code>.</p>
+                    <p><strong>II -</strong> O elemento <code>&lt;input type="range"&gt;</code> renderiza um controle deslizante cujos limites mínimos, máximos, valor inicial e intervalo de variação são definidos pelos atributos <code>min</code>, <code>max</code>, <code>value</code> e <code>step</code>, respectivamente.</p>
+                    <p><strong>III -</strong> Para realizar o envio com sucesso de arquivos através do elemento <code>&lt;input type="file"&gt;</code>, o formulário pai deve obrigatoriamente utilizar o método <code>GET</code>.</p>
+                </div>
+                <p class="font-semibold text-slate-800 mb-4">Quais estão corretas?</p>
+
+                <div class="space-y-3 mb-6" data-qindex="7">
+                    <div>
+                        <input type="radio" name="q7" id="q7_a" value="A" class="option-input hidden" onchange="markAnswered(7)">
+                        <label for="q7_a" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">A)</span>
+                            <span class="text-slate-700">Apenas I.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q7" id="q7_b" value="B" class="option-input hidden" onchange="markAnswered(7)">
+                        <label for="q7_b" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">B)</span>
+                            <span class="text-slate-700">Apenas II.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q7" id="q7_c" value="C" class="option-input hidden" onchange="markAnswered(7)">
+                        <label for="q7_c" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">C)</span>
+                            <span class="text-slate-700">Apenas I e II.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q7" id="q7_d" value="D" class="option-input hidden" onchange="markAnswered(7)">
+                        <label for="q7_d" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">D)</span>
+                            <span class="text-slate-700">Apenas II e III.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q7" id="q7_e" value="E" class="option-input hidden" onchange="markAnswered(7)">
+                        <label for="q7_e" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">E)</span>
+                            <span class="text-slate-700">I, II e III.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Resolução Comentada da Questão 07 -->
+                <div id="res-7" class="hidden mt-6 pt-6 border-t border-slate-200">
+                    <div class="bg-amber-50/70 border border-amber-200/80 rounded-lg p-5">
+                        <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Gabarito Comentado: Opção (C)
+                        </div>
+                        <p class="text-slate-700 text-sm leading-relaxed">
+                            A análise dos controles específicos revela a veracidade das afirmações I e II. A afirmação I está correta pois o atributo <code>accept</code> especifica os tipos de arquivos que o controle de <em>upload</em> (<code>type="file"</code>) deve aceitar, orientando a caixa de diálogo do sistema operacional a filtrar as extensões desejadas, como <code>.pdf</code>. A afirmação II está correta pois o elemento <code>&lt;input type="range"&gt;</code> renderiza um controle deslizante numérico configurado via atributos de limite e passo (<code>min</code>, <code>max</code>, <code>value</code> e <code>step</code>). A afirmação III está incorreta porque o envio de arquivos requer o transporte de payloads binários complexos, o que exige obrigatoriamente a utilização do método <code>POST</code> combinado com o tipo de codificação <code>multipart/form-data</code> no formulário pai, sendo o método <code>GET</code> completamente inapropriado para a transferência de arquivos.
+                        </p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Questão 08 -->
+            <article id="q8" class="bg-white border border-[#e2dcd5] rounded-xl p-6 sm:p-8 mb-8 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="badge-number text-xs px-3 py-1 rounded-full">Questão 08</span>
+                    <span class="text-xs text-slate-500 font-medium">Banca FAURGS • Desenvolvimento Web</span>
+                </div>
+                <p class="text-slate-800 font-medium mb-6 text-base sm:text-lg">
+                    Na construção de formulários extensos e complexos, o HTML5 disponibiliza elementos estruturais específicos para promover o agrupamento semântico e visual de seções da interface. Assinale a alternativa que indica corretamente a combinação de elementos responsável por agrupar um conjunto de campos relacionados e fornecer um título semântico a esse grupo, respectivamente.
+                </p>
+
+                <div class="space-y-3 mb-6" data-qindex="8">
+                    <div>
+                        <input type="radio" name="q8" id="q8_a" value="A" class="option-input hidden" onchange="markAnswered(8)">
+                        <label for="q8_a" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">A)</span>
+                            <span class="text-slate-700"><code>&lt;form&gt;</code> e <code>&lt;label&gt;</code></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q8" id="q8_b" value="B" class="option-input hidden" onchange="markAnswered(8)">
+                        <label for="q8_b" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">B)</span>
+                            <span class="text-slate-700"><code>&lt;fieldset&gt;</code> e <code>&lt;legend&gt;</code></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q8" id="q8_c" value="C" class="option-input hidden" onchange="markAnswered(8)">
+                        <label for="q8_c" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">C)</span>
+                            <span class="text-slate-700"><code>&lt;div&gt;</code> e <code>&lt;p&gt;</code></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q8" id="q8_d" value="D" class="option-input hidden" onchange="markAnswered(8)">
+                        <label for="q8_d" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">D)</span>
+                            <span class="text-slate-700"><code>&lt;select&gt;</code> e <code>&lt;option&gt;</code></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q8" id="q8_e" value="E" class="option-input hidden" onchange="markAnswered(8)">
+                        <label for="q8_e" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">E)</span>
+                            <span class="text-slate-700"><code>&lt;section&gt;</code> e <code>&lt;header&gt;</code></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Resolução Comentada da Questão 08 -->
+                <div id="res-8" class="hidden mt-6 pt-6 border-t border-slate-200">
+                    <div class="bg-amber-50/70 border border-amber-200/80 rounded-lg p-5">
+                        <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Gabarito Comentado: Opção (B)
+                        </div>
+                        <p class="text-slate-700 text-sm leading-relaxed">
+                            A estruturação semântica de formulários no HTML5 utiliza a combinação dos elementos <code>&lt;fieldset&gt;</code> e <code>&lt;legend&gt;</code> para organizar visual e conceitualmente seções de dados relacionadas em uma interface. O elemento <code>&lt;fieldset&gt;</code> atua como o contêiner delimitador que agrupa logicamente os controles de entrada pertinentes a uma determinada etapa ou categoria do cadastro. O elemento <code>&lt;legend&gt;</code>, por sua vez, deve ser posicionado imediatamente após a abertura do <code>&lt;fieldset&gt;</code> para definir o título semântico e visível daquela seção. Essa combinação melhora significativamente a experiência de navegação e possibilita que tecnologias assistivas anunciem o contexto do grupo de campos ao usuário durante o preenchimento.
+                        </p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Questão 09 -->
+            <article id="q9" class="bg-white border border-[#e2dcd5] rounded-xl p-6 sm:p-8 mb-8 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="badge-number text-xs px-3 py-1 rounded-full">Questão 09</span>
+                    <span class="text-xs text-slate-500 font-medium">Banca FAURGS • Desenvolvimento Web</span>
+                </div>
+                <p class="text-slate-800 font-medium mb-4 text-base sm:text-lg">
+                    Deseja-se implementar dois controles em uma página Web:
+                </p>
+                <div class="space-y-2 mb-4 text-slate-700 text-sm sm:text-base pl-2 border-l-2 border-slate-200">
+                    <p><strong>1.</strong> Um menu suspenso (<em>dropdown</em>) para seleção do estado de origem a partir de uma lista pré-definida de opções.</p>
+                    <p><strong>2.</strong> Uma caixa de texto redimensionável voltada para o recebimento de comentários extensos em múltiplas linhas.</p>
+                </div>
+                <p class="text-slate-800 font-medium mb-6 text-base sm:text-lg">
+                    Para atender às duas especificações acima, devem ser utilizados, respectivamente, os elementos HTML:
+                </p>
+
+                <div class="space-y-3 mb-6" data-qindex="9">
+                    <div>
+                        <input type="radio" name="q9" id="q9_a" value="A" class="option-input hidden" onchange="markAnswered(9)">
+                        <label for="q9_a" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">A)</span>
+                            <span class="text-slate-700"><code>&lt;input type="text"&gt;</code> e <code>&lt;textarea&gt;</code></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q9" id="q9_b" value="B" class="option-input hidden" onchange="markAnswered(9)">
+                        <label for="q9_b" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">B)</span>
+                            <span class="text-slate-700"><code>&lt;select&gt;</code> (com elementos <code>&lt;option&gt;</code>) e <code>&lt;textarea&gt;</code></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q9" id="q9_c" value="C" class="option-input hidden" onchange="markAnswered(9)">
+                        <label for="q9_c" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">C)</span>
+                            <span class="text-slate-700"><code>&lt;fieldset&gt;</code> e <code>&lt;input type="email"&gt;</code></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q9" id="q9_d" value="D" class="option-input hidden" onchange="markAnswered(9)">
+                        <label for="q9_d" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">D)</span>
+                            <span class="text-slate-700"><code>&lt;select&gt;</code> (com elementos <code>&lt;option&gt;</code>) e <code>&lt;input type="text"&gt;</code></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q9" id="q9_e" value="E" class="option-input hidden" onchange="markAnswered(9)">
+                        <label for="q9_e" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">E)</span>
+                            <span class="text-slate-700"><code>&lt;textarea&gt;</code> e <code>&lt;select&gt;</code> (com elementos <code>&lt;option&gt;</code>)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Resolução Comentada da Questão 09 -->
+                <div id="res-9" class="hidden mt-6 pt-6 border-t border-slate-200">
+                    <div class="bg-amber-50/70 border border-amber-200/80 rounded-lg p-5">
+                        <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Gabarito Comentado: Opção (B)
+                        </div>
+                        <p class="text-slate-700 text-sm leading-relaxed">
+                            A especificação HTML5 define elementos nativos para a seleção de listas e a entrada de textos longos. A construção de menus suspensos do tipo <em>dropdown</em>, onde o usuário seleciona uma opção entre diversas alternativas pré-definidas, é realizada pelo contêiner <code>&lt;select&gt;</code>, que envolve múltiplos elementos de opção <code>&lt;option&gt;</code>. Por sua vez, a captura de conteúdos textuais extensos contendo múltiplas linhas, comentários ou descrições personalizadas exige a utilização do elemento <code>&lt;textarea&gt;</code>. Diferente de um campo <code>&lt;input type="text"&gt;</code>, que é restrito a uma única linha de texto simples, o <code>&lt;textarea&gt;</code> suporta quebras de linha nativas e redimensionamento visual de área.
+                        </p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Questão 10 -->
+            <article id="q10" class="bg-white border border-[#e2dcd5] rounded-xl p-6 sm:p-8 mb-8 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="badge-number text-xs px-3 py-1 rounded-full">Questão 10</span>
+                    <span class="text-xs text-slate-500 font-medium">Banca FAURGS • Desenvolvimento Web</span>
+                </div>
+                <p class="text-slate-800 font-medium mb-4 text-base sm:text-lg">
+                    Análise os botões definidos no bloco de ações de um formulário HTML5 descrito a seguir:
+                </p>
+
+                <div class="code-block mb-4">
+<pre><code>&lt;div&gt;
+    &lt;button type="submit"&gt;Enviar Inscrição&lt;/button&gt;
+    &lt;button type="reset"&gt;Limpar Tudo&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+                </div>
+
+                <p class="text-slate-800 font-medium mb-6 text-base sm:text-lg">
+                    Com relação ao comportamento nativo desses botões quando acionados pelo usuário no navegador, assinale a alternativa correta.
+                </p>
+
+                <div class="space-y-3 mb-6" data-qindex="10">
+                    <div>
+                        <input type="radio" name="q10" id="q10_a" value="A" class="option-input hidden" onchange="markAnswered(10)">
+                        <label for="q10_a" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">A)</span>
+                            <span class="text-slate-700">O botão com <code>type="submit"</code> restaura todos os campos do formulário aos seus valores iniciais padrão, enquanto o botão com <code>type="reset"</code> executa a submissão dos dados.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q10" id="q10_b" value="B" class="option-input hidden" onchange="markAnswered(10)">
+                        <label for="q10_b" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">B)</span>
+                            <span class="text-slate-700">O botão com <code>type="reset"</code> aciona o envio dos dados diretamente para a URL especificada no atributo <code>action</code>, ignorando as regras de validação nativas.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q10" id="q10_c" value="C" class="option-input hidden" onchange="markAnswered(10)">
+                        <label for="q10_c" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">C)</span>
+                            <span class="text-slate-700">O botão com <code>type="submit"</code> dispara o processo de validação nativa do navegador e, se os campos estiverem válidos, efetua a submissão dos dados para a URL definida no atributo <code>action</code>.</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q10" id="q10_d" value="D" class="option-input hidden" onchange="markAnswered(10)">
+                        <label for="q10_d" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">D)</span>
+                            <span class="text-slate-700">O botão com <code>type="reset"</code> limpa o conteúdo dos campos de texto, mas não possui nenhum efeito sobre caixas de seleção do tipo <code>checkbox</code> ou botões de rádio (<code>radio</code>).</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="q10" id="q10_e" value="E" class="option-input hidden" onchange="markAnswered(10)">
+                        <label for="q10_e" class="option-label flex items-start p-3.5 rounded-lg cursor-pointer">
+                            <span class="font-bold text-slate-500 mr-3">E)</span>
+                            <span class="text-slate-700">O botão com <code>type="submit"</code> exige a presença de scripts JavaScript acoplados ao evento <code>onclick</code> para conseguir enviar os dados do formulário ao servidor.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Resolução Comentada da Questão 10 -->
+                <div id="res-10" class="hidden mt-6 pt-6 border-t border-slate-200">
+                    <div class="bg-amber-50/70 border border-amber-200/80 rounded-lg p-5">
+                        <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Gabarito Comentado: Opção (C)
+                        </div>
+                        <p class="text-slate-700 text-sm leading-relaxed">
+                            Os botões de ação nativos dentro de um formulário executam comportamentos predefinidos no navegador conforme o valor atribuído ao atributo <code>type</code>. O botão configurado com <code>type="submit"</code> atua como o gatilho de validação e envio do formulário. Ao ser pressionado, o navegador interrompe temporariamente o envio para checar todas as regras de validação nativas declaradas nos campos; se nenhuma violação for encontrada, os dados são empacotados e transmitidos para o destino declarado no atributo <code>action</code>. O botão configurado com <code>type="reset"</code> possui a função exclusiva de restaurar o estado visual de todos os controles contidos no formulário aos seus valores iniciais originais, limpando dados digitados e redefinindo caixas de seleção.
+                        </p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Bottom Submission Button -->
+            <div class="text-center py-6">
+                <button type="button" id="btn-submit-bottom" onclick="finishQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-base py-3.5 px-8 rounded-xl shadow-md transition-all">
+                    Finalizar Quiz e Ver Resoluções
+                </button>
+            </div>
+
+        </form>
+    </main>
+
+    <script>
+        // Official Answer Key Mapping
+        const answerKey = {
+            1: "D",
+            2: "B",
+            3: "C",
+            4: "B",
+            5: "B",
+            6: "A",
+            7: "C",
+            8: "B",
+            9: "B",
+            10: "C"
+        };
+
+        const answeredQuestions = new Set();
+        let isSubmitted = false;
+
+        // Tracks filled answers count
+        function markAnswered(questionNumber) {
+            answeredQuestions.add(questionNumber);
+            document.getElementById('answered-count').textContent = answeredQuestions.size;
+        }
+
+        // Submits quiz, evaluates score, displays target answers and shows detailed explanations
+        function finishQuiz() {
+            if (isSubmitted) {
+                // Scroll up to results if already submitted
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
+            let score = 0;
+            const total = 10;
+
+            for (let i = 1; i <= total; i++) {
+                const correctAns = answerKey[i];
+                const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                const userVal = selectedOption ? selectedOption.value : null;
+
+                // Reveal the explanation block on the same page
+                const resBlock = document.getElementById(`res-${i}`);
+                if (resBlock) {
+                    resBlock.classList.remove('hidden');
+                }
+
+                // Apply correct / incorrect styling
+                const optionContainer = document.querySelector(`[data-qindex="${i}"]`);
+                if (optionContainer) {
+                    const allLabels = optionContainer.querySelectorAll('.option-label');
+                    allLabels.forEach(label => {
+                        const targetFor = label.getAttribute('for');
+                        const input = document.getElementById(targetFor);
+
+                        // Disable inputs so user doesn't alter after evaluation
+                        input.disabled = true;
+
+                        if (input.value === correctAns) {
+                            label.classList.add('correct-target');
+                        } else if (selectedOption && input.id === selectedOption.id) {
+                            label.classList.add('incorrect-selected');
+                        }
+                    });
+                }
+
+                if (userVal === correctAns) {
+                    score++;
+                }
+            }
+
+            // Show score summary block
+            const resultsSummary = document.getElementById('results-summary');
+            const scoreText = document.getElementById('score-text');
+            const feedbackMsg = document.getElementById('feedback-message');
+
+            scoreText.textContent = score;
+
+            let percentage = (score / total) * 100;
+            if (percentage >= 80) {
+                feedbackMsg.textContent = `Excelente desempenho! Você acertou ${score} de 10 questões (${percentage}%). Seu domínio dos formulários em HTML5 no estilo FAURGS é muito elevado.`;
+            } else if (percentage >= 50) {
+                feedbackMsg.textContent = `Bom resultado! Você acertou ${score} de 10 questões (${percentage}%). Revise os gabaritos comentados abaixo para consolidar os detalhes específicos da banca.`;
+            } else {
+                feedbackMsg.textContent = `Você acertou ${score} de 10 questões (${percentage}%). Recomendamos a leitura atenta das resoluções detalhadas abaixo para reforçar a teoria do HTML5.`;
+            }
+
+            resultsSummary.classList.remove('hidden');
+            isSubmitted = true;
+
+            // Scroll smoothly to score banner
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Update bottom button text
+            const btnBottom = document.getElementById('btn-submit-bottom');
+            if (btnBottom) {
+                btnBottom.textContent = "Simulado Finalizado (Ver Resultados no Topo)";
+                btnBottom.classList.replace('bg-blue-600', 'bg-slate-400');
+            }
+        }
+
+        // Resets the quiz state completely
+        function resetQuiz() {
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Aula - WEB I</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- PDF.js Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #09090b;
+            color: #f4f4f5;
+            overflow-x: hidden;
+        }
+
+        /* Reading Modes for Canvas */
+        .mode-dark canvas {
+            filter: invert(0.92) hue-rotate(180deg) contrast(1.1) brightness(0.95);
+        }
+
+        .mode-sepia canvas {
+            filter: sepia(0.35) contrast(1.05) brightness(0.92);
+        }
+
+        .mode-light canvas {
+            filter: none;
+        }
+
+        /* Neutral Custom Scrollbar for Viewer */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #18181b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3f3f46;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #52525b;
+        }
+
+        /* Tactile neutral action button */
+        .duo-btn-quiz {
+            background: #27272a;
+            border: 1px solid #3f3f46;
+            box-shadow: 0 5px 0 #18181b;
+            transition: all 0.12s ease-in-out;
+        }
+
+        .duo-btn-quiz:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #18181b;
+            filter: brightness(1.15);
+        }
+
+        .duo-btn-quiz:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #18181b;
+        }
+
+        .tool-btn {
+            background: rgba(24, 24, 27, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.15s ease;
+        }
+
+        .tool-btn:hover {
+            background: rgba(39, 39, 42, 0.9);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .tool-btn:active {
+            transform: scale(0.96);
+        }
+    </style>
+</head>
+<body class="font-sans min-h-screen flex flex-col justify-between selection:bg-zinc-700 selection:text-zinc-100">
+
+    <header class="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/80 px-4 py-3">
+        <div class="max-w-[98%] mx-auto flex flex-wrap items-center justify-center gap-3">
+            
+            <!-- Viewer Controls Toolbar -->
+            <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                
+                <!-- Page Navigation -->
+                <div class="flex items-center bg-zinc-900 border border-zinc-800 rounded-xl p-1 gap-1">
+                    <button id="prevPage" class="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-300 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <span class="px-2 font-mono text-zinc-300">
+                        <span id="pageNum" class="text-zinc-100 font-bold">1</span> / <span id="pageCount">--</span>
+                    </span>
+                    <button id="nextPage" class="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-300 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Zoom Controls -->
+                <div class="flex items-center bg-zinc-900 border border-zinc-800 rounded-xl p-1 gap-1">
+                    <button id="zoomOut" class="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-300 hover:text-white transition-colors" title="Diminuir Zoom">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                        </svg>
+                    </button>
+                    <span id="zoomVal" class="px-2 font-mono text-zinc-300 font-semibold min-w-[50px] text-center">100%</span>
+                    <button id="zoomIn" class="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-300 hover:text-white transition-colors" title="Aumentar Zoom">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                    </button>
+                    <button id="zoomFit" class="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-300 hover:text-white transition-colors text-xs px-2 font-semibold" title="Ajustar à Largura">
+                        Largura
+                    </button>
+                </div>
+
+                <!-- Reading Mode Toggle -->
+                <select id="readingMode" class="bg-zinc-900 border border-zinc-800 text-zinc-300 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-zinc-500 cursor-pointer">
+                    <option value="mode-dark">Modo Escuro</option>
+                    <option value="mode-light">Modo Claro</option>
+                    <option value="mode-sepia">Modo Sépia</option>
+                </select>
+
+                <!-- Download PDF Button -->
+                <a id="downloadBtn" href="./aula05.pdf" download class="p-2 rounded-xl tool-btn text-zinc-200 hover:text-white flex items-center gap-1.5 font-semibold text-xs px-3" title="Baixar Arquivo PDF">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    <span class="hidden md:inline">Baixar PDF</span>
+                </a>
+
+                <!-- Fullscreen Toggle -->
+                <button id="fullscreenBtn" class="p-2 rounded-xl tool-btn text-zinc-300 hover:text-white" title="Tela Inteira">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-[98%] mx-auto my-4 px-2 flex flex-col items-center">
+        
+        <!-- Viewer Container -->
+        <div id="viewerViewport" class="w-full flex-1 min-h-[75vh] bg-zinc-950/70 rounded-2xl border border-zinc-800/80 p-2 sm:p-4 overflow-auto flex flex-col items-center justify-center relative mode-dark shadow-2xl">
+            
+            <!-- Loading Indicator -->
+            <div id="pdfLoader" class="flex flex-col items-center justify-center p-12 text-zinc-400 gap-3">
+                <div class="w-10 h-10 border-4 border-zinc-700 border-t-zinc-300 rounded-full animate-spin"></div>
+                <span class="text-sm font-medium">Carregando visualizador de alta qualidade...</span>
+            </div>
+
+            <!-- PDF Page Canvas -->
+            <canvas id="pdfCanvas" class="max-w-full rounded-lg shadow-2xl transition-all duration-200 hidden"></canvas>
+
+            <!-- Fallback Loader / File Picker (If PDF is missing in folder) -->
+            <div id="pdfFallback" class="hidden flex-col items-center justify-center text-center p-8 max-w-md">
+                <div class="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300 mb-4">
+                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+                <h3 class="font-outfit text-lg font-bold text-zinc-100 mb-2">PDF Não Encontrado na Pasta</h3>
+                <p class="text-xs text-zinc-400 mb-5 leading-relaxed">
+                    Coloque o arquivo PDF referente a esta aula nesta mesma pasta ou selecione um arquivo local para visualizar imediatamente.
+                </p>
+                <label class="cursor-pointer inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-100 border border-zinc-700 font-semibold text-sm transition-colors shadow-lg">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Carregar PDF Local
+                    <input type="file" id="localPdfInput" accept="application/pdf" class="hidden">
+                </label>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="w-full bg-zinc-950/90 border-t border-zinc-800/80 py-5 px-4 mt-auto z-30">
+        <div class="max-w-md mx-auto text-center">
+            <a href="./questoes5.html" class="duo-btn-quiz w-full py-3.5 px-6 rounded-2xl text-zinc-100 font-outfit font-bold text-base sm:text-lg flex items-center justify-center gap-3 tracking-wide">
+                <svg class="w-6 h-6 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Questões de Concurso
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+        let scale = 1.0;
+        
+        const canvas = document.getElementById('pdfCanvas');
+        const ctx = canvas.getContext('2d');
+        const loader = document.getElementById('pdfLoader');
+        const fallback = document.getElementById('pdfFallback');
+        const viewportContainer = document.getElementById('viewerViewport');
+
+        const defaultPdfUrl = './aula05.pdf';
+
+        function showFallback() {
+            loader.style.display = 'none';
+            canvas.classList.add('hidden');
+            fallback.classList.remove('hidden');
+            fallback.classList.add('flex');
+        }
+
+        function loadPdfDocument(src) {
+            loader.style.display = 'flex';
+            canvas.classList.add('hidden');
+            fallback.classList.add('hidden');
+
+            try {
+                const loadingTask = pdfjsLib.getDocument(
+                    typeof src === 'string' ? { url: src } : src
+                );
+
+                loadingTask.promise.then(function(pdfDoc_) {
+                    pdfDoc = pdfDoc_;
+                    document.getElementById('pageCount').textContent = pdfDoc.numPages;
+                    pageNum = 1;
+                    renderPage(pageNum);
+                }).catch(function(error) {
+                    console.warn('PDF Local não encontrado ou erro no carregamento:', error);
+                    showFallback();
+                });
+            } catch (error) {
+                console.warn('Erro na inicialização do PDF.js:', error);
+                showFallback();
+            }
+        }
+
+        function renderPage(num) {
+            pageRendering = true;
+
+            pdfDoc.getPage(num).then(function(page) {
+                const outputScale = window.devicePixelRatio || 1;
+                const viewport = page.getViewport({ scale: scale });
+
+                canvas.width = Math.floor(viewport.width * outputScale);
+                canvas.height = Math.floor(viewport.height * outputScale);
+                canvas.style.width = Math.floor(viewport.width) + "px";
+                canvas.style.height = Math.floor(viewport.height) + "px";
+
+                const transform = outputScale !== 1 
+                    ? [outputScale, 0, 0, outputScale, 0, 0] 
+                    : null;
+
+                const renderContext = {
+                    canvasContext: ctx,
+                    transform: transform,
+                    viewport: viewport
+                };
+
+                const renderTask = page.render(renderContext);
+
+                renderTask.promise.then(function() {
+                    pageRendering = false;
+                    loader.style.display = 'none';
+                    canvas.classList.remove('hidden');
+
+                    if (pageNumPending !== null) {
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            }).catch(function(err) {
+                console.error('Erro ao renderizar página do PDF:', err);
+                pageRendering = false;
+            });
+
+            document.getElementById('pageNum').textContent = num;
+            updateNavButtons();
+        }
+
+        function queueRenderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderPage(num);
+            }
+        }
+
+        function updateNavButtons() {
+            document.getElementById('prevPage').disabled = (pageNum <= 1);
+            document.getElementById('nextPage').disabled = (pdfDoc && pageNum >= pdfDoc.numPages);
+        }
+
+        document.getElementById('prevPage').addEventListener('click', function() {
+            if (pageNum <= 1) return;
+            pageNum--;
+            queueRenderPage(pageNum);
+        });
+
+        document.getElementById('nextPage').addEventListener('click', function() {
+            if (!pdfDoc || pageNum >= pdfDoc.numPages) return;
+            pageNum++;
+            queueRenderPage(pageNum);
+        });
+
+        document.getElementById('zoomIn').addEventListener('click', function() {
+            scale += 0.15;
+            updateZoomDisplay();
+            if (pdfDoc) renderPage(pageNum);
+        });
+
+        document.getElementById('zoomOut').addEventListener('click', function() {
+            if (scale <= 0.4) return;
+            scale -= 0.15;
+            updateZoomDisplay();
+            if (pdfDoc) renderPage(pageNum);
+        });
+
+        document.getElementById('zoomFit').addEventListener('click', function() {
+            if (!pdfDoc) return;
+            pdfDoc.getPage(pageNum).then(function(page) {
+                const containerWidth = viewportContainer.clientWidth - 40;
+                const unscaledViewport = page.getViewport({ scale: 1.0 });
+                scale = containerWidth / unscaledViewport.width;
+                updateZoomDisplay();
+                renderPage(pageNum);
+            });
+        });
+
+        function updateZoomDisplay() {
+            document.getElementById('zoomVal').textContent = Math.round(scale * 100) + '%';
+        }
+
+        document.getElementById('readingMode').addEventListener('change', function(e) {
+            viewportContainer.className = viewportContainer.className.replace(/mode-\w+/g, '');
+            viewportContainer.classList.add(e.target.value);
+        });
+
+        document.getElementById('fullscreenBtn').addEventListener('click', function() {
+            if (!document.fullscreenElement) {
+                viewportContainer.requestFullscreen().catch(function(err) {
+                    console.log('Erro ao alternar tela inteira:', err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+
+        document.getElementById('localPdfInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const typedarray = new Uint8Array(evt.target.result);
+                    
+                    const blobUrl = URL.createObjectURL(file);
+                    document.getElementById('downloadBtn').href = blobUrl;
+                    document.getElementById('downloadBtn').download = file.name;
+                    
+                    loadPdfDocument({ data: typedarray });
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
+
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+                if (pdfDoc && pageNum < pdfDoc.numPages) {
+                    pageNum++;
+                    queueRenderPage(pageNum);
+                }
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                if (pageNum > 1) {
+                    pageNum--;
+                    queueRenderPage(pageNum);
+                }
+            }
+        });
+
+        window.onload = function() {
+            loadPdfDocument(defaultPdfUrl);
+        };
+    </script>
+</body>
+</html>
