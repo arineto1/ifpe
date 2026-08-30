@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulado FAURGS - HTML5 e CSS3</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      line-height: 1.7;
+    }
+
+    code, pre {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Custom smooth transition for interactive elements */
+    .option-card {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .option-card:hover {
+      border-color: #94a3b8;
+      background-color: #f1f5f9;
+    }
+
+    .option-card.selected {
+      border-color: #2563eb;
+      background-color: #eff6ff;
+    }
+
+    .option-card.correct-ans {
+      border-color: #16a34a !important;
+      background-color: #f0fdf4 !important;
+      color: #14532d !important;
+    }
+
+    .option-card.wrong-ans {
+      border-color: #dc2626 !important;
+      background-color: #fef2f2 !important;
+      color: #7f1d1d !important;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="antialiased min-h-screen pb-24">
+
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 mb-1">
+          Banca FAURGS • Nível Superior
+        </span>
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Simulado: HTML5, CSS3 e Seletores</h1>
+      </div>
+      
+      <!-- Progress Indicator and Action -->
+      <div class="flex items-center gap-3">
+        <div class="text-right hidden sm:block">
+          <div class="text-xs font-medium text-slate-500">Progresso</div>
+          <div id="progress-text" class="text-sm font-semibold text-slate-800">0 de 10 respondidas</div>
+        </div>
+        <div class="w-24 sm:w-32 bg-slate-200 rounded-full h-2.5 overflow-hidden">
+          <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-8">
+
+    <div id="results-banner" class="hidden mb-10 bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-6 pb-6 border-b border-slate-100">
+        <div>
+          <span class="text-sm uppercase tracking-wider font-semibold text-blue-600">Resultado da Avaliação</span>
+          <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">Desempenho no Simulado</h2>
+          <p class="text-slate-600 text-sm mt-1">Confira a pontuação obtida e as resoluções comentadas de cada questão abaixo.</p>
+        </div>
+        <div class="flex items-center gap-4 bg-slate-50 border border-slate-200 px-6 py-4 rounded-xl text-center">
+          <div>
+            <div id="score-hits" class="text-3xl sm:text-4xl font-extrabold text-blue-600">0/10</div>
+            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Acertos</div>
+          </div>
+          <div class="h-10 w-px bg-slate-200"></div>
+          <div>
+            <div id="score-percentage" class="text-3xl sm:text-4xl font-extrabold text-slate-800">0%</div>
+            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Aproveitamento</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Nav for Results Filtering -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-6">
+        <div class="flex flex-wrap gap-2" id="filter-buttons">
+          <button onclick="filterQuestions('all')" class="filter-btn active px-3.5 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-white transition">Todas (10)</button>
+          <button onclick="filterQuestions('correct')" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Apenas Acertos</button>
+          <button onclick="filterQuestions('wrong')" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Apenas Erros</button>
+        </div>
+        <button onclick="resetQuiz()" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          Refazer Simulado
+        </button>
+      </div>
+    </div>
+
+    <div id="quiz-container" class="space-y-8">
+
+      <!-- QUESTÃO 1 -->
+      <article id="q1" class="question-card bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm transition">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+            QUESTÃO 1
+          </span>
+          <div class="feedback-badge hidden"></div>
+        </div>
+        
+        <div class="prose prose-slate max-w-none text-slate-800 text-base leading-relaxed mb-6">
+          <p class="font-medium text-slate-900 mb-3">Considere as seguintes assertivas a respeito do papel do CSS3 e da separação de responsabilidades no desenvolvimento web moderno:</p>
+          <div class="space-y-2.5 bg-slate-50/80 p-4 rounded-xl border border-slate-200/80 text-sm sm:text-base">
+            <p><strong>I.</strong> A regra fundamental da arquitetura web estabelece a estrita separação entre a estrutura semântica do documento (gerida pelo HTML) e sua apresentação visual (gerida pelo CSS), garantindo facilidade de manutenção, reuso de código e otimização de carregamento.</p>
+            <p><strong>II.</strong> O uso do atributo <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">style</code> diretamente nas tags HTML (estilo inline) constitui a abordagem recomendada para ambientes de produção, por acelerar o processamento do navegador ao evitar requisições HTTP adicionais.</p>
+            <p><strong>III.</strong> A inclusão de uma folha de estilo externa através do elemento <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">&lt;link rel="stylesheet"&gt;</code> inserido no <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">&lt;head&gt;</code> da página representa o padrão profissional para o desenvolvimento de aplicações web.</p>
+          </div>
+          <p class="mt-4 font-semibold text-slate-900">Quais assertivas estão corretas?</p>
+        </div>
+
+        <div class="space-y-3 options-group" data-qid="1">
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-1" value="A" class="mt-1 text-blue-600 focus:ring-blue-500">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(A)</strong> Apenas I.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-1" value="B" class="mt-1 text-blue-600 focus:ring-blue-500">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(B)</strong> Apenas II.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-1" value="C" class="mt-1 text-blue-600 focus:ring-blue-500">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(C)</strong> Apenas I e III.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-1" value="D" class="mt-1 text-blue-600 focus:ring-blue-500">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(D)</strong> Apenas II e III.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-1" value="E" class="mt-1 text-blue-600 focus:ring-blue-500">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(E)</strong> I, II e III.</span>
+          </label>
+        </div>
+
+        <!-- Resolution Block -->
+        <div class="resolution-box hidden mt-6 pt-6 border-t border-slate-200 bg-amber-50/40 -mx-6 sm:-mx-8 -mb-6 sm:-mb-8 p-6 sm:p-8 rounded-b-2xl">
+          <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm uppercase tracking-wide">
+            <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            Resolução e Comentários (Gabarito: C)
+          </div>
+          <div class="text-slate-700 text-sm sm:text-base space-y-2 leading-relaxed">
+            <p>A arquitetura do desenvolvimento web baseia-se na divisão clara entre a camada de estrutura/significado (HTML) e a camada de apresentação visual (CSS).</p>
+            <p>• <strong>Assertiva I (Correta):</strong> A separação de responsabilidades melhora a manutenção do código, viabiliza o reuso de folhas de estilo em múltiplas páginas e otimiza o carregamento dos arquivos pelo navegador.</p>
+            <p>• <strong>Assertiva II (Incorreta):</strong> A aplicação de estilos inline via atributo <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">style</code> dificulta a manutenção centralizada e quebra a reutilização do código, sendo considerada uma má prática no desenvolvimento profissional.</p>
+            <p>• <strong>Assertiva III (Correta):</strong> A inclusão externa mediante o elemento <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">&lt;link rel="stylesheet"&gt;</code> posicionado no <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">&lt;head&gt;</code> é o padrão profissional absoluto adotado para garantir a independência dos arquivos e o aproveitamento do cache do navegador.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- QUESTÃO 2 -->
+      <article id="q2" class="question-card bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm transition">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+            QUESTÃO 2
+          </span>
+          <div class="feedback-badge hidden"></div>
+        </div>
+        
+        <div class="prose prose-slate max-w-none text-slate-800 text-base leading-relaxed mb-6">
+          <p class="font-medium text-slate-900 mb-3">Assinale a alternativa que preenche corretamente as lacunas do texto abaixo, referente às formas de inclusão de regras CSS em documentos HTML.</p>
+          <div class="bg-slate-50/80 p-4 rounded-xl border border-slate-200/80 text-sm sm:text-base leading-relaxed">
+            A inclusão de regras de estilo pode ocorrer de três formas distintas no documento web. O método ________ consiste na aplicação de regras através do atributo <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">style</code> diretamente na tag HTML, sendo considerado uma má prática para ambientes de produção por dificultar a manutenção do código. O método ________ utiliza a tag <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">&lt;style&gt;</code> posicionada no cabeçalho do documento, sendo indicado apenas para testes rápidos ou páginas isoladas. Por fim, a vinculação de um arquivo CSS ________, realizada mediante o elemento ________ inserido na seção <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">&lt;head&gt;</code>, é o padrão profissional absoluto.
+          </div>
+        </div>
+
+        <div class="space-y-3 options-group" data-qid="2">
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-2" value="A" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(A)</strong> interno — inline — externo — <code class="text-xs sm:text-sm bg-slate-100 px-1 py-0.5 rounded">&lt;script&gt;</code></span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-2" value="B" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(B)</strong> inline — interno — externo — <code class="text-xs sm:text-sm bg-slate-100 px-1 py-0.5 rounded">&lt;link&gt;</code></span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-2" value="C" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(C)</strong> externo — inline — interno — <code class="text-xs sm:text-sm bg-slate-100 px-1 py-0.5 rounded">&lt;import&gt;</code></span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-2" value="D" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(D)</strong> inline — externo — interno — <code class="text-xs sm:text-sm bg-slate-100 px-1 py-0.5 rounded">&lt;link&gt;</code></span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-2" value="E" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(E)</strong> interno — externo — inline — <code class="text-xs sm:text-sm bg-slate-100 px-1 py-0.5 rounded">&lt;style&gt;</code></span>
+          </label>
+        </div>
+
+        <!-- Resolution Block -->
+        <div class="resolution-box hidden mt-6 pt-6 border-t border-slate-200 bg-amber-50/40 -mx-6 sm:-mx-8 -mb-6 sm:-mb-8 p-6 sm:p-8 rounded-b-2xl">
+          <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm uppercase tracking-wide">
+            <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            Resolução e Comentários (Gabarito: B)
+          </div>
+          <div class="text-slate-700 text-sm sm:text-base space-y-2 leading-relaxed">
+            <p>O CSS3 oferece três métodos para a integração de regras estilísticas a um documento HTML:</p>
+            <p>1. <strong>Inline:</strong> Utiliza o atributo <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">style="..."</code> diretamente nas tags do corpo do documento HTML, o que compromete a manutenibilidade e o reuso.</p>
+            <p>2. <strong>Interno:</strong> Utiliza o elemento <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">&lt;style&gt;</code> localizado na seção <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">&lt;head&gt;</code>, sendo adequado para testes pontuais ou protótipos.</p>
+            <p>3. <strong>Externo:</strong> Utiliza um arquivo com extensão <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">.css</code> vinculado ao documento via tag <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">&lt;link rel="stylesheet" href="..."&gt;</code> no <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">&lt;head&gt;</code>, estabelecendo a abordagem padronizada da indústria.</p>
+            <p class="font-medium text-slate-800">A sequência correta das lacunas é: <strong>inline — interno — externo — &lt;link&gt;</strong>.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- QUESTÃO 3 -->
+      <article id="q3" class="question-card bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm transition">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+            QUESTÃO 3
+          </span>
+          <div class="feedback-badge hidden"></div>
+        </div>
+        
+        <div class="prose prose-slate max-w-none text-slate-800 text-base leading-relaxed mb-6">
+          <p class="font-medium text-slate-900 mb-3">Considere os seletores básicos do CSS3 e suas respectivas funções na estilização de componentes:</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50/80 p-4 rounded-xl border border-slate-200/80 text-sm font-medium mb-4">
+            <div>1. Seletor Universal (<code class="text-blue-600 font-bold">*</code>)</div>
+            <div>2. Seletor de Tipo (<code class="text-blue-600 font-bold">p</code>)</div>
+            <div>3. Seletor de Classe (<code class="text-blue-600 font-bold">.cartao</code>)</div>
+            <div>4. Seletor de ID (<code class="text-blue-600 font-bold">#topo-pagina</code>)</div>
+          </div>
+          <p class="font-medium text-slate-900 mb-3">Associe os seletores da coluna acima às suas características operacionais descritas a seguir:</p>
+          <div class="space-y-2 bg-slate-50/80 p-4 rounded-xl border border-slate-200/80 text-sm sm:text-base">
+            <p>( &nbsp; ) Destinado à identificação e estilização exclusiva de um único elemento específico dentro da página web.</p>
+            <p>( &nbsp; ) Seleciona e aplica regras de estilo a todas as instâncias de um determinado elemento estrutural da marcação.</p>
+            <p>( &nbsp; ) Atinge indistintamente todos os elementos do documento HTML, sendo amplamente empregado na implementação de resets de margens e preenchimentos.</p>
+            <p>( &nbsp; ) Define um conjunto de regras reutilizável que pode ser atribuído a múltiplos elementos ao longo da estrutura da página.</p>
+          </div>
+          <p class="mt-4 font-semibold text-slate-900">A sequência correta do preenchimento dos parênteses, de cima para baixo, é:</p>
+        </div>
+
+        <div class="space-y-3 options-group" data-qid="3">
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-3" value="A" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(A)</strong> 4 – 2 – 1 – 3.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-3" value="B" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(B)</strong> 3 – 1 – 2 – 4.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-3" value="C" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(C)</strong> 4 – 1 – 2 – 3.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-3" value="D" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(D)</strong> 2 – 4 – 3 – 1.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-3" value="E" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(E)</strong> 1 – 3 – 4 – 2.</span>
+          </label>
+        </div>
+
+        <!-- Resolution Block -->
+        <div class="resolution-box hidden mt-6 pt-6 border-t border-slate-200 bg-amber-50/40 -mx-6 sm:-mx-8 -mb-6 sm:-mb-8 p-6 sm:p-8 rounded-b-2xl">
+          <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm uppercase tracking-wide">
+            <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            Resolução e Comentários (Gabarito: A)
+          </div>
+          <div class="text-slate-700 text-sm sm:text-base space-y-2 leading-relaxed">
+            <p>• <strong>(4)</strong> O seletor de ID (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs">#topo-pagina</code>) é utilizado para identificar de maneira exclusiva um único elemento da página, devendo ser único no documento.</p>
+            <p>• <strong>(2)</strong> O seletor de tipo ou tag (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs">p</code>) atinge todas as ocorrências de um determinado elemento estrutural no documento HTML.</p>
+            <p>• <strong>(1)</strong> O seletor universal (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs">*</code>) abrange a totalidade dos elementos presentes no DOM, sendo a ferramenta padrão para reinicialização de margens e preenchimentos (reset).</p>
+            <p>• <strong>(3)</strong> O seletor de classe (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs">.cartao</code>) define um grupo de regras reutilizável que pode ser atribuído a múltiplos elementos da marcação.</p>
+            <p class="font-medium text-slate-800">Ordem resultante: <strong>4 – 2 – 1 – 3</strong>.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- QUESTÃO 4 -->
+      <article id="q4" class="question-card bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm transition">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+            QUESTÃO 4
+          </span>
+          <div class="feedback-badge hidden"></div>
+        </div>
+        
+        <div class="prose prose-slate max-w-none text-slate-800 text-base leading-relaxed mb-6">
+          <p class="font-medium text-slate-900 mb-3">Analise a estrutura HTML e as regras CSS3 apresentadas a seguir:</p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs sm:text-sm overflow-x-auto">
+              <div class="text-slate-400 text-xs font-semibold mb-2 uppercase tracking-wider">HTML</div>
+<pre><code>&lt;header id="cabecalho-principal" class="topo"&gt;
+  &lt;h1 class="titulo"&gt;Estações do Ano&lt;/h1&gt;
+&lt;/header&gt;</code></pre>
+            </div>
+            <div class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs sm:text-sm overflow-x-auto">
+              <div class="text-slate-400 text-xs font-semibold mb-2 uppercase tracking-wider">CSS</div>
+<pre><code>header h1 { color: blue; }
+#cabecalho-principal .titulo { color: red; }
+.topo h1 { color: green; }
+h1 { color: yellow; }</code></pre>
+            </div>
+          </div>
+
+          <p class="font-semibold text-slate-900">Com base no mecanismo de cálculo de especificidade do CSS3, assinale a alternativa que indica a cor final assumida pelo texto do elemento <code class="px-1.5 py-0.5 bg-slate-100 rounded text-pink-700 font-semibold text-sm">&lt;h1&gt;</code>:</p>
+        </div>
+
+        <div class="space-y-3 options-group" data-qid="4">
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-4" value="A" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(A)</strong> Blue, pois a combinação de duas tags (<code class="text-xs bg-slate-100 px-1 py-0.5 rounded">header h1</code>) possui a maior prioridade na árvore do documento.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-4" value="B" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(B)</strong> Red, pois o seletor <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">#cabecalho-principal .titulo</code> combina um identificador único (ID, peso 100) com uma classe (peso 10), resultando na maior especificidade entre os concorrentes.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-4" value="C" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(C)</strong> Green, pois seletores de classe sempre prevalecem sobre seletores de identificador e de elemento.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-4" value="D" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(D)</strong> Yellow, pois a última regra declarada na folha de estilo substitui todas as anteriores independentemente do peso.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-4" value="E" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(E)</strong> Red, porém apenas no caso de a regra ser acompanhada da diretiva <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">!important</code> na propriedade visual.</span>
+          </label>
+        </div>
+
+        <!-- Resolution Block -->
+        <div class="resolution-box hidden mt-6 pt-6 border-t border-slate-200 bg-amber-50/40 -mx-6 sm:-mx-8 -mb-6 sm:-mb-8 p-6 sm:p-8 rounded-b-2xl">
+          <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm uppercase tracking-wide">
+            <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            Resolução e Comentários (Gabarito: B)
+          </div>
+          <div class="text-slate-700 text-sm sm:text-base space-y-2 leading-relaxed">
+            <p>O cálculo de especificidade no CSS3 segue a hierarquia de pontuação (Inline, ID, Classe, Tipo):</p>
+            <p>• <code class="px-1 py-0.5 bg-amber-100 rounded text-xs font-semibold">h1</code>: 1 elemento de tipo (especificidade 0, 0, 0, 1 = 1 ponto).</p>
+            <p>• <code class="px-1 py-0.5 bg-amber-100 rounded text-xs font-semibold">header h1</code>: 2 elementos de tipo (especificidade 0, 0, 0, 2 = 2 pontos).</p>
+            <p>• <code class="px-1 py-0.5 bg-amber-100 rounded text-xs font-semibold">.topo h1</code>: 1 classe e 1 elemento de tipo (especificidade 0, 0, 1, 1 = 11 pontos).</p>
+            <p>• <code class="px-1 py-0.5 bg-amber-100 rounded text-xs font-semibold">#cabecalho-principal .titulo</code>: 1 ID e 1 classe (especificidade 0, 1, 1, 0 = 110 pontos).</p>
+            <p class="font-medium text-slate-800">Como o seletor com ID possui peso esmagadoramente superior (100 pontos por ID contra 10 por classe e 1 por tag), a regra vencedora é <strong>#cabecalho-principal .titulo</strong>, aplicando a cor <strong>Red</strong>.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- QUESTÃO 5 -->
+      <article id="q5" class="question-card bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm transition">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+            QUESTÃO 5
+          </span>
+          <div class="feedback-badge hidden"></div>
+        </div>
+        
+        <div class="prose prose-slate max-w-none text-slate-800 text-base leading-relaxed mb-6">
+          <p class="font-medium text-slate-900">A respeito dos conceitos de Cascata, Herança e Especificidade no CSS3, assinale a alternativa correta:</p>
+        </div>
+
+        <div class="space-y-3 options-group" data-qid="5">
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-5" value="A" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(A)</strong> Quando duas regras CSS com pesos de especificidade idênticos disputam a estilização do mesmo elemento, o navegador aplicará a regra declarada primeiro no arquivo.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-5" value="B" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(B)</strong> Propriedades do modelo de caixa, tais como <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">margin</code>, <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">padding</code> e <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">border</code>, são transmitidas automaticamente por herança do elemento pai para os elementos filhos.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-5" value="C" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(C)</strong> A herança no CSS3 consiste na transmissão automática de determinadas propriedades visuais de texto (como <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">color</code> e <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">font-family</code>) do elemento pai aos seus descendentes.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-5" value="D" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(D)</strong> O seletor universal (<code class="text-xs bg-slate-100 px-1 py-0.5 rounded">*</code>) possui um peso de especificidade superior ao de um seletor de tipo de elemento.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-5" value="E" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(E)</strong> Estilos aplicados via atributo <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">style</code> (inline) possuem especificidade equivalente à de um seletor de classe.</span>
+          </label>
+        </div>
+
+        <!-- Resolution Block -->
+        <div class="resolution-box hidden mt-6 pt-6 border-t border-slate-200 bg-amber-50/40 -mx-6 sm:-mx-8 -mb-6 sm:-mb-8 p-6 sm:p-8 rounded-b-2xl">
+          <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm uppercase tracking-wide">
+            <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            Resolução e Comentários (Gabarito: C)
+          </div>
+          <div class="text-slate-700 text-sm sm:text-base space-y-2 leading-relaxed">
+            <p>• <strong>(A) Incorreta:</strong> Em caso de empate rigoroso na especificidade (cascata), prevalece a regra declarada por <em>último</em> no arquivo.</p>
+            <p>• <strong>(B) Incorreta:</strong> Propriedades estruturais do Box Model (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs">margin</code>, <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">padding</code>, <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">border</code>) <em>não</em> são herdadas automaticamente pelos elementos filhos.</p>
+            <p>• <strong>(C) Correta:</strong> A herança no CSS transmite naturalmente propriedades tipográficas e de texto (como fonte, cor do texto, alinhamento) dos pais aos seus descendentes.</p>
+            <p>• <strong>(D) Incorreta:</strong> O seletor universal (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs">*</code>) possui especificidade nula (0 pontos), sendo superado por qualquer seletor de tag (1 ponto).</p>
+            <p>• <strong>(E) Incorreta:</strong> O estilo inline possui especificidade de 1000 pontos, superando em muito a classe (10 pontos).</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- QUESTÃO 6 -->
+      <article id="q6" class="question-card bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm transition">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+            QUESTÃO 6
+          </span>
+          <div class="feedback-badge hidden"></div>
+        </div>
+        
+        <div class="prose prose-slate max-w-none text-slate-800 text-base leading-relaxed mb-6">
+          <p class="font-medium text-slate-900 mb-3">Considere o seguinte trecho de marcação HTML5 utilizado no desenvolvimento de uma interface com cartões informativos:</p>
+          
+          <div class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs sm:text-sm overflow-x-auto mb-4">
+<pre><code>&lt;header id="cabecalho-principal"&gt;
+  &lt;h1&gt;As Estações do Ano no Hemisfério Sul&lt;/h1&gt;
+  &lt;p&gt;Exemplo prático de estilização e classes temáticas em CSS3&lt;/p&gt;
+&lt;/header&gt;
+&lt;main&gt;
+  &lt;article class="card-estacao primavera"&gt;
+    &lt;span class="tag-periodo"&gt;Setembro a Dezembro&lt;/span&gt;
+    &lt;h2&gt;Primavera&lt;/h2&gt;
+    &lt;p&gt;Conhecida como a estação das flores...&lt;/p&gt;
+  &lt;/article&gt;
+&lt;/main&gt;</code></pre>
+          </div>
+
+          <p class="font-medium text-slate-900 mb-2">Em relação às características semânticas e estruturais desse trecho, considere as afirmativas:</p>
+          <div class="space-y-2 bg-slate-50/80 p-4 rounded-xl border border-slate-200/80 text-sm sm:text-base">
+            <p><strong>I.</strong> O elemento <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">&lt;header&gt;</code> utiliza o atributo <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">id="cabecalho-principal"</code> para atribuir uma identificação única à seção de cabeçalho da página.</p>
+            <p><strong>II.</strong> Cada cartão de estação é encapsulado pela tag semântica <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">&lt;article&gt;</code>, combinando a classe base <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">.card-estacao</code> com a classe temático-modificadora <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">.primavera</code>.</p>
+            <p><strong>III.</strong> O elemento <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">&lt;main&gt;</code> deve encapsular os elementos <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">&lt;header&gt;</code> e <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">&lt;footer&gt;</code> para garantir a correta aplicação dos estilos CSS globais.</p>
+          </div>
+          <p class="mt-4 font-semibold text-slate-900">Quais afirmativas estão corretas?</p>
+        </div>
+
+        <div class="space-y-3 options-group" data-qid="6">
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-6" value="A" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(A)</strong> Apenas I.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-6" value="B" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(B)</strong> Apenas II.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-6" value="C" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(C)</strong> Apenas I e II.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-6" value="D" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(D)</strong> Apenas II e III.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-6" value="E" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(E)</strong> I, II e III.</span>
+          </label>
+        </div>
+
+        <!-- Resolution Block -->
+        <div class="resolution-box hidden mt-6 pt-6 border-t border-slate-200 bg-amber-50/40 -mx-6 sm:-mx-8 -mb-6 sm:-mb-8 p-6 sm:p-8 rounded-b-2xl">
+          <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm uppercase tracking-wide">
+            <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            Resolução e Comentários (Gabarito: C)
+          </div>
+          <div class="text-slate-700 text-sm sm:text-base space-y-2 leading-relaxed">
+            <p>• <strong>Afirmativa I (Verdadeira):</strong> O elemento <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">&lt;header&gt;</code> é o cabeçalho estrutural e utiliza o ID único <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">cabecalho-principal</code> para formatação pontual.</p>
+            <p>• <strong>Afirmativa II (Verdadeira):</strong> O elemento <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">&lt;article&gt;</code> define um conteúdo autocontido e reutilizável, aplicando classes múltiplas para separar a estrutura base (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs">.card-estacao</code>) e o tema específico (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs">.primavera</code>).</p>
+            <p>• <strong>Afirmativa III (Falsa):</strong> Na arquitetura semântica do HTML5, o elemento <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">&lt;main&gt;</code> representa exclusivamente o conteúdo central da página, devendo ser elemento irmão de <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">&lt;header&gt;</code> e <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">&lt;footer&gt;</code>, e não pai deles.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- QUESTÃO 7 -->
+      <article id="q7" class="question-card bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm transition">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+            QUESTÃO 7
+          </span>
+          <div class="feedback-badge hidden"></div>
+        </div>
+        
+        <div class="prose prose-slate max-w-none text-slate-800 text-base leading-relaxed mb-6">
+          <p class="font-medium text-slate-900 mb-3">Considere o trecho de código CSS3 referente ao agrupamento de regras de estilização global:</p>
+          
+          <div class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs sm:text-sm overflow-x-auto mb-4">
+<pre><code>* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}</code></pre>
+          </div>
+
+          <p class="font-semibold text-slate-900">Assinale a alternativa que explica corretamente a função e o impacto da declaração <code class="px-1.5 py-0.5 bg-slate-100 rounded text-pink-700 font-semibold text-sm">box-sizing: border-box;</code> no dimensionamento dos elementos da página:</p>
+        </div>
+
+        <div class="space-y-3 options-group" data-qid="7">
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-7" value="A" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(A)</strong> Remove as bordas visíveis de todos os elementos e anula os espaçamentos externos.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-7" value="B" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(B)</strong> Garante que os valores de preenchimento (<code class="text-xs bg-slate-100 px-1 py-0.5 rounded">padding</code>) e de borda (<code class="text-xs bg-slate-100 px-1 py-0.5 rounded">border</code>) sejam incluídos dentro das dimensões totais de largura e altura declaradas para o elemento.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-7" value="C" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(C)</strong> Converte automaticamente a exibição de elementos de bloco para o modelo flexível (<code class="text-xs bg-slate-100 px-1 py-0.5 rounded">flexbox</code>).</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-7" value="D" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(D)</strong> Impede que o elemento herde a cor de fundo definida para o elemento pai na árvore DOM.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-7" value="E" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(E)</strong> Altera o peso do seletor universal para que ele se sobreponha a seletores de classe e de ID.</span>
+          </label>
+        </div>
+
+        <!-- Resolution Block -->
+        <div class="resolution-box hidden mt-6 pt-6 border-t border-slate-200 bg-amber-50/40 -mx-6 sm:-mx-8 -mb-6 sm:-mb-8 p-6 sm:p-8 rounded-b-2xl">
+          <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm uppercase tracking-wide">
+            <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            Resolução e Comentários (Gabarito: B)
+          </div>
+          <div class="text-slate-700 text-sm sm:text-base space-y-2 leading-relaxed">
+            <p>No modelo de caixa padrão do CSS (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs">content-box</code>), a largura (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs">width</code>) informada refere-se apenas à área do conteúdo, fazendo com que o preenchimento (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs">padding</code>) e as bordas (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs">border</code>) somem-se por fora, inflando o tamanho total do elemento e frequentemente quebrando layouts responsivos.</p>
+            <p>Ao definir <code class="px-1 py-0.5 bg-amber-100 rounded text-xs font-semibold">box-sizing: border-box;</code>, o navegador passa a embutir o padding e as bordas <strong>dentro</strong> da largura e altura declaradas, facilitando o cálculo dimensional.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- QUESTÃO 8 -->
+      <article id="q8" class="question-card bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm transition">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+            QUESTÃO 8
+          </span>
+          <div class="feedback-badge hidden"></div>
+        </div>
+        
+        <div class="prose prose-slate max-w-none text-slate-800 text-base leading-relaxed mb-6">
+          <p class="font-medium text-slate-900 mb-3">Analise a regra CSS3 a seguir, projetada para controlar o comportamento dinâmico de cartões informativos ao passar o cursor do mouse:</p>
+          
+          <div class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs sm:text-sm overflow-x-auto mb-4">
+<pre><code>.card-estacao {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-estacao:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}</code></pre>
+          </div>
+
+          <p class="font-medium text-slate-900 mb-2">Sobre os efeitos gerados por essas regras na interação com a interface, considere as afirmativas:</p>
+          <div class="space-y-2 bg-slate-50/80 p-4 rounded-xl border border-slate-200/80 text-sm sm:text-base">
+            <p><strong>I.</strong> A pseudo-classe <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">:hover</code> atua quando o usuário posiciona o ponteiro do mouse sobre o elemento associado à classe <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">card-estacao</code>.</p>
+            <p><strong>II.</strong> A declaração <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">transform: translateY(-4px);</code> provoca o deslocamento vertical do cartão em 4px para cima.</p>
+            <p><strong>III.</strong> A propriedade <code class="px-1.5 py-0.5 bg-slate-200/70 rounded text-pink-700 text-xs sm:text-sm font-semibold">transition</code> determina que as alterações de transformação e sombra ocorram de forma gradual ao longo de 0,2 segundos.</p>
+          </div>
+          <p class="mt-4 font-semibold text-slate-900">Quais afirmativas estão corretas?</p>
+        </div>
+
+        <div class="space-y-3 options-group" data-qid="8">
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-8" value="A" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(A)</strong> Apenas I.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-8" value="B" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(B)</strong> Apenas I e II.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-8" value="C" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(C)</strong> Apenas I e III.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-8" value="D" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(D)</strong> Apenas II e III.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-8" value="E" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(E)</strong> I, II e III.</span>
+          </label>
+        </div>
+
+        <!-- Resolution Block -->
+        <div class="resolution-box hidden mt-6 pt-6 border-t border-slate-200 bg-amber-50/40 -mx-6 sm:-mx-8 -mb-6 sm:-mb-8 p-6 sm:p-8 rounded-b-2xl">
+          <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm uppercase tracking-wide">
+            <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            Resolução e Comentários (Gabarito: E)
+          </div>
+          <div class="text-slate-700 text-sm sm:text-base space-y-2 leading-relaxed">
+            <p>• <strong>Afirmativa I (Correta):</strong> A pseudo-classe <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">:hover</code> é disparada quando o cursor do mouse é posicionado sobre a área do elemento alvo.</p>
+            <p>• <strong>Afirmativa II (Correta):</strong> No eixo cartesiano do navegador, valores negativos em <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">translateY</code> movem o elemento para cima no plano vertical, gerando a sensação de elevação de 4px.</p>
+            <p>• <strong>Afirmativa III (Correta):</strong> A propriedade <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">transition</code> interpola suavemente as propriedades de transformação e sombra durante o tempo de 0.2s com aceleração suave (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs">ease</code>).</p>
+            <p class="font-medium text-slate-800">Todas as três afirmativas estão corretas.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- QUESTÃO 9 -->
+      <article id="q9" class="question-card bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm transition">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+            QUESTÃO 9
+          </span>
+          <div class="feedback-badge hidden"></div>
+        </div>
+        
+        <div class="prose prose-slate max-w-none text-slate-800 text-base leading-relaxed mb-6">
+          <p class="font-medium text-slate-900 mb-3">Considere a diferença sintática entre os dois seletores CSS3 apresentados abaixo:</p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs sm:text-sm overflow-x-auto">
+              <div class="text-slate-400 text-xs font-semibold mb-2 uppercase tracking-wider">Seletor A</div>
+<pre><code>.primavera .tag-periodo {
+  background-color: #d1fae5;
+}</code></pre>
+            </div>
+            <div class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs sm:text-sm overflow-x-auto">
+              <div class="text-slate-400 text-xs font-semibold mb-2 uppercase tracking-wider">Seletor B</div>
+<pre><code>.primavera.tag-periodo {
+  background-color: #d1fae5;
+}</code></pre>
+            </div>
+          </div>
+
+          <p class="font-semibold text-slate-900">Assinale a alternativa que descreve corretamente a diferença operacional entre os Seletores A e B:</p>
+        </div>
+
+        <div class="space-y-3 options-group" data-qid="9">
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-9" value="A" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(A)</strong> O Seletor A atinge elementos de classe <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">tag-periodo</code> que sejam descendentes de um elemento de classe <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">primavera</code>; o Seletor B atinge elementos que possuam simultaneamente as duas classes no mesmo nó HTML.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-9" value="B" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(B)</strong> O Seletor A exige que o elemento seja filho direto do elemento de classe <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">primavera</code>, enquanto o Seletor B atinge descendentes em qualquer nível.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-9" value="C" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(C)</strong> Ambos os seletores produzem efeito exatamente idêntico na árvore DOM, constituindo apenas uma variação estilística de escrita.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-9" value="D" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(D)</strong> O Seletor B é sintaticamente inválido no CSS3 por não utilizar vírgula na separação dos seletores.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-9" value="E" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(E)</strong> O Seletor A altera a especificidade da regra para peso de ID (100), enquanto o Seletor B mantém peso de tag (1).</span>
+          </label>
+        </div>
+
+        <!-- Resolution Block -->
+        <div class="resolution-box hidden mt-6 pt-6 border-t border-slate-200 bg-amber-50/40 -mx-6 sm:-mx-8 -mb-6 sm:-mb-8 p-6 sm:p-8 rounded-b-2xl">
+          <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm uppercase tracking-wide">
+            <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            Resolução e Comentários (Gabarito: A)
+          </div>
+          <div class="text-slate-700 text-sm sm:text-base space-y-2 leading-relaxed">
+            <p>• <strong>Seletor A (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs font-semibold">.primavera .tag-periodo</code>):</strong> O espaço atua como <em>combinador de descendência</em>. O navegador seleciona elementos com a classe <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">tag-periodo</code> que estejam aninhados/contidos dentro de um elemento ancestral com a classe <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">primavera</code>.</p>
+            <p>• <strong>Seletor B (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs font-semibold">.primavera.tag-periodo</code>):</strong> Sem o espaço, trata-se de um seletor composto (channing). Ele atinge nós HTML que contenham obrigatoriamente ambas as classes no mesmo elemento (ex: <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">&lt;span class="primavera tag-periodo"&gt;</code>).</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- QUESTÃO 10 -->
+      <article id="q10" class="question-card bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm transition">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+            QUESTÃO 10
+          </span>
+          <div class="feedback-badge hidden"></div>
+        </div>
+        
+        <div class="prose prose-slate max-w-none text-slate-800 text-base leading-relaxed mb-6">
+          <p class="font-medium text-slate-900 mb-3">Na implementação do estilo visual para o cartão do inverno em uma aplicação web, inseriu-se o seguinte bloco CSS3:</p>
+          
+          <div class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs sm:text-sm overflow-x-auto mb-4">
+<pre><code>inverno {
+  border-left-color: #0284c7;
+}
+
+inverno h2 {
+  color: #0369a1;
+}
+
+.inverno .tag-periodo {
+  background-color: #e0f2fe;
+  color: #075985;
+}</code></pre>
+          </div>
+
+          <p class="font-semibold text-slate-900">Sabendo que o elemento HTML correspondente foi marcado como <code class="px-1.5 py-0.5 bg-slate-100 rounded text-pink-700 font-semibold text-sm">&lt;article class="card-estacao inverno"&gt;</code>, assinale a alternativa correta quanto ao resultado da renderização:</p>
+        </div>
+
+        <div class="space-y-3 options-group" data-qid="10">
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-10" value="A" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(A)</strong> As propriedades de borda e cor do título serão aplicadas normalmente ao cartão de inverno.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-10" value="B" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(B)</strong> As regras associadas a <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">inverno</code> e <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">inverno h2</code> falharão, pois a ausência do ponto inicial faz com que sejam interpretadas como seletores da tag HTML <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">&lt;inverno&gt;</code>, inexistente na página.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-10" value="C" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(C)</strong> O arquivo CSS deixará de ser processado pelo navegador a partir da primeira linha devido a um erro de sintaxe crítico.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-10" value="D" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(D)</strong> A regra <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">.inverno .tag-periodo</code> falhará por exigir obrigatoriamente que o elemento pai seja uma tag <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">&lt;inverno&gt;</code>.</span>
+          </label>
+          <label class="option-card flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="ans-10" value="E" class="mt-1 text-blue-600">
+            <span class="text-sm sm:text-base text-slate-700"><strong class="text-slate-900 mr-1.5">(E)</strong> O elemento <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">&lt;inverno&gt;</code> será automaticamente criado pelo motor de renderização do navegador como uma tag HTML5 válida.</span>
+          </label>
+        </div>
+
+        <!-- Resolution Block -->
+        <div class="resolution-box hidden mt-6 pt-6 border-t border-slate-200 bg-amber-50/40 -mx-6 sm:-mx-8 -mb-6 sm:-mb-8 p-6 sm:p-8 rounded-b-2xl">
+          <div class="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm uppercase tracking-wide">
+            <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            Resolução e Comentários (Gabarito: B)
+          </div>
+          <div class="text-slate-700 text-sm sm:text-base space-y-2 leading-relaxed">
+            <p>No CSS3, seletores de classe exigem obrigatoriamente o prefixo de ponto (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs">.inverno</code>). Nomes grafados sem prefixo são interpretados como seletores de tipo (tags HTML).</p>
+            <p>Como a tag <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">&lt;inverno&gt;</code> não existe no documento HTML (o elemento real é <code class="px-1 py-0.5 bg-amber-100 rounded text-xs">&lt;article class="card-estacao inverno"&gt;</code>), as duas primeiras regras falham silenciosamente. A terceira regra (<code class="px-1 py-0.5 bg-amber-100 rounded text-xs">.inverno .tag-periodo</code>) é aplicada normalmente pois contém o ponto indicador de classe.</p>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="mt-12 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+      <div>
+        <h3 class="text-base font-bold text-slate-900">Pronto para finalizar?</h3>
+        <p class="text-slate-500 text-sm">Ao submeter, o gabarito oficial e todas as resoluções comentadas serão liberados nesta mesma página.</p>
+      </div>
+      <button id="btn-submit-quiz" onclick="finishQuiz()" class="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-xl shadow transition duration-200 flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        Finalizar e Ver Gabarito
+      </button>
+    </div>
+
+    <!-- Custom In-App Notification Message (No alert/confirm) -->
+    <div id="app-toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 text-sm">
+      <span id="toast-message">Mensagem</span>
+    </div>
+
+  </main>
+
+  <script>
+    // Official Answer Key Mapping
+    const ANSWER_KEY = {
+      1: 'C',
+      2: 'B',
+      3: 'A',
+      4: 'B',
+      5: 'C',
+      6: 'C',
+      7: 'B',
+      8: 'E',
+      9: 'A',
+      10: 'B'
+    };
+
+    let userAnswers = {};
+    let isSubmitted = false;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Setup click events on all radio inputs and option cards
+      const optionGroups = document.querySelectorAll('.options-group');
+      
+      optionGroups.forEach(group => {
+        const qid = group.getAttribute('data-qid');
+        const options = group.querySelectorAll('input[type="radio"]');
+
+        options.forEach(radio => {
+          radio.addEventListener('change', (e) => {
+            if (isSubmitted) return; // Freeze selections if submitted
+
+            userAnswers[qid] = e.target.value;
+
+            // Update styling of option labels inside this group
+            group.querySelectorAll('.option-card').forEach(card => {
+              card.classList.remove('selected');
+            });
+            e.target.closest('.option-card').classList.add('selected');
+
+            updateProgress();
+          });
+        });
+      });
+    });
+
+    function updateProgress() {
+      const totalAnswered = Object.keys(userAnswers).length;
+      const progressPercent = (totalAnswered / 10) * 100;
+      
+      document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+      document.getElementById('progress-text').textContent = `${totalAnswered} de 10 respondidas`;
+    }
+
+    function finishQuiz() {
+      const answeredCount = Object.keys(userAnswers).length;
+
+      if (answeredCount < 10) {
+        showToast(`Atenção: Você respondeu ${answeredCount} de 10 questões. Mostrando gabarito...`);
+      } else {
+        showToast('Simulado concluído com sucesso!');
+      }
+
+      isSubmitted = true;
+      let correctCount = 0;
+
+      // Evaluate each question
+      for (let qid = 1; qid <= 10; qid++) {
+        const userChoice = userAnswers[qid];
+        const correctChoice = ANSWER_KEY[qid];
+        const questionCard = document.getElementById(`q${qid}`);
+        const feedbackBadge = questionCard.querySelector('.feedback-badge');
+        const resolutionBox = questionCard.querySelector('.resolution-box');
+        const options = questionCard.querySelectorAll('.option-card');
+
+        // Reveal Resolution
+        resolutionBox.classList.remove('hidden');
+
+        // Disable radios
+        questionCard.querySelectorAll('input[type="radio"]').forEach(r => r.disabled = true);
+
+        // Style the Options
+        options.forEach(opt => {
+          const radio = opt.querySelector('input[type="radio"]');
+          const val = radio.value;
+
+          if (val === correctChoice) {
+            opt.classList.add('correct-ans');
+          } else if (val === userChoice && userChoice !== correctChoice) {
+            opt.classList.add('wrong-ans');
+          }
+        });
+
+        // Set status and badges
+        feedbackBadge.classList.remove('hidden');
+        if (userChoice === correctChoice) {
+          correctCount++;
+          questionCard.setAttribute('data-status', 'correct');
+          feedbackBadge.className = 'feedback-badge inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800';
+          feedbackBadge.innerHTML = '✓ Acertou';
+        } else if (!userChoice) {
+          questionCard.setAttribute('data-status', 'wrong');
+          feedbackBadge.className = 'feedback-badge inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800';
+          feedbackBadge.innerHTML = '— Em branco (Incorreta)';
+        } else {
+          questionCard.setAttribute('data-status', 'wrong');
+          feedbackBadge.className = 'feedback-badge inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800';
+          feedbackBadge.innerHTML = '✕ Errou';
+        }
+      }
+
+      // Update Results Banner
+      const percentage = Math.round((correctCount / 10) * 100);
+      document.getElementById('score-hits').textContent = `${correctCount}/10`;
+      document.getElementById('score-percentage').textContent = `${percentage}%`;
+
+      const resultsBanner = document.getElementById('results-banner');
+      resultsBanner.classList.remove('hidden');
+
+      // Scroll smoothly to results banner
+      resultsBanner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Change Submit button state
+      const btnSubmit = document.getElementById('btn-submit-quiz');
+      btnSubmit.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        Refazer Simulado
+      `;
+      btnSubmit.setAttribute('onclick', 'resetQuiz()');
+    }
+
+    function filterQuestions(filterType) {
+      const cards = document.querySelectorAll('.question-card');
+      const buttons = document.querySelectorAll('.filter-btn');
+
+      // Update active button state
+      buttons.forEach(btn => {
+        btn.classList.remove('bg-slate-900', 'text-white');
+        btn.classList.add('bg-slate-100', 'text-slate-700');
+      });
+
+      event.target.classList.remove('bg-slate-100', 'text-slate-700');
+      event.target.classList.add('bg-slate-900', 'text-white');
+
+      cards.forEach(card => {
+        const status = card.getAttribute('data-status');
+        if (filterType === 'all') {
+          card.classList.remove('hidden');
+        } else if (filterType === 'correct') {
+          if (status === 'correct') card.classList.remove('hidden');
+          else card.classList.add('hidden');
+        } else if (filterType === 'wrong') {
+          if (status === 'wrong') card.classList.remove('hidden');
+          else card.classList.add('hidden');
+        }
+      });
+    }
+
+    function resetQuiz() {
+      userAnswers = {};
+      isSubmitted = false;
+
+      // Clear all inputs and classes
+      for (let qid = 1; qid <= 10; qid++) {
+        const questionCard = document.getElementById(`q${qid}`);
+        questionCard.classList.remove('hidden');
+        questionCard.removeAttribute('data-status');
+
+        const feedbackBadge = questionCard.querySelector('.feedback-badge');
+        feedbackBadge.classList.add('hidden');
+
+        const resolutionBox = questionCard.querySelector('.resolution-box');
+        resolutionBox.classList.add('hidden');
+
+        questionCard.querySelectorAll('input[type="radio"]').forEach(r => {
+          r.checked = false;
+          r.disabled = false;
+        });
+
+        questionCard.querySelectorAll('.option-card').forEach(opt => {
+          opt.classList.remove('selected', 'correct-ans', 'wrong-ans');
+        });
+      }
+
+      // Hide Results Banner
+      document.getElementById('results-banner').classList.add('hidden');
+      updateProgress();
+
+      // Reset Submit Button
+      const btnSubmit = document.getElementById('btn-submit-quiz');
+      btnSubmit.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        Finalizar e Ver Gabarito
+      `;
+      btnSubmit.setAttribute('onclick', 'finishQuiz()');
+
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('Simulado reiniciado. Boa prova!');
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('app-toast');
+      const toastMsg = document.getElementById('toast-message');
+      toastMsg.textContent = message;
+
+      toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3500);
+    }
+  </script>
+</body>
+</html>
