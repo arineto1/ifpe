@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal de Documentos & Aulas</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              900: '#14532d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Estilização suave da barra de rolagem */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-full flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- ========================================== -->
+  <!-- BARRA DE NAVEGAÇÃO SUPERIOR (HEADER)       -->
+  <!-- ========================================== -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo e Título -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-md">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-base font-bold text-slate-900 leading-none">Repositório de Documentos</h1>
+            <p class="text-xs text-slate-500 mt-1">4 Leitores integrados em tela inteira</p>
+          </div>
+        </div>
+
+        <!-- Modos de Exibição (Abas vs Todos) -->
+        <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
+          <button id="btn-view-tabs" onclick="trocarModoExibicao('tabs')" class="px-3 py-1.5 rounded-lg transition-all shadow-xs bg-white text-slate-800">
+            Modo Abas
+          </button>
+          <button id="btn-view-stacked" onclick="trocarModoExibicao('stacked')" class="px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-900">
+            Ver Todos
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- CONTEÚDO PRINCIPAL                         -->
+  <!-- ========================================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- SELETOR EM ABAS (Visível apenas no modo Abas) -->
+    <div id="tabs-selector-container" class="space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" id="tabs-nav-grid">
+        <!-- Renderizado dinamicamente via JS -->
+      </div>
+    </div>
+
+    <!-- ÁREA DE EXIBIÇÃO DOS PDFS -->
+    <div id="pdf-viewers-container" class="space-y-10">
+      <!-- Os cartões com os leitores de PDF serão inseridos aqui -->
+    </div>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- RODAPÉ                                     -->
+  <!-- ========================================== -->
+  <footer class="mt-auto border-t border-slate-200 bg-white py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <p>Visualizador de Documentos PDF • Todos os direitos reservados</p>
+      <div class="flex items-center gap-4">
+        <span>Pronto para uso offline ou online</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- NOTIFICAÇÃO FLUTUANTE (TOAST) -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-xl flex items-center gap-2">
+    <span id="toast-message">Mensagem</span>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- SCRIPTS & CONFIGURAÇÃO FÁCIL DOS PDFS      -->
+  <!-- ========================================== -->
+  <script>
+    /**
+     * =========================================================================
+     * 👉 CONFIGURE SEUS 4 ARQUIVOS PDF AQUI!
+     * =========================================================================
+     * Substitua o campo 'url' pelo caminho do seu arquivo local ou link web:
+     * - Exemplo arquivo na mesma pasta: "aula1.pdf" ou "documentos/aula1.pdf"
+     * - Exemplo link na nuvem/web: "https://seusite.com/arquivos/aula1.pdf"
+     * =========================================================================
+     */
+    const CONFIGURACAO_PDFS = [
+      {
+        id: "aula-1",
+        numero: "01",
+        titulo: "Aula 1",
+        subtitulo: "Conteúdo programático e fundamentos",
+        badge: "Teoria",
+        // Insira o caminho do seu arquivo PDF abaixo:
+        url: "aula1.pdf"
+      },
+      {
+        id: "edital-concurso",
+        numero: "02",
+        titulo: "Edital do concurso com rubrica",
+        subtitulo: "Normas, prazos e tabela de rubricas avaliativas",
+        badge: "Oficial",
+        // Insira o caminho do seu arquivo PDF abaixo:
+        url: "edital desempenho pedagógico.pdf"
+      },
+      {
+        id: "plano-aula",
+        numero: "03",
+        titulo: "Exemplo plano de aula",
+        subtitulo: "Estrutura pedagógica, objetivos e metodologia",
+        badge: "Modelo",
+        // Insira o caminho do seu arquivo PDF abaixo:
+        url: "plano de aula design.pdf"
+      },
+      {
+        id: "aula-pratica",
+        numero: "04",
+        titulo: "Exemplo aula prática",
+        subtitulo: "Roteiro de atividades e dinâmicas aplicadas",
+        badge: "Prática",
+        // Insira o caminho do seu arquivo PDF abaixo:
+        url: "Design.pdf"
+      }
+    ];
+
+    // Estado da aplicação
+    let modoAtual = "tabs"; // 'tabs' ou 'stacked'
+    let documentoAtivoId = CONFIGURACAO_PDFS[0].id;
+
+    // Ícones SVG reutilizáveis
+    const ICONES = {
+      download: `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>`,
+      external: `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>`,
+      fullscreen: `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>`,
+      filePdf: `<svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>`
+    };
+
+    /**
+     * Renderiza os botões de navegação por abas
+     */
+    function renderizarAbas() {
+      const container = document.getElementById('tabs-nav-grid');
+      container.innerHTML = '';
+
+      CONFIGURACAO_PDFS.forEach((doc) => {
+        const ativo = doc.id === documentoAtivoId;
+        const btn = document.createElement('button');
+        btn.onclick = () => selecionarDocumento(doc.id);
+        btn.className = `text-left p-4 rounded-2xl border transition-all duration-200 flex flex-col justify-between ${
+          ativo
+            ? 'bg-slate-900 border-slate-900 text-white shadow-lg shadow-slate-900/10 ring-2 ring-slate-900/20'
+            : 'bg-white border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-50'
+        }`;
+
+        btn.innerHTML = `
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-md ${
+              ativo ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+            }">
+              ${doc.numero}
+            </span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${
+              ativo ? 'bg-indigo-500/30 text-indigo-200' : 'bg-slate-100 text-slate-500'
+            }">
+              ${doc.badge}
+            </span>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm leading-snug line-clamp-1 ${ativo ? 'text-white' : 'text-slate-900'}">
+              ${doc.titulo}
+            </h3>
+            <p class="text-xs mt-0.5 line-clamp-1 ${ativo ? 'text-slate-300' : 'text-slate-500'}">
+              ${doc.subtitulo}
+            </p>
+          </div>
+        `;
+        container.appendChild(btn);
+      });
+    }
+
+    /**
+     * Renderiza os visualizadores de PDF em largura total
+     */
+    function renderizarVisualizadores() {
+      const container = document.getElementById('pdf-viewers-container');
+      container.innerHTML = '';
+
+      const documentosParaExibir = modoAtual === 'tabs'
+        ? CONFIGURACAO_PDFS.filter(d => d.id === documentoAtivoId)
+        : CONFIGURACAO_PDFS;
+
+      documentosParaExibir.forEach((doc) => {
+        const card = document.createElement('section');
+        card.className = "bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden flex flex-col transition-all";
+        card.id = `card-${doc.id}`;
+
+        card.innerHTML = `
+          <!-- Cabeçalho do Card com Título e Ações -->
+          <div class="px-6 py-4 border-b border-slate-100 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+            
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0">
+                ${ICONES.filePdf}
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-base font-bold text-slate-900">${doc.titulo}</h2>
+                  <span class="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                    Doc ${doc.numero}
+                  </span>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5">${doc.subtitulo}</p>
+              </div>
+            </div>
+
+            <!-- Botões de Ação (Download, Abrir Nova Aba, Tela Cheia) -->
+            <div class="flex items-center flex-wrap gap-2">
+              
+              <!-- Botão Download -->
+              <a 
+                href="${doc.url}" 
+                download="${doc.titulo}.pdf"
+                onclick="notificar('Iniciando download de: ${doc.titulo}')"
+                class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer">
+                ${ICONES.download}
+                <span>Baixar PDF</span>
+              </a>
+
+              <!-- Abrir em Nova Guia -->
+              <a 
+                href="${doc.url}" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                title="Abrir em nova aba"
+                class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-3 py-2 rounded-xl transition-all">
+                ${ICONES.external}
+                <span class="hidden sm:inline">Nova Aba</span>
+              </a>
+
+              <!-- Botão Tela Cheia -->
+              <button 
+                onclick="toggleFullScreen('viewer-${doc.id}')"
+                title="Expandir para tela cheia"
+                class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-3 py-2 rounded-xl transition-all">
+                ${ICONES.fullscreen}
+                <span class="hidden sm:inline">Tela Cheia</span>
+              </button>
+
+            </div>
+          </div>
+
+          <!-- Container do Leitor de PDF com Largura Total -->
+          <div id="viewer-${doc.id}" class="w-full bg-slate-100 relative group" style="height: 80vh; min-height: 550px;">
+            <object
+              data="${doc.url}#toolbar=1&navpanes=0&scrollbar=1"
+              type="application/pdf"
+              class="w-full h-full border-0 block"
+            >
+              <!-- Fallback caso o navegador não renderize o PDF nativamente -->
+              <div class="w-full h-full flex flex-col items-center justify-center p-8 text-center bg-slate-50">
+                <div class="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-4">
+                  ${ICONES.filePdf}
+                </div>
+                <h3 class="text-base font-bold text-slate-800 mb-1">Pré-visualização do documento</h3>
+                <p class="text-xs text-slate-500 max-w-md mb-5">
+                  Caso o visualizador embutido não abra automaticamente, você pode baixar o arquivo ou visualizá-lo diretamente no navegador.
+                </p>
+                <div class="flex gap-3">
+                  <a href="${doc.url}" download class="bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-xl inline-flex items-center gap-2">
+                    ${ICONES.download} Baixar Arquivo
+                  </a>
+                  <a href="${doc.url}" target="_blank" class="bg-white border border-slate-300 text-slate-700 text-xs font-medium px-4 py-2.5 rounded-xl inline-flex items-center gap-2">
+                    ${ICONES.external} Abrir em tela cheia
+                  </a>
+                </div>
+              </div>
+            </object>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    /**
+     * Troca o documento ativo no modo de abas
+     */
+    function selecionarDocumento(id) {
+      documentoAtivoId = id;
+      renderizarAbas();
+      renderizarVisualizadores();
+    }
+
+    /**
+     * Alterna entre modo 'Abas' (um por vez) e 'Stacked' (todos empilhados)
+     */
+    function trocarModoExibicao(modo) {
+      modoAtual = modo;
+
+      const btnTabs = document.getElementById('btn-view-tabs');
+      const btnStacked = document.getElementById('btn-view-stacked');
+      const containerAbas = document.getElementById('tabs-selector-container');
+
+      if (modo === 'tabs') {
+        btnTabs.className = "px-3 py-1.5 rounded-lg transition-all shadow-xs bg-white text-slate-800";
+        btnStacked.className = "px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-900";
+        containerAbas.classList.remove('hidden');
+      } else {
+        btnStacked.className = "px-3 py-1.5 rounded-lg transition-all shadow-xs bg-white text-slate-800";
+        btnTabs.className = "px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-900";
+        containerAbas.classList.add('hidden');
+      }
+
+      renderizarVisualizadores();
+    }
+
+    /**
+     * Alterna tela cheia do leitor
+     */
+    function toggleFullScreen(elementId) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+
+      if (!document.fullscreenElement) {
+        if (el.requestFullscreen) {
+          el.requestFullscreen();
+        } else if (el.webkitRequestFullscreen) {
+          el.webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    /**
+     * Exibe notificação tipo Toast
+     */
+    function notificar(mensagem) {
+      const toast = document.getElementById('toast');
+      const msg = document.getElementById('toast-message');
+      msg.textContent = mensagem;
+      
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3000);
+    }
+
+    // Inicialização ao carregar a página
+    window.addEventListener('DOMContentLoaded', () => {
+      renderizarAbas();
+      renderizarVisualizadores();
+    });
+  </script>
+</body>
+</html>

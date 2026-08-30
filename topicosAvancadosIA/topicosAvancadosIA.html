@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tópicos Avançados de Inteligência Artificial - Aulas</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #080c14;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glow Highlights */
+        .glow-1 {
+            position: absolute;
+            top: 10%;
+            left: 20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        .glow-2 {
+            position: absolute;
+            bottom: 10%;
+            right: 20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        /* Duolingo-style Tactile 3D Pushable Buttons */
+        .duo-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 1.25rem;
+            padding: 1.25rem 1.5rem;
+            font-weight: 700;
+            transition: all 0.12s ease-in-out;
+            user-select: none;
+            text-decoration: none;
+            box-shadow: 0 5px 0 var(--btn-border);
+            background: var(--btn-bg);
+            border: 1px solid var(--btn-stroke);
+            color: #ffffff;
+        }
+
+        .duo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 var(--btn-border);
+            filter: brightness(1.1);
+        }
+
+        .duo-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 var(--btn-border);
+        }
+
+        /* Amber Color Variant */
+        .btn-amber {
+            --btn-bg: #1e170d;
+            --btn-stroke: #453014;
+            --btn-border: #b45309;
+        }
+    </style>
+</head>
+<body class="font-sans min-h-screen flex flex-col justify-between p-4 sm:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
+
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
+
+    <div class="max-w-4xl mx-auto w-full z-10 my-auto py-6">
+        
+        <header class="flex items-center justify-between mb-8 pb-4 border-b border-slate-800/80">
+            <div class="flex items-center gap-3">
+                <a href="../index.html" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-white transition-colors" title="Voltar ao Menu Principal">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                </a>
+                <h1 class="font-outfit text-xl sm:text-2xl font-bold tracking-tight text-white">
+                    Tópicos Avançados de Inteligência Artificial
+                </h1>
+            </div>
+            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-400">
+                6 Aulas
+            </span>
+        </header>
+
+        <main class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+
+            <!-- Aula 01 -->
+            <a href="./aula01.html" class="duo-btn btn-amber group">
+                <div class="flex items-center gap-3">
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]"></div>
+                    <span class="font-outfit text-base sm:text-lg text-slate-100 group-hover:text-white transition-colors">
+                        Aula 01
+                    </span>
+                </div>
+                <svg class="w-5 h-5 text-amber-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+
+            <!-- Aula 02 -->
+            <a href="./aula02.html" class="duo-btn btn-amber group">
+                <div class="flex items-center gap-3">
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]"></div>
+                    <span class="font-outfit text-base sm:text-lg text-slate-100 group-hover:text-white transition-colors">
+                        Aula 02
+                    </span>
+                </div>
+                <svg class="w-5 h-5 text-amber-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+
+            <!-- Aula 03 -->
+            <a href="./aula03.html" class="duo-btn btn-amber group">
+                <div class="flex items-center gap-3">
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]"></div>
+                    <span class="font-outfit text-base sm:text-lg text-slate-100 group-hover:text-white transition-colors">
+                        Aula 03
+                    </span>
+                </div>
+                <svg class="w-5 h-5 text-amber-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+
+            <!-- Aula 04 -->
+            <a href="./aula04.html" class="duo-btn btn-amber group">
+                <div class="flex items-center gap-3">
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]"></div>
+                    <span class="font-outfit text-base sm:text-lg text-slate-100 group-hover:text-white transition-colors">
+                        Aula 04
+                    </span>
+                </div>
+                <svg class="w-5 h-5 text-amber-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+
+            <!-- Aula 05 -->
+            <a href="./aula05.html" class="duo-btn btn-amber group">
+                <div class="flex items-center gap-3">
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]"></div>
+                    <span class="font-outfit text-base sm:text-lg text-slate-100 group-hover:text-white transition-colors">
+                        Aula 05
+                    </span>
+                </div>
+                <svg class="w-5 h-5 text-amber-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+
+            <!-- Aula 06 -->
+            <a href="./aula06.html" class="duo-btn btn-amber group">
+                <div class="flex items-center gap-3">
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]"></div>
+                    <span class="font-outfit text-base sm:text-lg text-slate-100 group-hover:text-white transition-colors">
+                        Aula 06
+                    </span>
+                </div>
+                <svg class="w-5 h-5 text-amber-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+
+        </main>
+    </div>
+
+</body>
+</html>
