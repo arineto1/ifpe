@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulado Interativo FAURGS - CSS3, Tipografia e Cores</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      /* Paleta ergonômica com fundo 'warm light' e texto grafite de alto contraste balanceado */
+      --bg-body: #f7f8fa;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f1f4f8;
+      --bg-code: #f3f5f8;
+      --border-light: #e2e6ed;
+      --border-focus: #2563eb;
+      
+      --text-main: #1e293b;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-subtle: #eff6ff;
+      
+      --success-bg: #ecfdf5;
+      --success-border: #10b981;
+      --success-text: #065f46;
+      
+      --error-bg: #fef2f2;
+      --error-border: #ef4444;
+      --error-text: #991b1b;
+      
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      
+      --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 1.05rem;
+      line-height: 1.75;
+      padding: 40px 20px 100px 20px;
+      display: flex;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 860px; /* Largura ideal para conforto visual e limite de caracteres por linha */
+    }
+
+    .exam-header {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 36px 32px;
+      margin-bottom: 36px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .exam-badge {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary);
+      background-color: var(--primary-subtle);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      margin-bottom: 14px;
+    }
+
+    .exam-header h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.35;
+      margin-bottom: 12px;
+    }
+
+    .exam-header p {
+      color: var(--text-secondary);
+      font-size: 1.02rem;
+      margin-bottom: 8px;
+    }
+
+    .sticky-progress {
+      position: sticky;
+      top: 16px;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      padding: 12px 20px;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .progress-text {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 8px;
+      background-color: var(--bg-subtle);
+      border-radius: 9999px;
+      margin: 0 16px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background-color: var(--primary);
+      border-radius: 9999px;
+      transition: width 0.3s ease;
+    }
+
+    .question-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 32px 28px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .question-card:focus-within {
+      border-color: #cbd5e1;
+    }
+
+    .question-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .question-num {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .question-status-badge {
+      display: none;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .question-status-badge.correct {
+      display: inline-block;
+      background-color: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid var(--success-border);
+    }
+
+    .question-status-badge.wrong {
+      display: inline-block;
+      background-color: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid var(--error-border);
+    }
+
+    .question-text {
+      font-size: 1.05rem;
+      color: var(--text-main);
+      margin-bottom: 16px;
+    }
+
+    .assertivas-panel {
+      background-color: #fafbfd;
+      border-left: 3.5px solid #cbd5e1;
+      padding: 14px 18px;
+      margin: 18px 0;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .assertivas-panel p {
+      margin-bottom: 10px;
+      font-size: 0.98rem;
+    }
+
+    .assertivas-panel p:last-child {
+      margin-bottom: 0;
+    }
+
+    pre code {
+      display: block;
+      background-color: var(--bg-code);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-family: var(--font-mono);
+      font-size: 0.92rem;
+      color: #0f172a;
+      overflow-x: auto;
+      margin: 14px 0;
+      line-height: 1.55;
+    }
+
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 18px;
+      border: 1.5px solid var(--border-light);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.98rem;
+      color: var(--text-main);
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .option-item:hover {
+      background-color: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    .option-item input[type="radio"] {
+      margin-top: 4px;
+      accent-color: var(--primary);
+      width: 17px;
+      height: 17px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* Estilos pós-correção */
+    .option-item.state-correct-chosen {
+      background-color: var(--success-bg) !important;
+      border-color: var(--success-border) !important;
+      color: var(--success-text) !important;
+      font-weight: 600;
+    }
+
+    .option-item.state-wrong-chosen {
+      background-color: var(--error-bg) !important;
+      border-color: var(--error-border) !important;
+      color: var(--error-text) !important;
+      text-decoration: line-through;
+    }
+
+    .option-item.state-actual-correct {
+      background-color: var(--success-bg) !important;
+      border-color: var(--success-border) !important;
+      color: var(--success-text) !important;
+      font-weight: 600;
+    }
+
+    .submit-bar {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 28px;
+      text-align: center;
+      margin: 36px 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-main {
+      background-color: var(--primary);
+      color: #ffffff;
+      font-size: 1.08rem;
+      font-weight: 600;
+      padding: 16px 36px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.25);
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .btn-main:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-main:active {
+      transform: scale(0.98);
+    }
+
+    .alert-box {
+      color: var(--error-text);
+      background-color: var(--error-bg);
+      border: 1px solid var(--error-border);
+      border-radius: 6px;
+      padding: 10px 16px;
+      margin-top: 14px;
+      display: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    /* SEÇÃO DE RESULTADOS E RESOLUÇÕES */
+    #results-area {
+      display: none;
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 2px dashed #cbd5e1;
+    }
+
+    .score-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 36px 28px;
+      text-align: center;
+      margin-bottom: 36px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .score-card h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .score-val {
+      font-size: 3.4rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 12px 0;
+      letter-spacing: -0.03em;
+    }
+
+    .score-desc {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .resolutions-heading {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border-light);
+    }
+
+    .resolution-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      padding: 26px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .resolution-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 10px;
+    }
+
+    .resolution-header h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .gabarito-tag {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #ffffff;
+      background-color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 6px;
+    }
+
+    .resolution-body ul {
+      list-style-type: none;
+      padding-left: 0;
+      margin: 10px 0;
+    }
+
+    .resolution-body li {
+      margin-bottom: 12px;
+      padding-left: 20px;
+      position: relative;
+      font-size: 0.98rem;
+    }
+
+    .resolution-body li::before {
+      content: "•";
+      position: absolute;
+      left: 4px;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .resolution-footer {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-light);
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 0.98rem;
+    }
+
+    .btn-restart {
+      background-color: #475569;
+      color: #ffffff;
+      font-size: 0.98rem;
+      font-weight: 600;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      margin-top: 20px;
+    }
+
+    .btn-restart:hover {
+      background-color: #334155;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="app-container">
+    
+    <header class="exam-header">
+      <span class="exam-badge">Banca FAURGS • Prova Simulada</span>
+      <h1>Programação Web: Tipografia, Cores e Pseudoclasses CSS3</h1>
+      <p>Simulado composto por 10 questões inéditas elaboradas nos moldes estruturais da Fundação de Apoio da Universidade Federal do Rio Grande do Sul.</p>
+      <p style="font-size: 0.92rem; color: var(--text-muted);">Marque as alternativas com atenção. Ao finalizar, submeta a prova para ver o número de acertos e conferir a fundamentação analítica mantida na mesma página.</p>
+    </header>
+
+    <div class="sticky-progress">
+      <span class="progress-text">Progresso do Simulado</span>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-bar"></div>
+      </div>
+      <span class="progress-text" id="progress-count">0 / 10 respondidas</span>
+    </div>
+
+    <form id="quiz-form">
+
+      <article class="question-card" id="card-q1">
+        <div class="question-card-top">
+          <span class="question-num">Questão 01</span>
+          <span class="question-status-badge" id="badge-q1"></span>
+        </div>
+        <div class="question-text">
+          <p>Considere as seguintes afirmações a respeito de unidades de medida tipográfica, acessibilidade digital e design responsivo no CSS3:</p>
+          <div class="assertivas-panel">
+            <p><strong>I -</strong> A unidade <code>px</code> (pixel) é classificada como absoluta e estática, sendo recomendada para detalhes fixos de interface e delimitações finas de borda; contudo, não reage dinamicamente às preferências de tamanho de fonte global configuradas pelo usuário nas opções de acessibilidade do navegador.</p>
+            <p><strong>II -</strong> A unidade <code>rem</code> (<em>Root EM</em>) define uma dimensão relativa calculada em função do valor computado do <code>font-size</code> definido no elemento raiz (<code>&lt;html&gt;</code>). Se a raiz do documento possuir o valor padrão de 16px, a declaração <code>font-size: 2.5rem;</code> em um título resultará na renderização visual de 40px.</p>
+            <p><strong>III -</strong> A unidade <code>rem</code>, quando aplicada a elementos aninhados em múltiplos níveis hierárquicos no DOM, sofre o efeito cascata acumulativo (<em>compounding effect</em>), multiplicando o seu valor proporcionalmente ao tamanho da fonte do elemento contêiner pai imediato.</p>
+          </div>
+          <p>Quais estão corretas?</p>
+        </div>
+        <div class="options-container">
+          <label class="option-item"><input type="radio" name="q1" value="A"> (A) Apenas I.</label>
+          <label class="option-item"><input type="radio" name="q1" value="B"> (B) Apenas II.</label>
+          <label class="option-item"><input type="radio" name="q1" value="C"> (C) Apenas I e II.</label>
+          <label class="option-item"><input type="radio" name="q1" value="D"> (D) Apenas II e III.</label>
+          <label class="option-item"><input type="radio" name="q1" value="E"> (E) I, II e III.</label>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q2">
+        <div class="question-card-top">
+          <span class="question-num">Questão 02</span>
+          <span class="question-status-badge" id="badge-q2"></span>
+        </div>
+        <div class="question-text">
+          <p>No âmbito da tipografia digital e das diretrizes do W3C para estilização de páginas web, a propriedade <code>font-family</code> aceita uma lista de famílias tipográficas separadas por vírgula. A respeito do conceito de contingência (<em>fallback</em>) e das famílias genéricas, assinale a alternativa correta.</p>
+        </div>
+        <div class="options-container">
+          <label class="option-item"><input type="radio" name="q2" value="A"> (A) As fontes classificadas na família genérica <code>serif</code>, a exemplo de Times New Roman, Georgia e Garamond, destacam-se por apresentar traços geométricos retilíneos e ausência de ornamentos ou arremates estruturais nas extremidades das hastes.</label>
+          <label class="option-item"><input type="radio" name="q2" value="B"> (B) A família genérica <code>monospace</code> agrupa fontes em que cada caractere ocupa rigorosamente a mesma largura horizontal no plano de desenho, sendo recomendada para exibição de códigos-fonte e alinhamento de dados estruturados.</label>
+          <label class="option-item"><input type="radio" name="q2" value="C"> (C) Na declaração <code>font-family: 'Poppins', sans-serif;</code>, a presença do valor genérico <code>sans-serif</code> é redundante, pois, caso ocorra uma falha de conexão de rede impedindo o download da fonte principal, o navegador interrompe a renderização textual para preservar a fidelidade visual concebida no layout.</label>
+          <label class="option-item"><input type="radio" name="q2" value="D"> (D) O uso exclusivo de fontes instaladas localmente no sistema operacional da estação do desenvolvedor garante portabilidade uniforme entre clientes distintos, dispensando mecanismos de contingência em folhas de estilo.</label>
+          <label class="option-item"><input type="radio" name="q2" value="E"> (E) Fontes sem serifa (<code>sans-serif</code>), como Arial, Roboto e Open Sans, são restritas pelo W3C a documentos acadêmicos clássicos, sendo inadequadas para interfaces limpas e minimalistas em monitores de alta densidade de pixels.</label>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q3">
+        <div class="question-card-top">
+          <span class="question-num">Questão 03</span>
+          <span class="question-status-badge" id="badge-q3"></span>
+        </div>
+        <div class="question-text">
+          <p>Considere o fragmento HTML a seguir, inserido na seção <code>&lt;head&gt;</code> de uma página web corporativa:</p>
+          <pre><code>&lt;link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"&gt;</code></pre>
+          <p>Assinale a alternativa que preenche, correta e respectivamente, as lacunas do texto abaixo sobre essa implementação técnica.</p>
+          <p style="margin-top: 10px; font-style: italic; color: var(--text-secondary);">"A diretiva <code>&lt;link&gt;</code> estabelece a importação de uma folha de estilos externa provida pelo serviço Google Fonts, requisitando a família tipográfica Roboto parametrizada com os pesos numéricos _________ e _________. O parâmetro de consulta <code>display=swap</code> orienta o motor do navegador a utilizar temporariamente uma fonte do sistema e substituí-la pela fonte customizada logo após a conclusão do download do arquivo, contornando o bloqueio visual da interface. No arquivo CSS da aplicação, a formatação de um cabeçalho em negrito deverá ser mapeada por meio da propriedade _________ com valor numérico 700."</p>
+        </div>
+        <div class="options-container">
+          <label class="option-item"><input type="radio" name="q3" value="A"> (A) Fino – Leve – <code>font-style</code></label>
+          <label class="option-item"><input type="radio" name="q3" value="B"> (B) Regular – Negrito – <code>font-weight</code></label>
+          <label class="option-item"><input type="radio" name="q3" value="C"> (C) Seminegrito – Extranegrito – <code>font-size</code></label>
+          <label class="option-item"><input type="radio" name="q3" value="D"> (D) Regular – Itálico – <code>font-variant</code></label>
+          <label class="option-item"><input type="radio" name="q3" value="E"> (E) Leve – Negrito – <code>text-decoration</code></label>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q4">
+        <div class="question-card-top">
+          <span class="question-num">Questão 04</span>
+          <span class="question-status-badge" id="badge-q4"></span>
+        </div>
+        <div class="question-text">
+          <p>Sobre os modelos de representação de cores no CSS3, especificamente no que tange à notação Hexadecimal e à função de cor <code>rgba()</code>, considere as seguintes afirmações:</p>
+          <div class="assertivas-panel">
+            <p><strong>I -</strong> O modelo hexadecimal básico utiliza o caractere sustenido (<code>#</code>) antecedendo um conjunto de 6 dígitos alfanuméricos em base 16, distribuídos em três pares ordinais que determinam, respectivamente, as intensidades dos canais Vermelho (<em>Red</em>), Verde (<em>Green</em>) e Azul (<em>Blue</em>), como exemplificado em <code>#2563eb</code>.</p>
+            <p><strong>II -</strong> Na função <code>rgba(r, g, b, alpha)</code>, os argumentos cromáticos <code>r</code>, <code>g</code> e <code>b</code> são especificados por inteiros no intervalo de 0 a 255, enquanto o quarto canal (<em>alpha</em>) aceita valores decimais de ponto flutuante no intervalo contínuo de 0 a 1, em que o valor 0 representa opacidade nula (transparência completa) e 1 representa opacidade integral.</p>
+            <p><strong>III -</strong> A declaração <code>background-color: rgba(0, 0, 0, 0.05);</code> aplica uma camada cromática preta com 5% de opacidade na cor de preenchimento do contêiner, permitindo a visibilidade parcial dos elementos subjacentes sem alterar a opacidade do texto contido nesse elemento, definido pela propriedade <code>color</code>.</p>
+          </div>
+          <p>Quais estão corretas?</p>
+        </div>
+        <div class="options-container">
+          <label class="option-item"><input type="radio" name="q4" value="A"> (A) Apenas I.</label>
+          <label class="option-item"><input type="radio" name="q4" value="B"> (B) Apenas III.</label>
+          <label class="option-item"><input type="radio" name="q4" value="C"> (C) Apenas I e II.</label>
+          <label class="option-item"><input type="radio" name="q4" value="D"> (D) Apenas II e III.</label>
+          <label class="option-item"><input type="radio" name="q4" value="E"> (E) I, II e III.</label>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q5">
+        <div class="question-card-top">
+          <span class="question-num">Questão 05</span>
+          <span class="question-status-badge" id="badge-q5"></span>
+        </div>
+        <div class="question-text">
+          <p>No CSS3, as pseudoclasses consistem em identificadores contextuais antecedidos pelo caractere de dois pontos (<code>:</code>) que adicionam regras de renderização atreladas ao estado transiente ou posicional de um elemento, dispensando manipulações dinâmicas na árvore do documento via JavaScript. A respeito das pseudoclasses de estado <code>:hover</code>, <code>:active</code> e <code>:focus</code>, assinale a alternativa correta.</p>
+        </div>
+        <div class="options-container">
+          <label class="option-item"><input type="radio" name="q5" value="A"> (A) A pseudoclasse <code>:hover</code> atua unicamente quando o usuário mantém pressionado o botão do mouse sobre o elemento, sendo incapaz de capturar a simples passagem ou sobreposição do cursor sobre a caixa do componente.</label>
+          <label class="option-item"><input type="radio" name="q5" value="B"> (B) A pseudoclasse <code>:active</code> torna-se ativa no intervalo temporal exato em que o elemento está sendo fisicamente clicado ou pressionado pelo usuário, desativando-se assim que o mecanismo de clique é liberado.</label>
+          <label class="option-item"><input type="radio" name="q5" value="C"> (C) A pseudoclasse <code>:focus</code> é disparada de forma restrita por periféricos de apontamento físico (mouse), não sendo compatível com a navegação sequencial assistiva efetuada por meio da tecla <code>TAB</code> em formulários ou botões.</label>
+          <label class="option-item"><input type="radio" name="q5" value="D"> (D) As pseudoclasses de estado afetam de forma imutável a estrutura estática do DOM (<em>Document Object Model</em>), de modo que o navegador precisa recriar a árvore de acessibilidade a cada interação periférica do usuário.</label>
+          <label class="option-item"><input type="radio" name="q5" value="E"> (E) O uso da pseudoclasse <code>:active</code> invalida a aplicação de transformações geométricas bidimensionais, tais como <code>transform: translateY(2px);</code>, por motivos de segurança do motor de renderização.</label>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q6">
+        <div class="question-card-top">
+          <span class="question-num">Questão 06</span>
+          <span class="question-status-badge" id="badge-q6"></span>
+        </div>
+        <div class="question-text">
+          <p>Considere o seguinte trecho de marcação HTML representativo de uma estrutura de menu contextual:</p>
+          <pre><code>&lt;ul class="painel-navegacao"&gt;
+  &lt;li class="item-link"&gt;Início&lt;/li&gt;
+  &lt;li class="item-link"&gt;Processos&lt;/li&gt;
+  &lt;li class="item-link"&gt;Relatórios&lt;/li&gt;
+  &lt;li class="item-link"&gt;Configurações&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+          <p>Caso o desenvolvedor aplique a seguinte folha de estilo CSS:</p>
+          <pre><code>.painel-navegacao li:first-child {
+  border-left: 4px solid #2563eb;
+}
+.painel-navegacao li:last-child {
+  border-right: 4px solid #10b981;
+}</code></pre>
+          <p>Assinale a alternativa que descreve corretamente o resultado visual gerado no navegador.</p>
+        </div>
+        <div class="options-container">
+          <label class="option-item"><input type="radio" name="q6" value="A"> (A) Todos os elementos <code>&lt;li&gt;</code> do contêiner receberão simultaneamente ambas as bordas (esquerda e direita), visto que as regras de filhos propagam propriedades de estilização a todos os irmãos adjacentes da mesma lista.</label>
+          <label class="option-item"><input type="radio" name="q6" value="B"> (B) O elemento contendo o texto "Início" receberá a borda esquerda azul (<code>#2563eb</code>), e o elemento contendo o texto "Configurações" receberá a borda direita verde (<code>#10b981</code>), permanecendo os itens intermediários sem as respectivas bordas.</label>
+          <label class="option-item"><input type="radio" name="q6" value="C"> (C) A regra <code>.painel-navegacao li:first-child</code> será ignorada pelo motor CSS, visto que o padrão CSS3 impõe a utilização mandatória da notação com quatro pontos (<code>li::first-child</code>) para identificar filhos estruturais.</label>
+          <label class="option-item"><input type="radio" name="q6" value="D"> (D) O elemento "Processos" receberá a borda de <code>:first-child</code>, uma vez que a contagem de nós no padrão W3C inicia pelo índice zero (índice 0 correspondendo à tag <code>&lt;ul&gt;</code> e índice 1 correspondendo ao segundo nó filho).</label>
+          <label class="option-item"><input type="radio" name="q6" value="E"> (E) Nenhuma borda será renderizada, pois pseudoclasses estruturais não podem ser aplicadas de forma combinada com seletores de classe descendentes no CSS3.</label>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q7">
+        <div class="question-card-top">
+          <span class="question-num">Questão 07</span>
+          <span class="question-status-badge" id="badge-q7"></span>
+        </div>
+        <div class="question-text">
+          <p>A especificação <em>CSS Transitions</em> define mecanismos para que modificações em valores computados de propriedades ocorram de maneira progressiva e temporalmente interpolada. Considere a seguinte diretiva aplicada a uma classe de interface:</p>
+          <pre><code>transition: all 0.2s ease;</code></pre>
+          <p>Considere as seguintes afirmações a respeito dessa declaração:</p>
+          <div class="assertivas-panel">
+            <p><strong>I -</strong> O identificador <code>all</code> atua como a propriedade abreviada de transição (<code>transition-property</code>), determinando que toda e qualquer alteração de estado aplicada a propriedades animáveis do elemento será sujeita à interpolação suave.</p>
+            <p><strong>II -</strong> O valor <code>0.2s</code> define a propriedade <code>transition-delay</code>, estipulando que o navegador deverá aguardar 200 milissegundos antes de iniciar o efeito visual após o gatilho da interação.</p>
+            <p><strong>III -</strong> A função de temporização <code>ease</code> (<em>transition-timing-function</em>) estabelece uma curva cúbica de velocidade na qual o movimento inicia de forma suave, acelera em sua etapa intermediária e desacelera suavemente próximo ao repouso final.</p>
+          </div>
+          <p>Quais estão corretas?</p>
+        </div>
+        <div class="options-container">
+          <label class="option-item"><input type="radio" name="q7" value="A"> (A) Apenas I.</label>
+          <label class="option-item"><input type="radio" name="q7" value="B"> (B) Apenas II.</label>
+          <label class="option-item"><input type="radio" name="q7" value="C"> (C) Apenas I e III.</label>
+          <label class="option-item"><input type="radio" name="q7" value="D"> (D) Apenas II e III.</label>
+          <label class="option-item"><input type="radio" name="q7" value="E"> (E) I, II e III.</label>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q8">
+        <div class="question-card-top">
+          <span class="question-num">Questão 08</span>
+          <span class="question-status-badge" id="badge-q8"></span>
+        </div>
+        <div class="question-text">
+          <p>Em projetos de interfaces digitais, a legibilidade textual e o equilíbrio hierárquico dependem do controle preciso das propriedades de tipografia e espaçamento vertical. A respeito das propriedades <code>font-weight</code>, <code>line-height</code> e <code>letter-spacing</code>, assinale a alternativa correta.</p>
+        </div>
+        <div class="options-container">
+          <label class="option-item"><input type="radio" name="q8" value="A"> (A) A propriedade <code>font-weight</code> aceita valores numéricos contínuos padronizados entre 100 e 900, em que 400 mapeia formalmente o peso Regular (normal) e 700 corresponde ao peso Bold (negrito).</label>
+          <label class="option-item"><input type="radio" name="q8" value="B"> (B) A propriedade <code>line-height</code> restringe-se exclusivamente a valores expressos em porcentagens inteiras obrigatórias, sendo formalmente proibido o emprego de fatores adimensionais puros como <code>1.3</code> ou <code>1.65</code>.</label>
+          <label class="option-item"><input type="radio" name="q8" value="C"> (C) A definição de um valor reduzido de <code>line-height</code> (por exemplo, abaixo de 1.1) em parágrafos densos de texto corrido é recomendada por diretrizes de acessibilidade para maximizar o respiro vertical e otimizar o conforto óptico na leitura.</label>
+          <label class="option-item"><input type="radio" name="q8" value="D"> (D) A propriedade <code>letter-spacing</code> regula o espaçamento vertical entre linhas de base tipográfica adjacentes (<em>baselines</em>), operando de maneira intercambiável com a propriedade <code>line-height</code>.</label>
+          <label class="option-item"><input type="radio" name="q8" value="E"> (E) O peso tipográfico numérico <code>900</code> em <code>font-weight</code> denota a variante estrutural "Fino" (<em>Thin</em>), ao passo que o valor numérico <code>100</code> especifica a variante estrutural "Extranegrito" (<em>Black</em>).</label>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q9">
+        <div class="question-card-top">
+          <span class="question-num">Questão 09</span>
+          <span class="question-status-badge" id="badge-q9"></span>
+        </div>
+        <div class="question-text">
+          <p>Analise a seguinte folha de estilo CSS elaborada para um botão de submissão de dados em um sistema corporativo:</p>
+          <pre><code>.btn-principal {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background-color: #2563eb;
+  color: #ffffff;
+  padding: 12px 28px;
+  border: 2px solid #2563eb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-principal:hover {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.btn-principal:active {
+  background-color: #1e40af;
+  transform: scale(0.96);
+}</code></pre>
+          <p>A respeito do comportamento do elemento quando renderizado em conformidade com o CSS3, assinale a alternativa correta.</p>
+        </div>
+        <div class="options-container">
+          <label class="option-item"><input type="radio" name="q9" value="A"> (A) Ao posicionar o cursor sobre o botão (<code>:hover</code>), a cor de fundo comuta instantaneamente de <code>#2563eb</code> para <code>#1d4ed8</code> de maneira brusca, uma vez que a propriedade <code>transition</code> é anulada na transição para seletores de pseudoclasse.</label>
+          <label class="option-item"><input type="radio" name="q9" value="B"> (B) Durante o momento de pressão física do clique sobre o botão (<code>:active</code>), a cor de fundo assume a tonalidade <code>#1e40af</code> e o componente sofre uma contração dimensional uniforme para 96% de sua escala original (<code>scale(0.96)</code>), gerando retorno tátil ao usuário.</label>
+          <label class="option-item"><input type="radio" name="q9" value="C"> (C) A declaração <code>transform: scale(0.96)</code> no estado <code>:active</code> provoca uma expansão proporcional de 96% no tamanho global do botão, deslocando permanentemente os nós vizinhos no fluxo do layout.</label>
+          <label class="option-item"><input type="radio" name="q9" value="D"> (D) O botão apresentará texto renderizado obrigatoriamente na fonte Courier New caso o arquivo externo 'Poppins' não seja baixado, uma vez que <code>sans-serif</code> aponta diretamente para fontes de largura fixa de terminal.</label>
+          <label class="option-item"><input type="radio" name="q9" value="E"> (E) A propriedade <code>transition: all 0.2s ease;</code> deveria constar compulsoriamente no escopo da regra <code>.btn-principal:hover</code> para permitir a interpolação suave na saída do mouse (<em>mouse out</em>), sendo inútil sua alocação na classe base <code>.btn-principal</code>.</label>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q10">
+        <div class="question-card-top">
+          <span class="question-num">Questão 10</span>
+          <span class="question-status-badge" id="badge-q10"></span>
+        </div>
+        <div class="question-text">
+          <p>Considere a seguinte situação hipotética de desenvolvimento front-end:</p>
+          <p style="margin-top: 8px; font-style: italic; color: var(--text-secondary);">"Um analista de sistemas implementou a folha de estilo de um portal governamental definindo <code>font-size: 1.75rem;</code> para os títulos <code>&lt;h2&gt;</code> e <code>font-size: 1rem;</code> para os parágrafos <code>&lt;p&gt;</code>. O tamanho-base padrão do elemento raiz <code>&lt;html&gt;</code> configurado nativamente no navegador é de 16px. Para avaliar a aderência do layout a normas de acessibilidade, foram simuladas alterações nos dispositivos dos usuários."</p>
+          <div class="assertivas-panel">
+            <p><strong>I -</strong> Caso um usuário com limitações visuais reconfigure o tamanho padrão de fonte do seu navegador de 16px para 24px, a dimensão computada do título <code>&lt;h2&gt;</code> será recalculada automaticamente para 42px, preservando a proporcionalidade visual da interface.</p>
+            <p><strong>II -</strong> Caso o analista tivesse fixado os elementos em unidades estáticas (<code>font-size: 28px;</code> para títulos e <code>font-size: 16px;</code> para parágrafos), o redimensionamento nativo das preferências globais de fonte do navegador não surtiria efeito sobre esses textos, comprometendo a acessibilidade.</p>
+            <p><strong>III -</strong> A unidade <code>rem</code> vincula a sua base dimensional ao valor computado do <code>font-size</code> do elemento contêiner pai direto de cada tag, operando identicamente ao comportamento da unidade percentual (<code>%</code>).</p>
+          </div>
+          <p>Quais estão corretas?</p>
+        </div>
+        <div class="options-container">
+          <label class="option-item"><input type="radio" name="q10" value="A"> (A) Apenas I.</label>
+          <label class="option-item"><input type="radio" name="q10" value="B"> (B) Apenas II.</label>
+          <label class="option-item"><input type="radio" name="q10" value="C"> (C) Apenas I e II.</label>
+          <label class="option-item"><input type="radio" name="q10" value="D"> (D) Apenas II e III.</label>
+          <label class="option-item"><input type="radio" name="q10" value="E"> (E) I, II e III.</label>
+        </div>
+      </article>
+
+      <div class="submit-bar">
+        <button type="button" id="btn-submit" class="btn-main" onclick="avaliarProva()">Finalizar Simulado e Ver Resoluções</button>
+        <div id="validation-alert" class="alert-box">Por favor, responda a todas as 10 questões antes de encerrar o simulado.</div>
+      </div>
+
+    </form>
+
+    <section id="results-area">
+      
+      <div class="score-card">
+        <h2>Resultado Consolidado</h2>
+        <div class="score-val" id="score-display">0 / 10</div>
+        <p class="score-desc" id="score-analysis">Calculando fundamentações...</p>
+      </div>
+
+      <h2 class="resolutions-heading">Gabarito Oficial e Resoluções Analíticas</h2>
+
+      <!-- Resolução 01 -->
+      <article class="resolution-card">
+        <div class="resolution-header">
+          <h3>Questão 01</h3>
+          <span class="gabarito-tag">Gabarito Oficial: C</span>
+        </div>
+        <div class="resolution-body">
+          <ul>
+            <li><strong>Assertiva I: Correta.</strong> A unidade <code>px</code> é classificada no CSS como uma medida absoluta de comprimento na tela. O valor em pixel é estático e desprovido de ligação contextual com as preferências globais do agente de usuário. Se o usuário aumentar o tamanho de texto nativo do navegador para fins de acessibilidade, caixas e textos fixados com <code>px</code> permanecem inalterados, violando diretrizes de acessibilidade como a WCAG.</li>
+            <li><strong>Assertiva II: Correta.</strong> A unidade <code>rem</code> (<em>root em</em>) toma como denominador exclusivo de escala o tamanho da fonte computado no elemento raiz (<code>&lt;html&gt;</code>). Dado o valor-base canônico de 16px, a expressão <code>2.5rem</code> gera: <code>2.5 × 16px = 40px</code>. O valor computado final resulta precisamente em 40px.</li>
+            <li><strong>Assertiva III: Incorreta.</strong> O efeito de multiplicação geométrica em cascata acumulativa (<em>compounding effect</em>) ocorre exclusivamente com a unidade relativa <code>em</code>, que toma como base o <code>font-size</code> herdado do elemento pai imediato. A especificação do W3C introduziu a unidade <code>rem</code> precisamente para erradicar o efeito multiplicativo descontrolado em nós profundamente aninhados no DOM, mantendo a ancoragem dimensional diretamente no elemento raiz.</li>
+          </ul>
+          <div class="resolution-footer">Conclusão: Estão corretas as assertivas I e II. (Alternativa C)</div>
+        </div>
+      </article>
+
+      <!-- Resolução 02 -->
+      <article class="resolution-card">
+        <div class="resolution-header">
+          <h3>Questão 02</h3>
+          <span class="gabarito-tag">Gabarito Oficial: B</span>
+        </div>
+        <div class="resolution-body">
+          <ul>
+            <li><strong>Alternativa A: Incorreta.</strong> As fontes <code>serif</code> caracterizam-se pela presença de serifas, isto é, traços ornamentais, prolongamentos e arremates nas extremidades das hastes das letras. A ausência de ornamentos e os traços geométricos retilíneos são marcas definidoras da família genérica <code>sans-serif</code>.</li>
+            <li><strong>Alternativa B: Correta.</strong> Na tipografia digital, fontes <code>monospace</code> (monoespaçadas) impõem que todos os glifos compartilhem estritamente o mesmo avanço horizontal fixo (<em>fixed-pitch</em>). Essa invariância geométrica viabiliza o alinhamento visual de colunas de texto sem tabelas e é padrão em interfaces de desenvolvimento e consoles.</li>
+            <li><strong>Alternativa C: Incorreta.</strong> O mecanismo de contingência tipográfica (<em>fallback stack</em>) é uma rede de segurança estrutural. Caso a fonte preferencial ('Poppins') não seja localizada ou ocorra erro de conexão com a CDN, o navegador não interrompe o fluxo de renderização; ele recorre à família genérica do sistema (<code>sans-serif</code>), desenhando o texto com a fonte limpa nativa do cliente.</li>
+            <li><strong>Alternativa D: Incorreta.</strong> Confiar exclusivamente em fontes locais é uma falha de projeto. Fontes locais residem apenas no sistema operacional em que foram instaladas. Em clientes externos onde a fonte inexista, o navegador adotará a fonte padrão de contingência sem controle prévio de diagramação.</li>
+            <li><strong>Alternativa E: Incorreta.</strong> Fontes sem serifa (<code>sans-serif</code>) são o padrão dominante em design de interfaces de usuário (<em>UI Design</em>) em razão da legibilidade superior em monitores de matriz de pontos e telas de alta densidade.</li>
+          </ul>
+          <div class="resolution-footer">Conclusão: Alternativa correta: B.</div>
+        </div>
+      </article>
+
+      <!-- Resolução 03 -->
+      <article class="resolution-card">
+        <div class="resolution-header">
+          <h3>Questão 03</h3>
+          <span class="gabarito-tag">Gabarito Oficial: B</span>
+        </div>
+        <div class="resolution-body">
+          <ul>
+            <li><strong>Análise dos pesos tipográficos:</strong> O padrão CSS Fonts Module define os pesos numéricos de renderização entre 100 e 900. O peso <code>400</code> mapeia a espessura Regular (normal), enquanto o peso <code>700</code> mapeia a espessura Bold (negrito).</li>
+            <li><strong>Análise da declaração de estilos:</strong> A propriedade CSS responsável por ditar a grossura da haste dos caracteres é <code>font-weight</code>. Por outro lado, <code>font-style</code> define postura tipográfica (<code>normal</code>, <code>italic</code>, <code>oblique</code>), <code>font-size</code> rege a escala de corpo, <code>font-variant</code> lida com caixas alternativas (como versaletes) e <code>text-decoration</code> com adornos como sublinhados.</li>
+            <li><strong>Mapeamento das lacunas:</strong> As lacunas exigem, sequencialmente: Regular (referente a 400), Negrito (referente a 700) e a propriedade <code>font-weight</code>.</li>
+          </ul>
+          <div class="resolution-footer">Conclusão: Alternativa correta: B.</div>
+        </div>
+      </article>
+
+      <!-- Resolução 04 -->
+      <article class="resolution-card">
+        <div class="resolution-header">
+          <h3>Questão 04</h3>
+          <span class="gabarito-tag">Gabarito Oficial: E</span>
+        </div>
+        <div class="resolution-body">
+          <ul>
+            <li><strong>Assertiva I: Correta.</strong> A notação hexadecimal utiliza a base 16 (algarismos de 0 a 9 e letras de 'a' a 'f'). O arranjo clássico <code>#RRGGBB</code> decompõe os canais aditivos de luz em Vermelho (<em>Red</em>), Verde (<em>Green</em>) e Azul (<em>Blue</em>). No exemplo <code>#2563eb</code>, <code>25</code> modula o canal vermelho, <code>63</code> o canal verde e <code>eb</code> o azul.</li>
+            <li><strong>Assertiva II: Correta.</strong> A sintaxe funcional <code>rgba()</code> exige inteiros no domínio [0, 255] para os canais de cor e um valor escalar em ponto flutuante no domínio [0, 1] para o canal de opacidade (<em>alpha</em>). O valor 0 representa ausência de opacidade (100% transparente) e o valor 1 representa opacidade total (100% opaco).</li>
+            <li><strong>Assertiva III: Correta.</strong> O uso de <code>rgba()</code> no valor de <code>background-color</code> restringe o cálculo de mesclagem alfa (<em>alpha blending</em>) exclusivamente ao plano de preenchimento do contêiner. Diferente da propriedade global <code>opacity</code> (que propaga a semitransparência de forma inescapável a todos os elementos descendentes da subárvore), a função <code>rgba()</code> mantém o texto (<code>color</code>) totalmente nítido e legível.</li>
+          </ul>
+          <div class="resolution-footer">Conclusão: As assertivas I, II e III estão corretas. (Alternativa E)</div>
+        </div>
+      </article>
+
+      <!-- Resolução 05 -->
+      <article class="resolution-card">
+        <div class="resolution-header">
+          <h3>Questão 05</h3>
+          <span class="gabarito-tag">Gabarito Oficial: B</span>
+        </div>
+        <div class="resolution-body">
+          <ul>
+            <li><strong>Alternativa A: Incorreta.</strong> O estado <code>:hover</code> é disparado pela sobreposição ou passagem do ponteiro do mouse sobre os limites da caixa do elemento. A ação de manter pressionado o botão do mouse não é requisito para o <code>:hover</code>, sendo este o papel da pseudoclasse <code>:active</code>.</li>
+            <li><strong>Alternativa B: Correta.</strong> A pseudoclasse de ação <code>:active</code> reflete o estado transiente em que o componente está sendo ativado diretamente pelo usuário. Em dispositivos apontadores, o estado perdura entre o instante de abaixamento do botão do mouse (<em>mouse down</em>) e a sua liberação (<em>mouse up</em>).</li>
+            <li><strong>Alternativa C: Incorreta.</strong> A pseudoclasse <code>:focus</code> atua primordialmente na navegação via teclado através da tecla <code>TAB</code>. A eliminação visual do contorno de foco em botões e campos de formulário sem tratamento visual substituto constitui severa violação de acessibilidade.</li>
+            <li><strong>Alternativa D: Incorreta.</strong> Pseudoclasses não alteram a árvore de nós estáticos do DOM. O motor de estilo apenas reavalia as regras de casamento (<em>selector matching</em>) e recalcula os estilos computados na árvore de renderização (<em>render tree</em>).</li>
+            <li><strong>Alternativa E: Incorreta.</strong> A composição de pseudoclasses com funções de matriz de transformação (<code>transform</code>) é válida e incentivada para gerar <em>feedback</em> cinemático nas interfaces web.</li>
+          </ul>
+          <div class="resolution-footer">Conclusão: Alternativa correta: B.</div>
+        </div>
+      </article>
+
+      <!-- Resolução 06 -->
+      <article class="resolution-card">
+        <div class="resolution-header">
+          <h3>Questão 06</h3>
+          <span class="gabarito-tag">Gabarito Oficial: B</span>
+        </div>
+        <div class="resolution-body">
+          <ul>
+            <li><strong>Alternativa A: Incorreta.</strong> Pseudoclasses estruturais atuam com granularidade posicional fina dentro de coleções de elementos irmãos (<em>siblings</em>). Elas não realizam propagação generalizada para todos os itens da lista.</li>
+            <li><strong>Alternativa B: Correta.</strong> O seletor <code>.painel-navegacao li:first-child</code> localiza o primeiro elemento <code>&lt;li&gt;</code> filho do elemento pai, aplicando a borda esquerda de 4px na cor <code>#2563eb</code> ("Início"). O seletor <code>.painel-navegacao li:last-child</code> intercepta o último elemento <code>&lt;li&gt;</code> da coleção no mesmo contêiner, aplicando a borda direita de 4px na cor <code>#10b981</code> ("Configurações"). Os elementos intermediários "Processos" e "Relatórios" não atendem a essas condições e não recebem estilização de borda.</li>
+            <li><strong>Alternativa C: Incorreta.</strong> Pseudoclasses estruturais e de estado são antecedidas por apenas um par de dois pontos (<code>:</code>). A notação de dois pares (<code>::</code>) é restrita pela norma CSS3 a pseudoelementos (<code>::before</code>, <code>::after</code>, <code>::first-letter</code>) para diferenciá-los de estados.</li>
+            <li><strong>Alternativa D: Incorreta.</strong> A indexação estrutural de seletores de contagem na árvore DOM do CSS é baseada em números naturais ordinais iniciando em 1 (1-based index). O nó correspondente a <code>:first-child</code> é o nó 1 ("Início").</li>
+            <li><strong>Alternativa E: Incorreta.</strong> A combinação de seletores de descendência com classes e pseudoclasses estruturais é padrão na arquitetura CSS.</li>
+          </ul>
+          <div class="resolution-footer">Conclusão: Alternativa correta: B.</div>
+        </div>
+      </article>
+
+      <!-- Resolução 07 -->
+      <article class="resolution-card">
+        <div class="resolution-header">
+          <h3>Questão 07</h3>
+          <span class="gabarito-tag">Gabarito Oficial: C</span>
+        </div>
+        <div class="resolution-body">
+          <ul>
+            <li><strong>Assertiva I: Correta.</strong> Na forma abreviada (<em>shorthand</em>), a propriedade <code>transition-property</code> aceita o identificador <code>all</code>, indicando que qualquer propriedade CSS animável que sofra mutação de valor entre estados passará pela interpolação de quadros calculada pelo navegador.</li>
+            <li><strong>Assertiva II: Incorreta.</strong> Na sintaxe abreviada de transição CSS, quando apenas um valor de tempo é informado, ele é obrigatoriamente atribuído à propriedade <code>transition-duration</code> (tempo de duração da transição). A propriedade <code>transition-delay</code> (atraso no disparo) requer a especificação de um segundo valor de tempo no bloco. Logo, <code>0.2s</code> denota que o ciclo de transição durará 200 milissegundos, iniciando de forma imediata.</li>
+            <li><strong>Assertiva III: Correta.</strong> O valor predefinido <code>ease</code> corresponde a uma função matemática de Bézier cúbica com vetor <code>cubic-bezier(0.25, 0.1, 0.25, 1.0)</code>. Ela impõe aceleração inicial suave, crescimento de velocidade na região intermediária e desaceleração progressiva ao atingir o estado final.</li>
+          </ul>
+          <div class="resolution-footer">Conclusão: Estão corretas as assertivas I e III. (Alternativa C)</div>
+        </div>
+      </article>
+
+      <!-- Resolução 08 -->
+      <article class="resolution-card">
+        <div class="resolution-header">
+          <h3>Questão 08</h3>
+          <span class="gabarito-tag">Gabarito Oficial: A</span>
+        </div>
+        <div class="resolution-body">
+          <ul>
+            <li><strong>Alternativa A: Correta.</strong> A propriedade <code>font-weight</code> aceita formalmente uma escala de valores numéricos de centenas inteiras no intervalo de 100 a 900. Nela, o valor <code>400</code> corresponde canonicamente a <code>normal</code>/Regular e o valor <code>700</code> mapeia o estado <code>bold</code>/Negrito.</li>
+            <li><strong>Alternativa B: Incorreta.</strong> O uso de valores adimensionais puros em <code>line-height</code> (como <code>1.3</code> ou <code>1.65</code>) é a prática técnica recomendada pelo W3C. Valores numéricos sem unidade operam como multiplicadores de proporção em relação ao <code>font-size</code> de cada elemento, permitindo que nós filhos herdem a proporção e recalculem sua própria altura de linha sem deformidades.</li>
+            <li><strong>Alternativa C: Incorreta.</strong> Valores de <code>line-height</code> abaixo de 1.1 reduzem drasticamente o espaço entre linhas adjacentes, gerando sobreposição física entre hastes ascendentes e descendentes de caracteres vizinhos e causando fadiga óptica severa ao leitor.</li>
+            <li><strong>Alternativa D: Incorreta.</strong> <code>letter-spacing</code> regula o espaçamento horizontal (<em>tracking</em>) entre glifos sucessivos em uma linha. O espaçamento vertical entre linhas é controlado por <code>line-height</code>.</li>
+            <li><strong>Alternativa E: Incorreta.</strong> O valor numérico <code>900</code> corresponde ao extremo de maior espessura (<em>Black</em> ou <em>Extra-Bold</em>), ao passo que o valor <code>100</code> mapeia a espessura mais tênue da fonte (<em>Thin</em>).</li>
+          </ul>
+          <div class="resolution-footer">Conclusão: Alternativa correta: A.</div>
+        </div>
+      </article>
+
+      <!-- Resolução 09 -->
+      <article class="resolution-card">
+        <div class="resolution-header">
+          <h3>Questão 09</h3>
+          <span class="gabarito-tag">Gabarito Oficial: B</span>
+        </div>
+        <div class="resolution-body">
+          <ul>
+            <li><strong>Alternativa A: Incorreta.</strong> A folha de estilo contém a diretiva <code>transition: all 0.2s ease;</code>. Dessa maneira, as mutações cromáticas disparadas pelo <code>:hover</code> (em <code>background-color</code> e <code>border-color</code>) são interpoladas de forma suave ao longo de 200 milissegundos pelo motor de renderização.</li>
+            <li><strong>Alternativa B: Correta.</strong> Durante a pressão do clique capturada por <code>:active</code>, o elemento recebe a tonalidade azul profunda <code>#1e40af</code> e sofre a transformação <code>scale(0.96)</code>. Essa matriz geométrica reduz a escala dimensional do botão para 96% do seu tamanho original, conferindo um retorno táctil visual de pressão física.</li>
+            <li><strong>Alternativa C: Incorreta.</strong> O fator <code>scale(0.96)</code> determina uma contração uniforme de 4% em relação à escala unitária de repouso (1.0). Além disso, transformações CSS aplicadas via <code>transform</code> alteram a camada de composição gráfica sem modificar o fluxo geométrico de layout (<em>layout reflow</em>), não deslocando elementos adjacentes.</li>
+            <li><strong>Alternativa D: Incorreta.</strong> A palavra-chave genérica <code>sans-serif</code> aponta para fontes sem serifa modernas e limpas (como Arial ou Roboto), enquanto fontes de largura fixa de terminal pertencem à categoria <code>monospace</code>.</li>
+            <li><strong>Alternativa E: Incorreta.</strong> Ao posicionar a declaração <code>transition</code> no seletor base <code>.btn-principal</code>, a interpolação atua de maneira bidirecional: funciona tanto na ativação do estado interativo quanto no retorno suave do componente ao seu estado de repouso original após a saída do mouse.</li>
+          </ul>
+          <div class="resolution-footer">Conclusão: Alternativa correta: B.</div>
+        </div>
+      </article>
+
+      <!-- Resolução 10 -->
+      <article class="resolution-card">
+        <div class="resolution-header">
+          <h3>Questão 10</h3>
+          <span class="gabarito-tag">Gabarito Oficial: C</span>
+        </div>
+        <div class="resolution-body">
+          <ul>
+            <li><strong>Assertiva I: Correta.</strong> A unidade <code>rem</code> escala dinamicamente com base no <code>font-size</code> da raiz (<code>&lt;html&gt;</code>). Se o usuário alterar a configuração do navegador de 16px para 24px, a base da raiz passará a ser 24px. Calculando o tamanho computado do título: <code>1.75 × 24px = 42px</code>. O parágrafo, fixado em <code>1rem</code>, passará a computar: <code>1 × 24px = 24px</code>. A hierarquia visual e a proporção da página adaptam-se de forma fluida à necessidade de acessibilidade do usuário.</li>
+            <li><strong>Assertiva II: Correta.</strong> Elementos dimensionados com pixels (<code>px</code>) são estáticos e ignoram mudanças efetuadas pelo usuário nas opções globais de acessibilidade de tamanho de fonte do navegador. A fixação estática impede o reescalonamento dinâmico da página em clientes que dependem de fontes ampliadas para leitura.</li>
+            <li><strong>Assertiva III: Incorreta.</strong> A unidade que referencia o tamanho de fonte do elemento pai direto é o <code>em</code>. O <code>rem</code> (<em>Root EM</em>) mantém sua ancoragem atrelada exclusivamente ao elemento raiz (<code>&lt;html&gt;</code>), neutralizando interferências do contêiner pai direto.</li>
+          </ul>
+          <div class="resolution-footer">Conclusão: Estão corretas as assertivas I e II. (Alternativa C)</div>
+        </div>
+      </article>
+
+      <div style="text-align: center; margin: 30px 0 50px 0;">
+        <button type="button" class="btn-restart" onclick="reiniciarSimulado()">Limpar Respostas e Refazer Simulado</button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    const GABARITO = {
+      q1: "C",
+      q2: "B",
+      q3: "B",
+      q4: "E",
+      q5: "B",
+      q6: "B",
+      q7: "C",
+      q8: "A",
+      q9: "B",
+      q10: "C"
+    };
+
+    // Monitoramento contínuo de preenchimento para a barra de progresso
+    document.querySelectorAll("input[type='radio']").forEach(radio => {
+      radio.addEventListener("change", () => {
+        atualizarProgresso();
+      });
+    });
+
+    function atualizarProgresso() {
+      let preenchidas = 0;
+      for (let i = 1; i <= 10; i++) {
+        if (document.querySelector(`input[name="q${i}"]:checked`)) {
+          preenchidas++;
+        }
+      }
+      const percentual = (preenchidas / 10) * 100;
+      document.getElementById("progress-bar").style.width = percentual + "%";
+      document.getElementById("progress-count").textContent = `${preenchidas} / 10 respondidas`;
+    }
+
+    function avaliarProva() {
+      const form = document.getElementById("quiz-form");
+      const alertBox = document.getElementById("validation-alert");
+      let preenchidas = 0;
+      let acertos = 0;
+
+      // Validação das 10 questões
+      for (let i = 1; i <= 10; i++) {
+        if (form.querySelector(`input[name="q${i}"]:checked`)) {
+          preenchidas++;
+        }
+      }
+
+      if (preenchidas < 10) {
+        alertBox.style.display = "block";
+        alertBox.textContent = `Atenção: você respondeu ${preenchidas} de 10 questões. Por favor, marque todas antes de finalizar.`;
+        return;
+      }
+
+      alertBox.style.display = "none";
+
+      // Processamento e coloração visual nos cards de questão
+      for (let i = 1; i <= 10; i++) {
+        const questaoNome = `q${i}`;
+        const oficial = GABARITO[questaoNome];
+        const selecionada = form.querySelector(`input[name="${questaoNome}"]:checked`);
+        const escolha = selecionada ? selecionada.value : null;
+
+        const badge = document.getElementById(`badge-${questaoNome}`);
+        const inputs = form.querySelectorAll(`input[name="${questaoNome}"]`);
+
+        inputs.forEach(input => {
+          input.disabled = true;
+          const itemLabel = input.parentElement;
+
+          if (input.value === escolha && escolha === oficial) {
+            itemLabel.classList.add("state-correct-chosen");
+          } else if (input.value === escolha && escolha !== oficial) {
+            itemLabel.classList.add("state-wrong-chosen");
+          } else if (input.value === oficial && escolha !== oficial) {
+            itemLabel.classList.add("state-actual-correct");
+          }
+        });
+
+        if (escolha === oficial) {
+          acertos++;
+          badge.textContent = "ACERTOU";
+          badge.className = "question-status-badge correct";
+        } else {
+          badge.textContent = `ERROU (Gabarito: ${oficial})`;
+          badge.className = "question-status-badge wrong";
+        }
+      }
+
+      // Exibição e cálculo do banner de pontuação
+      const scoreDisplay = document.getElementById("score-display");
+      const scoreAnalysis = document.getElementById("score-analysis");
+      scoreDisplay.textContent = `${acertos} / 10`;
+
+      const pct = (acertos / 10) * 100;
+      if (pct >= 80) {
+        scoreAnalysis.textContent = `Excelente desempenho! Aproveitamento de ${pct}%. Você demonstrou pleno domínio dos critérios conceituais de Front-end cobrados pela FAURGS.`;
+      } else if (pct >= 60) {
+        scoreAnalysis.textContent = `Bom aproveitamento (${pct}%). Revise as questões sinalizadas em vermelho abaixo para consolidar regras de especificidade, herança e acessibilidade.`;
+      } else {
+        scoreAnalysis.textContent = `Aproveitamento de ${pct}%. Recomendada leitura integral das fundamentações analíticas detalhadas abaixo para fixar os conceitos centrais.`;
+      }
+
+      // Ocultar botão de envio e expor a área inferior de resoluções
+      document.getElementById("btn-submit").style.display = "none";
+      const resultsArea = document.getElementById("results-area");
+      resultsArea.style.display = "block";
+
+      // Rolagem suave até a síntese de resultados
+      resultsArea.scrollIntoView({ behavior: "smooth" });
+    }
+
+    function reiniciarSimulado() {
+      const form = document.getElementById("quiz-form");
+      form.reset();
+
+      // Restaurar inputs e limpar classes de status
+      const inputs = form.querySelectorAll("input[type='radio']");
+      inputs.forEach(input => {
+        input.disabled = false;
+        const itemLabel = input.parentElement;
+        itemLabel.classList.remove("state-correct-chosen", "state-wrong-chosen", "state-actual-correct");
+      });
+
+      for (let i = 1; i <= 10; i++) {
+        const badge = document.getElementById(`badge-q${i}`);
+        badge.className = "question-status-badge";
+        badge.style.display = "none";
+      }
+
+      document.getElementById("results-area").style.display = "none";
+      document.getElementById("btn-submit").style.display = "inline-block";
+      document.getElementById("validation-alert").style.display = "none";
+      
+      atualizarProgresso();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  </script>
+</body>
+</html>
