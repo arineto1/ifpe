@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulado FUNDATEC - Design Responsivo e Media Queries</title>
+  <style>
+    :root {
+      --bg-page: #fbfbfc;
+      --surface-card: #ffffff;
+      --surface-subtle: #f1f5f9;
+      --border-color: #e2e8f0;
+      --border-focus: #3b82f6;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-soft: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --success: #15803d;
+      --success-bg: #f0fdf4;
+      --success-border: #86efac;
+      --error: #b91c1c;
+      --error-bg: #fef2f2;
+      --error-border: #fca5a5;
+      --code-bg: #0f172a;
+      --code-text: #e2e8f0;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.07);
+      --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      --font-code: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.7;
+      letter-spacing: -0.01em;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 80px;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    header.exam-header {
+      background: var(--surface-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 36px 0 24px;
+      margin-bottom: 32px;
+    }
+
+    .badge-banca {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+    }
+
+    .exam-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+
+    .exam-subtitle {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .sticky-bar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 0;
+      margin-bottom: 28px;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .progress-info {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .progress-track {
+      flex: 1;
+      min-width: 140px;
+      height: 8px;
+      background: var(--surface-subtle);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.3s ease;
+    }
+
+    .quick-nav {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .quick-dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1px solid var(--border-color);
+      background: var(--surface-card);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .quick-dot:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .quick-dot.answered {
+      background: #e0e7ff;
+      border-color: #a5b4fc;
+      color: #3730a3;
+    }
+
+    .quick-dot.correct {
+      background: #dcfce7;
+      border-color: #86efac;
+      color: #166534;
+    }
+
+    .quick-dot.incorrect {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: #991b1b;
+    }
+
+    .question-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s ease;
+    }
+
+    .question-card:focus-within {
+      border-color: #cbd5e1;
+    }
+
+    .question-num-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+    }
+
+    .q-number {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .q-tag {
+      font-size: 12px;
+      color: var(--text-soft);
+      font-weight: 500;
+    }
+
+    .question-text {
+      font-size: 16.5px;
+      color: var(--text-main);
+      margin-bottom: 20px;
+      line-height: 1.75;
+    }
+
+    .question-text p {
+      margin-bottom: 12px;
+    }
+
+    .question-text p:last-child {
+      margin-bottom: 0;
+    }
+
+    .assertivas-list {
+      background: var(--surface-subtle);
+      border-left: 4px solid var(--primary);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 16px 20px;
+      margin: 16px 0;
+      list-style-type: none;
+    }
+
+    .assertivas-list li {
+      margin-bottom: 10px;
+      font-size: 15.5px;
+      line-height: 1.65;
+    }
+
+    .assertivas-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    .assertiva-label {
+      font-weight: 700;
+      color: var(--text-main);
+      margin-right: 6px;
+    }
+
+    pre.code-snippet {
+      background: var(--code-bg);
+      color: var(--code-text);
+      font-family: var(--font-code);
+      font-size: 13.5px;
+      line-height: 1.6;
+      padding: 16px 20px;
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      margin: 16px 0;
+      border: 1px solid #1e293b;
+    }
+
+    code.inline-code {
+      background: var(--surface-subtle);
+      color: #0f172a;
+      font-family: var(--font-code);
+      font-size: 14px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+
+    blockquote.cite-block {
+      border-left: 4px solid #cbd5e1;
+      padding: 10px 18px;
+      margin: 16px 0;
+      font-style: italic;
+      color: var(--text-muted);
+      background: #fafaf9;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+
+    .options-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 18px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: var(--surface-card);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .option-label:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    .option-input {
+      margin-top: 4px;
+      accent-color: var(--primary);
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .option-letter {
+      font-weight: 700;
+      color: var(--text-muted);
+      min-width: 20px;
+    }
+
+    .option-text {
+      flex: 1;
+      font-size: 15.5px;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    /* Selected state before finish */
+    .option-label.is-selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .option-label.is-selected .option-letter {
+      color: var(--primary);
+    }
+
+    /* Results validation styling */
+    .option-label.result-correct {
+      background: var(--success-bg) !important;
+      border-color: var(--success-border) !important;
+      color: var(--success) !important;
+    }
+
+    .option-label.result-correct .option-letter,
+    .option-label.result-correct .option-text {
+      color: var(--success) !important;
+      font-weight: 600;
+    }
+
+    .option-label.result-wrong {
+      background: var(--error-bg) !important;
+      border-color: var(--error-border) !important;
+      color: var(--error) !important;
+    }
+
+    .option-label.result-wrong .option-letter,
+    .option-label.result-wrong .option-text {
+      color: var(--error) !important;
+      text-decoration: line-through;
+    }
+
+    .resolution-box {
+      display: none;
+      margin-top: 24px;
+      padding: 22px 24px;
+      border-radius: var(--radius-md);
+      background: #f8fafc;
+      border-left: 5px solid var(--primary);
+      border-top: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .resolution-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .resolution-badge {
+      padding: 3px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge-correct {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-incorrect {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .resolution-content {
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--text-muted);
+    }
+
+    .resolution-content p {
+      margin-bottom: 12px;
+    }
+
+    .resolution-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .controls-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin: 40px 0 50px;
+    }
+
+    .btn-submit {
+      background-color: var(--primary);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 16px 36px;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-submit:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-restart {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      padding: 10px 22px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-restart:hover {
+      background: var(--surface-subtle);
+      color: var(--text-main);
+    }
+
+    /* Results dashboard section */
+    .results-section {
+      display: none;
+      background: var(--surface-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 36px 30px;
+      margin-top: 20px;
+      box-shadow: var(--shadow-md);
+      animation: fadeIn 0.5s ease;
+    }
+
+    .results-banner {
+      text-align: center;
+      padding-bottom: 30px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 32px;
+    }
+
+    .score-big {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.1;
+      margin: 12px 0 6px;
+    }
+
+    .score-feedback {
+      font-size: 17px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--surface-subtle);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+    }
+
+    .stat-number {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-soft);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 4px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-bottom: 36px;
+    }
+
+    table.gabarito-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14.5px;
+      text-align: left;
+    }
+
+    table.gabarito-table th,
+    table.gabarito-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    table.gabarito-table th {
+      background: var(--surface-subtle);
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+    }
+
+    .user-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .user-tag.is-correct {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .user-tag.is-wrong {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* Modal / Message notification */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      display: none;
+      z-index: 100;
+      animation: fadeIn 0.3s ease;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+      .question-card {
+        padding: 20px 16px;
+      }
+      .exam-title {
+        font-size: 22px;
+      }
+      .option-label {
+        padding: 12px 14px;
+      }
+      .results-section {
+        padding: 24px 16px;
+      }
+      .score-big {
+        font-size: 38px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="exam-header">
+    <div class="container">
+      <span class="badge-banca">Padrão Banca FUNDATEC &bull; Nível Superior / Técnico</span>
+      <h1 class="exam-title">Simulado Interativo: Design Responsivo e Media Queries</h1>
+      <p class="exam-subtitle">
+        Caderno contendo 10 questões originais baseadas na Aula 12 (Viewport, Mobile-First, Flexbox e Media Queries).
+        Selecione as alternativas e clique ao final para apurar sua pontuação com gabarito e resolução comentada questão a questão.
+      </p>
+    </div>
+  </header>
+
+  <div class="sticky-bar">
+    <div class="container">
+      <div class="status-row">
+        <div class="progress-info" id="progressInfo">0 de 10 respondidas</div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressBar"></div>
+        </div>
+        <div class="quick-nav" id="quickNav">
+          <!-- Dots dynamically rendered -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="container">
+    <form id="quizForm" autocomplete="off">
+
+      <article class="question-card" id="q1">
+        <div class="question-num-header">
+          <span class="q-number">Questão 01</span>
+          <span class="q-tag">Viewport &bull; Meta Tag</span>
+        </div>
+        <div class="question-text">
+          <p>
+            No desenvolvimento web moderno em conformidade com as diretrizes do W3C, a manipulação da área de visualização (<em>viewport</em>) no elemento <code>&lt;head&gt;</code> de documentos HTML5 é indispensável para a execução precisa do design responsivo em dispositivos móveis. Analise as assertivas a seguir sobre o funcionamento da meta tag <em>viewport</em>:
+          </p>
+          <ul class="assertivas-list">
+            <li><span class="assertiva-label">I.</span> A instrução <code>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</code> orienta o motor de renderização do navegador a nivelar a largura da janela de exibição lógica à largura física do dispositivo, prevenindo a aplicação de zoom reduzido artificial.</li>
+            <li><span class="assertiva-label">II.</span> Na ausência da declaração da meta tag <em>viewport</em>, navegadores de dispositivos móveis assumem o comportamento padrão de emular uma tela de computador de mesa com largura aproximada de 980 pixels, o que neutraliza a eficácia das regras condicionais de folhas de estilo projetadas para telas compactas.</li>
+            <li><span class="assertiva-label">III.</span> O parâmetro <code>initial-scale=1.0</code> define o fator de aproximação inicial e, associado ao atributo <code>width=device-width</code>, assegura a proporcionalidade dos elementos da interface gráfica na faixa típica de aparelhos smartphones compreendida entre 360 e 430 pixels.</li>
+          </ul>
+          <p>Quais estão corretas?</p>
+        </div>
+        <div class="options-group" data-q="1">
+          <label class="option-label" data-opt="A">
+            <input type="radio" name="q1" value="A" class="option-input">
+            <span class="option-letter">A)</span>
+            <span class="option-text">Apenas I.</span>
+          </label>
+          <label class="option-label" data-opt="B">
+            <input type="radio" name="q1" value="B" class="option-input">
+            <span class="option-letter">B)</span>
+            <span class="option-text">Apenas II.</span>
+          </label>
+          <label class="option-label" data-opt="C">
+            <input type="radio" name="q1" value="C" class="option-input">
+            <span class="option-letter">C)</span>
+            <span class="option-text">Apenas I e II.</span>
+          </label>
+          <label class="option-label" data-opt="D">
+            <input type="radio" name="q1" value="D" class="option-input">
+            <span class="option-letter">D)</span>
+            <span class="option-text">Apenas II e III.</span>
+          </label>
+          <label class="option-label" data-opt="E">
+            <input type="radio" name="q1" value="E" class="option-input">
+            <span class="option-letter">E)</span>
+            <span class="option-text">I, II e III.</span>
+          </label>
+        </div>
+        <div class="resolution-box" id="res-1">
+          <div class="resolution-header">
+            <span>Resolução Comentada</span>
+            <span class="resolution-badge" id="badge-1"></span>
+          </div>
+          <div class="resolution-content">
+            <p><strong>Gabarito Oficial: Alternativa E</strong></p>
+            <p>A alternativa E é a correta, pois as três assertivas expressam com exatidão os mecanismos de funcionamento da área de visualização em plataformas móveis.</p>
+            <p>A assertiva I está correta porque a instrução <code>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</code> força o navegador a vincular a largura lógica de renderização da página à largura de hardware do próprio dispositivo, eliminando a redução de zoom artificial comumente aplicada em páginas desprovidas desse controle.</p>
+            <p>A assertiva II é verdadeira porque os motores de navegadores móveis mantêm, por razões de compatibilidade histórica com sites legados, uma resolução virtual padrão de aproximadamente 980 pixels de largura quando não identificam a tag de <em>viewport</em>. Como consequência, as consultas de mídia calibradas para celulares nunca atingem os seus limiares de acionamento e a interface sofre uma redução visual em escala minúscula.</p>
+            <p>A assertiva III também é exata, visto que a instrução de escala inicial unitária (<code>initial-scale=1.0</code>) associada à variável <code>device-width</code> assegura a leitura real da proporção dos elementos em aparelhos de smartphone comuns, cujas larguras lógicas variam predominantemente entre 360 e 430 pixels.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="q2">
+        <div class="question-num-header">
+          <span class="q-number">Questão 02</span>
+          <span class="q-tag">Metodologia Mobile-First &bull; CSS3</span>
+        </div>
+        <div class="question-text">
+          <p>
+            No planejamento arquitetural de interfaces utilizando folhas de estilo CSS3, a metodologia <em>Mobile-First</em> orienta a ordem de definição das regras e a composição das consultas de mídia (<em>media queries</em>). A respeito da metodologia <em>Mobile-First</em>, assinale a alternativa correta:
+          </p>
+        </div>
+        <div class="options-group" data-q="2">
+          <label class="option-label" data-opt="A">
+            <input type="radio" name="q2" value="A" class="option-input">
+            <span class="option-letter">A)</span>
+            <span class="option-text">Determina que a formatação básica e estrutural seja escrita fora de blocos <code>@media</code>, servindo de alicerce para telas pequenas, enquanto as ampliações para telas de maior resolução são introduzidas progressivamente com consultas <code>@media (min-width)</code>.</span>
+          </label>
+          <label class="option-label" data-opt="B">
+            <input type="radio" name="q2" value="B" class="option-input">
+            <span class="option-letter">B)</span>
+            <span class="option-text">Exige a declaração de estilos prioritários dentro de blocos restritos com <code>@media (max-width: 480px)</code>, deixando o CSS global fora de regras condicionais reservado para a formatação de monitores de alta resolução.</span>
+          </label>
+          <label class="option-label" data-opt="C">
+            <input type="radio" name="q2" value="C" class="option-input">
+            <span class="option-letter">C)</span>
+            <span class="option-text">Baseia-se no princípio da degradação graciosa, no qual o programador elabora a totalidade das regras para telas de alta densidade e desfaz propriedades usando seletores de decréscimo dimensional.</span>
+          </label>
+          <label class="option-label" data-opt="D">
+            <input type="radio" name="q2" value="D" class="option-input">
+            <span class="option-letter">D)</span>
+            <span class="option-text">Suprime o uso de herança e especificidade na cascata, impondo a segregação física de um arquivo CSS distinto para cada resolução de tela mapeada.</span>
+          </label>
+          <label class="option-label" data-opt="E">
+            <input type="radio" name="q2" value="E" class="option-input">
+            <span class="option-letter">E)</span>
+            <span class="option-text">Inviabiliza a utilização de contêineres flexíveis (<em>Flexbox</em>) nas faixas de resolução móvel, restringindo o alinhamento unidimensional a monitores de mesa.</span>
+          </label>
+        </div>
+        <div class="resolution-box" id="res-2">
+          <div class="resolution-header">
+            <span>Resolução Comentada</span>
+            <span class="resolution-badge" id="badge-2"></span>
+          </div>
+          <div class="resolution-content">
+            <p><strong>Gabarito Oficial: Alternativa A</strong></p>
+            <p>A alternativa A é a correta, pois a premissa central da metodologia <em>Mobile-First</em> reside em formular o CSS base livre de regras condicionais <code>@media</code>, concebendo de início uma experiência leve e empilhada em coluna única para smartphones. A partir desse alicerce estável, as media queries com <code>min-width</code> introduzem camadas progressivas de complexidade e sofisticação à medida que o espaço em tela aumenta, reduzindo o volume de código necessário e evitando a contaminação da cascata.</p>
+            <p>A alternativa B incorre em erro ao descrever uma inversão do modelo, pois confinar o CSS móvel em blocos com <code>max-width</code> caracteriza a abordagem <em>Desktop-First</em> sob o paradigma de degradação graciosa. A alternativa C está incorreta pelo mesmo fundamento, uma vez que o <em>Mobile-First</em> atua por enriquecimento progressivo (<em>progressive enhancement</em>), e não por degradação graciosa. A alternativa D é descabida, visto que o ecossistema responsivo aproveita integralmente a cascata e a herança das folhas de estilo. A alternativa E apresenta afirmação tecnicamente infundada, pois o módulo Flexbox é amplamente empregado na modelagem de layouts para telas compactas por meio de declarações verticais.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="q3">
+        <div class="question-num-header">
+          <span class="q-number">Questão 03</span>
+          <span class="q-tag">Box Model &bull; box-sizing</span>
+        </div>
+        <div class="question-text">
+          <p>Considere o seguinte trecho de código CSS3 frequentemente aplicado na etapa de reset e definição de padrões globais de renderização:</p>
+          <pre class="code-snippet"><code>* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}</code></pre>
+          <p>Considerando a especificação do modelo de caixas (<em>Box Model</em>) do CSS3, assinale a alternativa que descreve corretamente o impacto técnico da propriedade <code>box-sizing: border-box</code>:</p>
+        </div>
+        <div class="options-group" data-q="3">
+          <label class="option-label" data-opt="A">
+            <input type="radio" name="q3" value="A" class="option-input">
+            <span class="option-letter">A)</span>
+            <span class="option-text">O preenchimento interno (<em>padding</em>) e as margens externas (<em>margin</em>) passam a ser somados ao valor de <code>width</code>, extrapolando as dimensões totais fixadas para o elemento no navegador.</span>
+          </label>
+          <label class="option-label" data-opt="B">
+            <input type="radio" name="q3" value="B" class="option-input">
+            <span class="option-letter">B)</span>
+            <span class="option-text">O cálculo da largura total (<code>width</code>) passa a englobar os valores atribuídos ao preenchimento interno (<em>padding</em>) e à borda (<em>border</em>), impedindo que a caixa exceda o limite espacial predeterminado no layout.</span>
+          </label>
+          <label class="option-label" data-opt="C">
+            <input type="radio" name="q3" value="C" class="option-input">
+            <span class="option-letter">C)</span>
+            <span class="option-text">A propriedade remove a renderização de bordas em navegadores de dispositivos móveis, forçando o confinamento do texto à área estrita de conteúdo.</span>
+          </label>
+          <label class="option-label" data-opt="D">
+            <input type="radio" name="q3" value="D" class="option-input">
+            <span class="option-letter">D)</span>
+            <span class="option-text">As margens externas (<em>margin</em>) são embutidas dentro da área visível do elemento, suprimindo o distanciamento entre caixas adjacentes.</span>
+          </label>
+          <label class="option-label" data-opt="E">
+            <input type="radio" name="q3" value="E" class="option-input">
+            <span class="option-letter">E)</span>
+            <span class="option-text">Todos os seletores do documento passam a operar sob a mecânica nativa <code>content-box</code>, na qual apenas o conteúdo textual compõe a largura declarada.</span>
+          </label>
+        </div>
+        <div class="resolution-box" id="res-3">
+          <div class="resolution-header">
+            <span>Resolução Comentada</span>
+            <span class="resolution-badge" id="badge-3"></span>
+          </div>
+          <div class="resolution-content">
+            <p><strong>Gabarito Oficial: Alternativa B</strong></p>
+            <p>A alternativa B é a correta, pois no modelo de caixa padrão do W3C (<code>box-sizing: content-box</code>), qualquer valor atribuído a <code>padding</code> ou <code>border</code> é computado de forma aditiva sobre o valor de <code>width</code>, fazendo com que a dimensão ocupada pelo elemento no navegador seja descrita pela relação dimensional clássica: Largura Total = width + padding-left + padding-right + border-left + border-right.</p>
+            <p>Ao redefinir a propriedade globalmente com o valor <code>border-box</code>, a equação do motor de layout altera-se substancialmente: os valores de preenchimento e borda passam a ser subtraídos internamente da largura declarada. Dessa forma, um bloco delimitado com <code>width: 100%</code> ou dimensões fixas acomoda seu preenchimento e suas bordas sem expandir a caixa física, impedindo o surgimento de quebras e rolagens horizontais indesejadas.</p>
+            <p>A alternativa A é incorreta por inverter essa mecânica, alegando expansão para além do limite. A alternativa C é equivocada, pois a regra não elimina bordas. A alternativa D é incorreta, visto que as margens externas (<code>margin</code>) permanecem fora da área de contenção do <code>border-box</code>. Por fim, a alternativa E falha ao citar o valor <code>content-box</code>, que é justamente o modo nativo sobrescrito pelo comando em questão.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="q4">
+        <div class="question-num-header">
+          <span class="q-number">Questão 04</span>
+          <span class="q-tag">Mídia Fluida &bull; CSS Inline vs Block</span>
+        </div>
+        <div class="question-text">
+          <p>Em folhas de estilo CSS3 desenvolvidas para layouts fluidos, a manipulação de elementos gráficos demanda regras de contenção para evitar inconsistências visuais em diferentes resoluções. Considere a estilização abaixo:</p>
+          <pre class="code-snippet"><code>.card img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}</code></pre>
+          <p>Assinale a alternativa que expressa o comportamento proporcionado pela combinação dessas propriedades:</p>
+        </div>
+        <div class="options-group" data-q="4">
+          <label class="option-label" data-opt="A">
+            <input type="radio" name="q4" value="A" class="option-input">
+            <span class="option-letter">A)</span>
+            <span class="option-text">Estica obrigatoriamente a imagem até o limite máximo da tela do aparelho, descartando as proporções nativas de altura e largura caso o elemento pai seja redimensionado.</span>
+          </label>
+          <label class="option-label" data-opt="B">
+            <input type="radio" name="q4" value="B" class="option-input">
+            <span class="option-letter">B)</span>
+            <span class="option-text">Converte o elemento gráfico em um objeto vetorial escalável, conferindo-lhe altura total fixa de 100vh em relação à janela de visualização do navegador.</span>
+          </label>
+          <label class="option-label" data-opt="C">
+            <input type="radio" name="q4" value="C" class="option-input">
+            <span class="option-letter">C)</span>
+            <span class="option-text">Garante que a imagem acompanhe a largura do elemento pai sem ultrapassar seus limites laterais, preserva a proporção de aspecto (<em>aspect ratio</em>) e suprime o espaço residual inferior típico de elementos de linha (<em>inline</em>).</span>
+          </label>
+          <label class="option-label" data-opt="D">
+            <input type="radio" name="q4" value="D" class="option-input">
+            <span class="option-letter">D)</span>
+            <span class="option-text">Estabelece contexto de posicionamento absoluto para a imagem, sobrepondo-a aos blocos de texto contidos no interior do elemento <code>.card</code>.</span>
+          </label>
+          <label class="option-label" data-opt="E">
+            <input type="radio" name="q4" value="E" class="option-input">
+            <span class="option-letter">E)</span>
+            <span class="option-text">Transforma o elemento em uma caixa de layout tabular com compressão prévia de pixels executada pelo motor gráfico do navegador.</span>
+          </label>
+        </div>
+        <div class="resolution-box" id="res-4">
+          <div class="resolution-header">
+            <span>Resolução Comentada</span>
+            <span class="resolution-badge" id="badge-4"></span>
+          </div>
+          <div class="resolution-content">
+            <p><strong>Gabarito Oficial: Alternativa C</strong></p>
+            <p>A alternativa C é a correta, pois as três regras compõem o modelo consagrado para mídias responsivas seguras. A declaração <code>max-width: 100%</code> delimita que o elemento visual nunca ultrapasse a largura física de sua caixa contenedora, escalando regressivamente conforme necessário. O parâmetro <code>height: auto</code> recalcula a altura de forma contínua para preservar a taxa de proporção nativa da imagem, afastando qualquer risco de distorção de escala. A inclusão de <code>display: block</code> altera a renderização padrão de linha (<em>inline</em>) do elemento <code>&lt;img&gt;</code>, suprimindo o espaçamento residual inferior causado pelo alinhamento vertical à linha de base tipográfica (<em>baseline</em>).</p>
+            <p>A alternativa A é incorreta porque a propriedade <code>max-width</code> restringe a largura máxima sem forçar o estiramento de imagens menores nem quebrar a proporção geométrica. A alternativa B não tem amparo técnico, pois as propriedades CSS em tela não executam conversões de imagens matriciais em objetos vetoriais e não fixam altura em <code>100vh</code>. A alternativa D erra ao sugerir comportamento de posicionamento absoluto, o qual exigiria a propriedade <code>position: absolute</code>. A alternativa E é incorreta, já que a imagem não adota formatação tabular nem sofre compactação algorítmica de arquivo por meio dessa regra de estilo.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="q5">
+        <div class="question-num-header">
+          <span class="q-number">Questão 05</span>
+          <span class="q-tag">Breakpoints &bull; Media Queries</span>
+        </div>
+        <div class="question-text">
+          <p>Considere o seguinte trecho de código HTML5 e CSS3:</p>
+          <pre class="code-snippet"><code>&lt;h1&gt;Portal de Notícias Front-End&lt;/h1&gt;</code></pre>
+          <pre class="code-snippet"><code>h1 {
+  font-size: 22px;
+  line-height: 28px;
+  color: #2563eb;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: 32px;
+    line-height: 38px;
+    color: #0f172a;
+    text-align: left;
+  }
+}</code></pre>
+          <p>Ao renderizar a página em um navegador cuja janela de visualização possua largura de exatamente 768 pixels, a formatação assumida pelo título <code>&lt;h1&gt;</code> será:</p>
+        </div>
+        <div class="options-group" data-q="5">
+          <label class="option-label" data-opt="A">
+            <input type="radio" name="q5" value="A" class="option-input">
+            <span class="option-letter">A)</span>
+            <span class="option-text">Tamanho de fonte de 22px, entrelinha de 28px, cor <code>#2563eb</code> e alinhamento centralizado.</span>
+          </label>
+          <label class="option-label" data-opt="B">
+            <input type="radio" name="q5" value="B" class="option-input">
+            <span class="option-letter">B)</span>
+            <span class="option-text">Tamanho de fonte de 32px, entrelinha de 38px, cor <code>#0f172a</code> e alinhamento à esquerda.</span>
+          </label>
+          <label class="option-label" data-opt="C">
+            <input type="radio" name="q5" value="C" class="option-input">
+            <span class="option-letter">C)</span>
+            <span class="option-text">Tamanho de fonte de 32px, entrelinha de 28px, cor <code>#2563eb</code> e alinhamento centralizado.</span>
+          </label>
+          <label class="option-label" data-opt="D">
+            <input type="radio" name="q5" value="D" class="option-input">
+            <span class="option-letter">D)</span>
+            <span class="option-text">Tamanho de fonte de 22px, entrelinha de 38px, cor <code>#0f172a</code> e alinhamento à esquerda.</span>
+          </label>
+          <label class="option-label" data-opt="E">
+            <input type="radio" name="q5" value="E" class="option-input">
+            <span class="option-letter">E)</span>
+            <span class="option-text">Tamanho de fonte de 32px, entrelinha de 38px, cor <code>#2563eb</code> e alinhamento à esquerda.</span>
+          </label>
+        </div>
+        <div class="resolution-box" id="res-5">
+          <div class="resolution-header">
+            <span>Resolução Comentada</span>
+            <span class="resolution-badge" id="badge-5"></span>
+          </div>
+          <div class="resolution-content">
+            <p><strong>Gabarito Oficial: Alternativa B</strong></p>
+            <p>A alternativa B é a correta, uma vez que as consultas de mídia configuradas com a sintaxe <code>@media (min-width: 768px)</code> impõem uma inequação condicional inclusiva com operador maior ou igual (&ge;). Dessa maneira, ao atingir a largura de exatamente 768 pixels, a condição lógica torna-se verdadeira e o navegador executa as declarações posicionadas no interior do bloco de mídia, sobrescrevendo os valores base na cascata. Portanto, o elemento <code>&lt;h1&gt;</code> assume tamanho de 32px, altura de linha de 38px, tonalidade escura <code>#0f172a</code> e alinhamento alinhado à esquerda.</p>
+            <p>A alternativa A descreve equivocadamente o estado visual anterior, restrito a telas estritamente inferiores a 768 pixels. As alternativas C, D e E misturam indevidamente valores de cores, tamanhos e alinhamentos pertencentes a regras distintas, desconsiderando a aplicação integral do bloco condicional sobrescrito na cascata CSS.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="q6">
+        <div class="question-num-header">
+          <span class="q-number">Questão 06</span>
+          <span class="q-tag">Flexbox &bull; flex-direction &amp; align-items</span>
+        </div>
+        <div class="question-text">
+          <p>Em um projeto de interface web, a classe <code>.card</code> foi estruturada para transitar de um formato empilhado para uma exibição horizontal por meio do módulo <em>Flexbox</em>:</p>
+          <pre class="code-snippet"><code>.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .card {
+    flex-direction: row;
+    align-items: center;
+    padding: 24px;
+  }
+}</code></pre>
+          <p>Em relação ao comportamento desse componente nas diferentes faixas dimensionais, analise as assertivas a seguir:</p>
+          <ul class="assertivas-list">
+            <li><span class="assertiva-label">I.</span> Em janelas com largura inferior a 768px, os itens internos do contêiner flexível organizam-se verticalmente em coluna única com separação de 16px entre si.</li>
+            <li><span class="assertiva-label">II.</span> A partir de 768px de largura de visualização, a direção do eixo principal passa a ser em linha (<em>row</em>), dispondo os elementos internos horizontalmente lado a lado.</li>
+            <li><span class="assertiva-label">III.</span> No breakpoint de 768px ou superior, a declaração <code>align-items: center</code> atua no eixo transversal (<em>cross axis</em>), promovendo a centralização vertical dos elementos internos dispostos em linha.</li>
+          </ul>
+          <p>Quais estão corretas?</p>
+        </div>
+        <div class="options-group" data-q="6">
+          <label class="option-label" data-opt="A">
+            <input type="radio" name="q6" value="A" class="option-input">
+            <span class="option-letter">A)</span>
+            <span class="option-text">Apenas I.</span>
+          </label>
+          <label class="option-label" data-opt="B">
+            <input type="radio" name="q6" value="B" class="option-input">
+            <span class="option-letter">B)</span>
+            <span class="option-text">Apenas II.</span>
+          </label>
+          <label class="option-label" data-opt="C">
+            <input type="radio" name="q6" value="C" class="option-input">
+            <span class="option-letter">C)</span>
+            <span class="option-text">Apenas I e II.</span>
+          </label>
+          <label class="option-label" data-opt="D">
+            <input type="radio" name="q6" value="D" class="option-input">
+            <span class="option-letter">D)</span>
+            <span class="option-text">Apenas II e III.</span>
+          </label>
+          <label class="option-label" data-opt="E">
+            <input type="radio" name="q6" value="E" class="option-input">
+            <span class="option-letter">E)</span>
+            <span class="option-text">I, II e III.</span>
+          </label>
+        </div>
+        <div class="resolution-box" id="res-6">
+          <div class="resolution-header">
+            <span>Resolução Comentada</span>
+            <span class="resolution-badge" id="badge-6"></span>
+          </div>
+          <div class="resolution-content">
+            <p><strong>Gabarito Oficial: Alternativa E</strong></p>
+            <p>A alternativa E é a correta, pois as três assertivas traduzem as transições do modelo de formatação flexível aplicadas ao componente.</p>
+            <p>A assertiva I está correta, visto que o seletor <code>.card</code> possui como declaração padrão <code>display: flex; flex-direction: column; gap: 16px;</code>, mantendo os nós descendentes dispostos verticalmente com espaçamento regular de 16px em qualquer tela com largura inferior ao ponto de quebra de 768px.</p>
+            <p>A assertiva II é verdadeira, pois a regra <code>@media (min-width: 768px)</code> redefine a orientação do contêiner para <code>flex-direction: row</code>, alterando o eixo principal para o sentido horizontal e dispondo os elementos em linha.</p>
+            <p>A assertiva III é precisa ao indicar que a propriedade <code>align-items</code> gerencia especificamente o eixo transversal (<em>cross axis</em>). Como o eixo principal tornou-se horizontal em decorrência de <code>flex-direction: row</code>, o eixo cruzado passa a ser vertical, fazendo com que <code>align-items: center</code> centralize verticalmente os blocos internos ao longo da altura do cartão.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="q7">
+        <div class="question-num-header">
+          <span class="q-number">Questão 07</span>
+          <span class="q-tag">Flexbox &bull; align-self: flex-start</span>
+        </div>
+        <div class="question-text">
+          <p>Analise o trecho CSS abaixo, desenvolvido para padronizar um botão nativo (<code>&lt;button&gt;</code>) localizado no interior de um contêiner flexível vertical (<code>flex-direction: column</code>):</p>
+          <pre class="code-snippet"><code>.btn {
+  background-color: #2563eb;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-start;
+}</code></pre>
+          <p>No contexto da diagramação por <em>Flexbox</em>, a declaração <code>align-self: flex-start</code> atua para:</p>
+        </div>
+        <div class="options-group" data-q="7">
+          <label class="option-label" data-opt="A">
+            <input type="radio" name="q7" value="A" class="option-input">
+            <span class="option-letter">A)</span>
+            <span class="option-text">Alinhar o texto contido no interior do botão à sua margem esquerda interna, substituindo o comando <code>text-align</code>.</span>
+          </label>
+          <label class="option-label" data-opt="B">
+            <input type="radio" name="q7" value="B" class="option-input">
+            <span class="option-letter">B)</span>
+            <span class="option-text">Evitar que o botão se estenda por 100% da largura útil do contêiner em decorrência do comportamento padrão de estiramento (<em>stretch</em>) no eixo transversal de um contêiner em coluna.</span>
+          </label>
+          <label class="option-label" data-opt="C">
+            <input type="radio" name="q7" value="C" class="option-input">
+            <span class="option-letter">C)</span>
+            <span class="option-text">Posicionar o elemento no canto superior do documento HTML por meio de descolamento do fluxo normal da página.</span>
+          </label>
+          <label class="option-label" data-opt="D">
+            <input type="radio" name="q7" value="D" class="option-input">
+            <span class="option-letter">D)</span>
+            <span class="option-text">Forçar o botão a assumir comportamento de bloco com expansão lateral completa e desativação de margens automáticas.</span>
+          </label>
+          <label class="option-label" data-opt="E">
+            <input type="radio" name="q7" value="E" class="option-input">
+            <span class="option-letter">E)</span>
+            <span class="option-text">Inverter a ordem visual dos elementos no DOM, priorizando o botão na sequência de navegação por teclado.</span>
+          </label>
+        </div>
+        <div class="resolution-box" id="res-7">
+          <div class="resolution-header">
+            <span>Resolução Comentada</span>
+            <span class="resolution-badge" id="badge-7"></span>
+          </div>
+          <div class="resolution-content">
+            <p><strong>Gabarito Oficial: Alternativa B</strong></p>
+            <p>A alternativa B é a correta, pois em um contêiner flexível configurado em coluna (<code>flex-direction: column</code>), o eixo transversal (<em>cross axis</em>) passa a corresponder à dimensão horizontal da caixa. O comportamento padrão atribuído aos itens flexíveis no eixo transversal é o estiramento (<em>stretch</em>), o qual forçaria o elemento <code>&lt;button&gt;</code> a se alargar horizontalmente até cobrir 100% da largura útil do cartão. Ao declarar <code>align-self: flex-start</code>, o desenvolvedor cancela o estiramento para aquele item pontual e preserva sua largura natural, correspondente apenas à extensão do texto acrescida dos preenchimentos internos de botão.</p>
+            <p>A alternativa A é incorreta porque o alinhamento de texto interno no elemento é atribuição exclusiva de <code>text-align</code>, e não do modelo de caixas flexíveis. A alternativa C é equivocada, pois a propriedade não manipula o contexto de posicionamento fora de fluxo (<code>position: absolute/fixed</code>). A alternativa D é errônea por afirmar que o elemento sofreria expansão completa, que é exatamente o efeito neutralizado por <code>align-self: flex-start</code>. A alternativa E não encontra respaldo nas especificações técnicas, uma vez que a ordem de tabulação e foco acessível depende da árvore estrutural do HTML e de atributos de tabindex.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="q8">
+        <div class="question-num-header">
+          <span class="q-number">Questão 08</span>
+          <span class="q-tag">Distribuição Percentual &bull; Duas Colunas</span>
+        </div>
+        <div class="question-text">
+          <p>Deseja-se adaptar a estrutura interna de um cartão para monitores de computadores (resolução &ge; 768px) de modo que a imagem e a seção descritiva fiquem alinhadas lateralmente em duas colunas funcionais, ocupando, respectivamente, 40% e 60% da dimensão útil da caixa contenedora.</p>
+          <blockquote class="cite-block">
+            "Para estabelecer a disposição em duas colunas laterais no Flexbox e alocar as frações espaciais requeridas, o contêiner deve definir a propriedade <code>flex-direction: _____</code>, aplicando-se aos seletores <code>.card img</code> e <code>.card-conteudo</code> a declaração <code>width</code> correspondente aos percentuais de _____ e _____, respectivamente."
+          </blockquote>
+          <p>Assinale a alternativa que preenche, correta e respectivamente, as lacunas do texto acima para atingir essa especificação técnica:</p>
+        </div>
+        <div class="options-group" data-q="8">
+          <label class="option-label" data-opt="A">
+            <input type="radio" name="q8" value="A" class="option-input">
+            <span class="option-letter">A)</span>
+            <span class="option-text"><code>row</code> – <code>40%</code> – <code>60%</code></span>
+          </label>
+          <label class="option-label" data-opt="B">
+            <input type="radio" name="q8" value="B" class="option-input">
+            <span class="option-letter">B)</span>
+            <span class="option-text"><code>column</code> – <code>60%</code> – <code>40%</code></span>
+          </label>
+          <label class="option-label" data-opt="C">
+            <input type="radio" name="q8" value="C" class="option-input">
+            <span class="option-letter">C)</span>
+            <span class="option-text"><code>row-reverse</code> – <code>50%</code> – <code>50%</code></span>
+          </label>
+          <label class="option-label" data-opt="D">
+            <input type="radio" name="q8" value="D" class="option-input">
+            <span class="option-letter">D)</span>
+            <span class="option-text"><code>column-reverse</code> – <code>40%</code> – <code>60%</code></span>
+          </label>
+          <label class="option-label" data-opt="E">
+            <input type="radio" name="q8" value="E" class="option-input">
+            <span class="option-letter">E)</span>
+            <span class="option-text"><code>row</code> – <code>100%</code> – <code>100%</code></span>
+          </label>
+        </div>
+        <div class="resolution-box" id="res-8">
+          <div class="resolution-header">
+            <span>Resolução Comentada</span>
+            <span class="resolution-badge" id="badge-8"></span>
+          </div>
+          <div class="resolution-content">
+            <p><strong>Gabarito Oficial: Alternativa A</strong></p>
+            <p>A alternativa A é a correta, pois a composição de colunas lado a lado no módulo Flexbox exige que a propriedade de direção no elemento contêiner (<code>.card</code>) receba o valor <code>row</code>, estabelecendo o eixo principal na linha horizontal. Subsequentemente, a alocação proporcional do espaço útil da caixa dá-se pela especificação percentual direta de <code>width: 40%</code> sobre o elemento de mídia (<code>.card img</code>) e <code>width: 60%</code> sobre o contêiner de textos (<code>.card-conteudo</code>), integralizando exatamente os 100% do espaço disponibilizado.</p>
+            <p>A alternativa B é incorreta porque a instrução <code>flex-direction: column</code> preserva o empilhamento vertical dos itens. A alternativa C altera desnecessariamente a ordem de exibição visual por meio de <code>row-reverse</code> e estabelece proporções paritárias em desacordo com o enunciado. A alternativa D mantém o empilhamento vertical inverso. A alternativa E provocaria esmagamento e quebra de layout, uma vez que duas caixas de 100% em uma linha rígida colapsam a distribuição dimensional.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="q9">
+        <div class="question-num-header">
+          <span class="q-number">Questão 09</span>
+          <span class="q-tag">Usabilidade &bull; Tipografia Responsiva</span>
+        </div>
+        <div class="question-text">
+          <p>
+            Durante a definição da tipografia de um portal web fundamentado no conceito <em>Mobile-First</em>, adota-se para o título principal <code>&lt;h1&gt;</code> a dimensão de 22px na camada base para celulares, ampliando-a para 32px quando a largura do monitor atinge 768px ou mais.
+          </p>
+          <p>Sob a perspectiva da usabilidade e do design de interfaces responsivas, a redução da escala tipográfica em dispositivos móveis tem por finalidade:</p>
+        </div>
+        <div class="options-group" data-q="9">
+          <label class="option-label" data-opt="A">
+            <input type="radio" name="q9" value="A" class="option-input">
+            <span class="option-letter">A)</span>
+            <span class="option-text">Contornar a limitação de densidade de pixels dos smartphones, os quais não suportam renderização de fontes acima de 24px sem perda de nitidez vetorial.</span>
+          </label>
+          <label class="option-label" data-opt="B">
+            <input type="radio" name="q9" value="B" class="option-input">
+            <span class="option-letter">B)</span>
+            <span class="option-text">Evitar que títulos extensos quebrem em um número excessivo de linhas curtas, o que consumiria a altura útil da tela e empurraria o conteúdo informativo principal para fora da área visual inicial (<em>above the fold</em>).</span>
+          </label>
+          <label class="option-label" data-opt="C">
+            <input type="radio" name="q9" value="C" class="option-input">
+            <span class="option-letter">C)</span>
+            <span class="option-text">Adequar o documento às exigências sintáticas da especificação HTML5 para a interpretação correta da meta tag <em>viewport</em>.</span>
+          </label>
+          <label class="option-label" data-opt="D">
+            <input type="radio" name="q9" value="D" class="option-input">
+            <span class="option-letter">D)</span>
+            <span class="option-text">Permitir a centralização horizontal do elemento, uma vez que a propriedade <code>text-align: center</code> torna-se inoperante quando associada a valores superiores a 25px em folhas de estilo.</span>
+          </label>
+          <label class="option-label" data-opt="E">
+            <input type="radio" name="q9" value="E" class="option-input">
+            <span class="option-letter">E)</span>
+            <span class="option-text">Impedir falhas na renderização da propriedade <code>line-height</code>, cujo motor de cálculo em navegadores móveis requer estritamente fontes de até 22px.</span>
+          </label>
+        </div>
+        <div class="resolution-box" id="res-9">
+          <div class="resolution-header">
+            <span>Resolução Comentada</span>
+            <span class="resolution-badge" id="badge-9"></span>
+          </div>
+          <div class="resolution-content">
+            <p><strong>Gabarito Oficial: Alternativa B</strong></p>
+            <p>A alternativa B é a correta, pois a usabilidade em dispositivos móveis exige atenção rigorosa ao espaço vertical disponível na primeira dobra de visualização (<em>above the fold</em>). Títulos principais com escalas elevadas, típicas de computadores de mesa (como 32px ou superiores), desdobram-se em muitas linhas quando renderizados em telas estreitas de smartphones. Esse fenômeno empurra para baixo o corpo do texto e os botões de ação primária, forçando rolagens excessivas logo no primeiro contato do usuário. A calibragem para 22px preserva o peso visual hierárquico e garante uma leitura fluida sem desperdício de espaço vertical.</p>
+            <p>A alternativa A é falsa porque as telas móveis contemporâneas contam com altíssima densidade de pixels e rasterizam tipografias vetoriais de grandes proporções com fidelidade gráfica total. A alternativa C é improcedente, já que a especificação HTML5 não estabelece qualquer correlação normativa entre tamanhos de fonte e a sintaxe da tag de <em>viewport</em>. As alternativas D e E são infundadas, visto que as propriedades <code>text-align</code> e <code>line-height</code> operam com total conformidade em qualquer escala de pixels nos motores de renderização web modernos.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="q10">
+        <div class="question-num-header">
+          <span class="q-number">Questão 10</span>
+          <span class="q-tag">Media Queries &bull; Sintaxe e Lógica Booleana</span>
+        </div>
+        <div class="question-text">
+          <p>No que tange à sintaxe, aos operadores lógicos e aos princípios de avaliação de regras condicionais por meio de <em>Media Queries</em> em CSS3, assinale a alternativa INCORRETA:</p>
+        </div>
+        <div class="options-group" data-q="10">
+          <label class="option-label" data-opt="A">
+            <input type="radio" name="q10" value="A" class="option-input">
+            <span class="option-letter">A)</span>
+            <span class="option-text">A expressão condicional <code>@media (min-width: 768px)</code> denota uma restrição de largura mínima inclusiva, aplicando os estilos internos somente a janelas cuja largura seja igual ou superior a 768 pixels.</span>
+          </label>
+          <label class="option-label" data-opt="B">
+            <input type="radio" name="q10" value="B" class="option-input">
+            <span class="option-letter">B)</span>
+            <span class="option-text">A listagem de expressões de mídia separadas por vírgula em uma mesma regra condicional opera com semântica equivalente ao operador lógico AND, demandando que todas as condições sejam simultaneamente satisfeitas.</span>
+          </label>
+          <label class="option-label" data-opt="C">
+            <input type="radio" name="q10" value="C" class="option-input">
+            <span class="option-letter">C)</span>
+            <span class="option-text">O operador lógico <code>and</code> é empregado para conjugar múltiplos parâmetros técnicos em uma mesma verificação, como tipos de mídia e intervalos dimensionais.</span>
+          </label>
+          <label class="option-label" data-opt="D">
+            <input type="radio" name="q10" value="D" class="option-input">
+            <span class="option-letter">D)</span>
+            <span class="option-text">Na abordagem <em>Mobile-First</em>, as consultas de mídia recorrem predominantemente ao recurso <code>min-width</code> para promover a evolução gradual e progressiva da complexidade do layout.</span>
+          </label>
+          <label class="option-label" data-opt="E">
+            <input type="radio" name="q10" value="E" class="option-input">
+            <span class="option-letter">E)</span>
+            <span class="option-text">A declaração de propriedades fora de qualquer bloco condicional <code>@media</code> minimiza o volume de código ao evitar sobrescritas desnecessárias de valores estruturais complexos em dispositivos móveis.</span>
+          </label>
+        </div>
+        <div class="resolution-box" id="res-10">
+          <div class="resolution-header">
+            <span>Resolução Comentada</span>
+            <span class="resolution-badge" id="badge-10"></span>
+          </div>
+          <div class="resolution-content">
+            <p><strong>Gabarito Oficial: Alternativa B</strong></p>
+            <p>A alternativa B é a INCORRETA (e, portanto, o gabarito da questão), pois no padrão W3C para CSS3 Media Queries, a vírgula opera com a semântica da disjunção lógica booleana <strong>OR</strong>. Quando duas ou mais expressões são agrupadas por vírgulas em uma diretiva <code>@media</code>, basta que uma única condição seja satisfeita para que o bloco de estilos correspondente seja renderizado pelo navegador. A exigência de conjunção cumulativa, em que todas as condições precisam ser verdadeiras simultaneamente (lógica <strong>AND</strong>), é representada estritamente pela palavra-chave <code>and</code>.</p>
+            <p>As demais alternativas trazem afirmações verdadeiras e compatíveis com a teoria do tema: a alternativa A conceitua corretamente o funcionamento inclusivo de <code>min-width</code>; a alternativa C sintetiza adequadamente o papel do operador <code>and</code> na conjugação de predicados; a alternativa D confirma o padrão do fluxo de trabalho <em>Mobile-First</em> focado em ampliações sucessivas; e a alternativa E valida a economia de código e especificidade proporcionada pela escrita de padrões básicos fora de blocos condicionais.</p>
+          </div>
+        </div>
+      </article>
+
+      <div class="controls-wrapper">
+        <button type="button" id="btnSubmitQuiz" class="btn-submit">
+          <span>Finalizar Simulado e Ver Resoluções</span>
+        </button>
+        <button type="button" id="btnRestartQuiz" class="btn-restart" style="display: none;">
+          Refazer Simulado
+        </button>
+      </div>
+
+    </form>
+
+    <section class="results-section" id="resultsSection">
+      <div class="results-banner">
+        <span class="badge-banca">Resultado Oficial</span>
+        <div class="score-big" id="scoreDisplay">0 / 10</div>
+        <div class="score-feedback" id="feedbackDisplay">Aproveitamento calculado</div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="statAcertos" style="color: var(--success);">0</div>
+          <div class="stat-label">Acertos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="statErros" style="color: var(--error);">0</div>
+          <div class="stat-label">Erros</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="statPercent">0%</div>
+          <div class="stat-label">Percentual Geral</div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px; color: var(--text-main);">
+        Tabela de Desempenho e Gabarito Comparativo
+      </h3>
+      <div class="table-container">
+        <table class="gabarito-table">
+          <thead>
+            <tr>
+              <th>Questão</th>
+              <th>Conteúdo Temático</th>
+              <th>Gabarito</th>
+              <th>Sua Escolha</th>
+              <th>Situação</th>
+            </tr>
+          </thead>
+          <tbody id="gabaritoTableBody">
+            <!-- Table rows generated dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <p style="font-size: 14.5px; color: var(--text-muted); text-align: center;">
+        💡 As resoluções detalhadas com fundamentação técnica e análise das assertivas estão abertas diretamente abaixo de cada uma das questões acima.
+      </p>
+    </section>
+
+  </main>
+
+  <!-- Notification toast container -->
+  <div class="toast-msg" id="toastMsg"></div>
+
+  <script>
+    (function() {
+      // Official exam answer key and metadata mapping
+      const officialAnswers = {
+        1: { answer: "E", topic: "Configuração da Meta Tag Viewport e Renderização Mobile" },
+        2: { answer: "A", topic: "Princípios Arquiteturais e Metodologia Mobile-First" },
+        3: { answer: "B", topic: "Modelo de Caixa (Box Model) e Propriedade box-sizing" },
+        4: { answer: "C", topic: "Técnicas de Mídia Fluida e Controle de Fluxo Inline" },
+        5: { answer: "B", topic: "Avaliação Inclusiva de Limiares em Media Queries" },
+        6: { answer: "E", topic: "Diagramação de Componentes com CSS Flexbox" },
+        7: { answer: "B", topic: "Alinhamento Transversal e Controle do Estiramento Flex" },
+        8: { answer: "A", topic: "Estruturação de Colunas e Dimensionamento Percentual" },
+        9: { answer: "B", topic: "Usabilidade, Tipografia Responsiva e Espaço Vertical" },
+        10: { answer: "B", topic: "Lógica Booleana e Operadores Sintáticos em Media Queries" }
+      };
+
+      const totalQuestions = 10;
+      let userAnswers = {};
+      let isSubmitted = false;
+
+      // DOM Elements
+      const progressInfo = document.getElementById("progressInfo");
+      const progressBar = document.getElementById("progressBar");
+      const quickNav = document.getElementById("quickNav");
+      const btnSubmit = document.getElementById("btnSubmitQuiz");
+      const btnRestart = document.getElementById("btnRestartQuiz");
+      const resultsSection = document.getElementById("resultsSection");
+      const scoreDisplay = document.getElementById("scoreDisplay");
+      const feedbackDisplay = document.getElementById("feedbackDisplay");
+      const statAcertos = document.getElementById("statAcertos");
+      const statErros = document.getElementById("statErros");
+      const statPercent = document.getElementById("statPercent");
+      const gabaritoTableBody = document.getElementById("gabaritoTableBody");
+      const toastMsg = document.getElementById("toastMsg");
+
+      function initQuickNav() {
+        quickNav.innerHTML = "";
+        for (let i = 1; i <= totalQuestions; i++) {
+          const dot = document.createElement("a");
+          dot.href = "#q" + i;
+          dot.className = "quick-dot";
+          dot.id = "dot-" + i;
+          dot.textContent = i;
+          dot.title = "Questão " + i;
+          dot.addEventListener("click", function(e) {
+            e.preventDefault();
+            const target = document.getElementById("q" + i);
+            if (target) {
+              const yOffset = -70;
+              const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
+              window.scrollTo({ top: y, behavior: "smooth" });
+            }
+          });
+          quickNav.appendChild(dot);
+        }
+      }
+
+      function updateProgress() {
+        const count = Object.keys(userAnswers).length;
+        progressInfo.textContent = count + " de " + totalQuestions + " respondidas";
+        const percent = (count / totalQuestions) * 100;
+        progressBar.style.width = percent + "%";
+
+        for (let i = 1; i <= totalQuestions; i++) {
+          const dot = document.getElementById("dot-" + i);
+          if (dot && !isSubmitted) {
+            if (userAnswers[i]) {
+              dot.classList.add("answered");
+            } else {
+              dot.classList.remove("answered");
+            }
+          }
+        }
+      }
+
+      function attachOptionListeners() {
+        const groups = document.querySelectorAll(".options-group");
+        groups.forEach(group => {
+          const qId = parseInt(group.getAttribute("data-q"), 10);
+          const labels = group.querySelectorAll(".option-label");
+
+          labels.forEach(label => {
+            label.addEventListener("click", function() {
+              if (isSubmitted) return; // Locked once submitted
+
+              const input = label.querySelector("input[type='radio']");
+              input.checked = true;
+              const selectedVal = label.getAttribute("data-opt");
+              userAnswers[qId] = selectedVal;
+
+              // Visual active state for current question
+              labels.forEach(l => l.classList.remove("is-selected"));
+              label.classList.add("is-selected");
+
+              updateProgress();
+            });
+          });
+        });
+      }
+
+      function showToast(text) {
+        toastMsg.textContent = text;
+        toastMsg.style.display = "block";
+        setTimeout(() => {
+          toastMsg.style.display = "none";
+        }, 3600);
+      }
+
+      function submitQuiz() {
+        const answeredCount = Object.keys(userAnswers).length;
+
+        if (answeredCount < totalQuestions) {
+          const remaining = totalQuestions - answeredCount;
+          showToast("Atenção: restam " + remaining + " questão(ões) sem resposta. Você pode responder ou submeter para conferir.");
+        }
+
+        isSubmitted = true;
+        let correctCount = 0;
+        gabaritoTableBody.innerHTML = "";
+
+        for (let i = 1; i <= totalQuestions; i++) {
+          const userChoice = userAnswers[i] || "Não respondida";
+          const official = officialAnswers[i].answer;
+          const isCorrect = userChoice === official;
+
+          if (isCorrect) correctCount++;
+
+          // Style the quick nav dot
+          const dot = document.getElementById("dot-" + i);
+          if (dot) {
+            dot.className = "quick-dot " + (isCorrect ? "correct" : "incorrect");
+          }
+
+          // Style individual options inside the question
+          const qGroup = document.querySelector(`.options-group[data-q="${i}"]`);
+          if (qGroup) {
+            const labels = qGroup.querySelectorAll(".option-label");
+            labels.forEach(l => {
+              const opt = l.getAttribute("data-opt");
+              l.classList.remove("is-selected");
+
+              // Highlight correct answer
+              if (opt === official) {
+                l.classList.add("result-correct");
+              }
+              // Mark user wrong choice
+              if (opt === userChoice && !isCorrect) {
+                l.classList.add("result-wrong");
+              }
+            });
+          }
+
+          // Reveal inline resolution box
+          const resBox = document.getElementById("res-" + i);
+          const badge = document.getElementById("badge-" + i);
+          if (resBox && badge) {
+            resBox.style.display = "block";
+            if (isCorrect) {
+              badge.textContent = "Acertou";
+              badge.className = "resolution-badge badge-correct";
+            } else {
+              badge.textContent = userChoice === "Não respondida" ? "Em branco" : "Errou";
+              badge.className = "resolution-badge badge-incorrect";
+            }
+          }
+
+          // Populate breakdown table row
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td style="font-weight: 700;">Questão ${i.toString().padStart(2, "0")}</td>
+            <td>${officialAnswers[i].topic}</td>
+            <td style="font-weight: 800; color: var(--primary);">${official}</td>
+            <td>${userChoice}</td>
+            <td>
+              <span class="user-tag ${isCorrect ? "is-correct" : "is-wrong"}">
+                ${isCorrect ? "Correta" : (userChoice === "Não respondida" ? "Em branco" : "Incorreta")}
+              </span>
+            </td>
+          `;
+          gabaritoTableBody.appendChild(tr);
+        }
+
+        // Calculate and render final metrics
+        const wrongCount = totalQuestions - correctCount;
+        const percentage = Math.round((correctCount / totalQuestions) * 100);
+
+        scoreDisplay.textContent = correctCount + " / " + totalQuestions;
+        statAcertos.textContent = correctCount;
+        statErros.textContent = wrongCount;
+        statPercent.textContent = percentage + "%";
+
+        if (percentage >= 80) {
+          feedbackDisplay.textContent = "Excelente desempenho! Domínio sólido dos conceitos FUNDATEC.";
+          scoreDisplay.style.color = "var(--success)";
+        } else if (percentage >= 60) {
+          feedbackDisplay.textContent = "Bom aproveitamento. Revise os pontos comentados para fixação.";
+          scoreDisplay.style.color = "var(--primary)";
+        } else {
+          feedbackDisplay.textContent = "Recomenda-se leitura atenta das resoluções detalhadas abaixo.";
+          scoreDisplay.style.color = "var(--error)";
+        }
+
+        // Show results dashboard and toggle buttons
+        resultsSection.style.display = "block";
+        btnSubmit.style.display = "none";
+        btnRestart.style.display = "inline-block";
+
+        // Smooth scroll to the results section
+        setTimeout(() => {
+          resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 200);
+      }
+
+      function resetQuiz() {
+        userAnswers = {};
+        isSubmitted = false;
+
+        // Reset radio buttons and styling
+        const radioInputs = document.querySelectorAll(".option-input");
+        radioInputs.forEach(input => {
+          input.checked = false;
+        });
+
+        const labels = document.querySelectorAll(".option-label");
+        labels.forEach(l => {
+          l.className = "option-label";
+        });
+
+        const resBoxes = document.querySelectorAll(".resolution-box");
+        resBoxes.forEach(box => {
+          box.style.display = "none";
+        });
+
+        resultsSection.style.display = "none";
+        btnSubmit.style.display = "inline-flex";
+        btnRestart.style.display = "none";
+
+        initQuickNav();
+        updateProgress();
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        showToast("Simulado reiniciado. Boa prova!");
+      }
+
+      // Event Listeners
+      btnSubmit.addEventListener("click", submitQuiz);
+      btnRestart.addEventListener("click", resetQuiz);
+
+      // Initialization on DOM load
+      initQuickNav();
+      attachOptionListeners();
+      updateProgress();
+    })();
+  </script>
+</body>
+</html>
