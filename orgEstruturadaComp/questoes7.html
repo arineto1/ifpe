@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulado Interativo FAURGS - Diagnóstico e Manutenção</title>
+  <style>
+    :root {
+      --bg-page: #f9f8f5;
+      --card-bg: #ffffff;
+      --border-color: #e5e2da;
+      --border-subtle: #eeece6;
+      --text-main: #23272f;
+      --text-muted: #5c6370;
+      --primary: #1e3a8a;
+      --primary-light: #eff6ff;
+      --primary-border: #93c5fd;
+      --success: #15803d;
+      --success-bg: #f0fdf4;
+      --success-border: #86efac;
+      --danger: #b91c1c;
+      --danger-bg: #fef2f2;
+      --danger-border: #fca5a5;
+      --tag-bg: #f1f0eb;
+      --tag-text: #444950;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      line-height: 1.7;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 80px;
+    }
+
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(249, 248, 245, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 20px;
+    }
+
+    .top-bar-inner {
+      max-width: 840px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .progress-text {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 8px;
+      background-color: var(--border-color);
+      border-radius: 999px;
+      overflow: hidden;
+      max-width: 320px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background-color: var(--primary);
+      transition: width 0.3s ease;
+      border-radius: 999px;
+    }
+
+    .container {
+      max-width: 840px;
+      margin: 24px auto 0;
+      padding: 0 18px;
+    }
+
+    .header-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 28px 24px;
+      margin-bottom: 28px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    }
+
+    .header-badge {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+
+    .header-title {
+      font-size: 1.55rem;
+      font-weight: 700;
+      line-height: 1.35;
+      color: #111827;
+      margin-bottom: 10px;
+    }
+
+    .header-desc {
+      color: var(--text-muted);
+      font-size: 0.98rem;
+      line-height: 1.6;
+    }
+
+    .question-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 26px 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      scroll-margin-top: 75px;
+    }
+
+    .question-card.answered {
+      border-color: #cbd5e1;
+    }
+
+    .question-card.status-correct {
+      border-color: var(--success-border);
+      border-left: 6px solid var(--success);
+    }
+
+    .question-card.status-incorrect {
+      border-color: var(--danger-border);
+      border-left: 6px solid var(--danger);
+    }
+
+    .question-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .question-number {
+      font-weight: 700;
+      font-size: 1.12rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .theme-tag {
+      font-size: 0.78rem;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    .question-statement {
+      font-size: 1.05rem;
+      color: #1e293b;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+
+    .statement-block {
+      background: #fafaf8;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      font-size: 0.98rem;
+    }
+
+    .statement-block p {
+      margin-bottom: 10px;
+    }
+
+    .statement-block p:last-child {
+      margin-bottom: 0;
+    }
+
+    .options-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      background: #fff;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .option-item:hover {
+      background-color: #fbfbf9;
+      border-color: #cbd5e1;
+    }
+
+    .option-item input[type="radio"] {
+      margin-top: 4px;
+      cursor: pointer;
+      width: 17px;
+      height: 17px;
+      accent-color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .option-label {
+      flex: 1;
+      font-size: 0.97rem;
+      color: #334155;
+      cursor: pointer;
+    }
+
+    .option-item.selected {
+      background-color: var(--primary-light);
+      border-color: var(--primary-border);
+    }
+
+    /* Feedback states after submission */
+    .option-item.is-correct-target {
+      background-color: var(--success-bg) !important;
+      border-color: var(--success-border) !important;
+      font-weight: 600;
+      color: #166534;
+    }
+
+    .option-item.is-user-wrong {
+      background-color: var(--danger-bg) !important;
+      border-color: var(--danger-border) !important;
+      color: #991b1b;
+    }
+
+    .result-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .result-badge.correct {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid var(--success-border);
+    }
+
+    .result-badge.incorrect {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid var(--danger-border);
+    }
+
+    .resolution-wrapper {
+      display: none;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px dashed var(--border-color);
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .resolution-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #334155;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .resolution-content {
+      background: #fafaf8;
+      border: 1px solid #e8e6df;
+      border-radius: 8px;
+      padding: 16px 18px;
+      font-size: 0.94rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+
+    .resolution-content p {
+      margin-bottom: 10px;
+    }
+
+    .resolution-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .action-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      margin-top: 32px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .btn-submit {
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 14px 32px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(30, 58, 138, 0.2);
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn-submit:hover {
+      background-color: #172554;
+      transform: translateY(-1px);
+    }
+
+    .btn-reset {
+      background-color: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      padding: 12px 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-left: 10px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-reset:hover {
+      background: #f1f0eb;
+      color: var(--text-main);
+    }
+
+    .scorecard {
+      display: none;
+      background: #ffffff;
+      border: 2px solid var(--primary-border);
+      border-radius: 12px;
+      padding: 28px 24px;
+      margin-bottom: 30px;
+      text-align: center;
+      animation: fadeIn 0.4s ease-out;
+      box-shadow: 0 4px 20px rgba(30, 58, 138, 0.08);
+      scroll-margin-top: 80px;
+    }
+
+    .score-circle {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      border: 3px solid var(--primary);
+      margin-bottom: 16px;
+    }
+
+    .score-num {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .score-total {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .scorecard-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .scorecard-msg {
+      color: var(--text-muted);
+      max-width: 580px;
+      margin: 0 auto 20px;
+      font-size: 0.98rem;
+    }
+
+    .scorecard-nav {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .q-nav-pill {
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      background: #fafaf8;
+      transition: all 0.15s ease;
+    }
+
+    .q-nav-pill.is-correct {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+      color: #166534;
+    }
+
+    .q-nav-pill.is-incorrect {
+      background: var(--danger-bg);
+      border-color: var(--danger-border);
+      color: #991b1b;
+    }
+
+    .alert-banner {
+      display: none;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.93rem;
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 640px) {
+      .header-card, .question-card, .action-panel, .scorecard {
+        padding: 20px 16px;
+      }
+      .header-title {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <div class="top-bar-inner">
+      <span class="progress-text" id="progressStatus">Respondidas: 0 de 10</span>
+      <div class="progress-track" aria-hidden="true">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <header class="header-card">
+      <span class="header-badge">Padrão FAURGS • Prova Simulada</span>
+      <h1 class="header-title">Diagnóstico e Manutenção de Hardware e Software</h1>
+      <p class="header-desc">
+        Caderno interativo contendo as 10 questões técnicas completas no estilo e rigor conceitual da banca FAURGS. 
+        Selecione uma alternativa por questão. Ao concluir, envie suas respostas para visualizar o número de acertos, a correção detalhada e o gabarito comentado na íntegra para cada item.
+      </p>
+    </header>
+
+    <!-- Scorecard Section (Appears after completion) -->
+    <section class="scorecard" id="scorecard">
+      <div class="score-circle">
+        <span class="score-num" id="scoreValue">0</span>
+        <span class="score-total">de 10 acertos</span>
+      </div>
+      <h2 class="scorecard-title" id="scoreTitle">Resultado do Simulado</h2>
+      <p class="scorecard-msg" id="scoreMessage"></p>
+      
+      <div class="scorecard-nav" id="scoreNavPills">
+        <!-- Dynamic question pills generated here -->
+      </div>
+    </section>
+
+    <form id="quizForm" onsubmit="event.preventDefault();">
+
+      <article class="question-card" id="card-q1">
+        <div class="question-meta">
+          <div class="question-number">Questão 01 <span class="result-indicator"></span></div>
+          <span class="theme-tag">Inicialização e Eletricidade Básica</span>
+        </div>
+        <p class="question-statement">
+          Considere as seguintes afirmações sobre procedimentos primários de triagem e diagnóstico em microcomputadores que não apresentam qualquer indício de energização.
+        </p>
+        <div class="statement-block">
+          <p><strong>I</strong> - A inércia completa do equipamento ao acionamento do interruptor de energia do gabinete (<em>power switch</em>), caracterizada pela ausência de rotação dos ventiladores internos e pelo apagamento total dos diodos emissores de luz (LEDs), aponta primariamente para a interrupção do fornecimento elétrico externo ou para falhas de contato nos cabos de força.</p>
+          <p><strong>II</strong> - Para assegurar o fluxo de corrente alternada aos circuitos primários da fonte de alimentação de padrão ATX, a chave seletora bipolar traseira (I/O) deve ser posicionada no estado O, que indica o fechamento do circuito lógico de condução.</p>
+          <p><strong>III</strong> - O protocolo de triagem preliminar de bancada determina que, antes de qualquer desmontagem de componentes internos, deve-se verificar a firmeza do acoplamento do cabo de força e testar a funcionalidade da tomada elétrica com outro dispositivo funcional.</p>
+        </div>
+        <p class="question-statement" style="font-size:0.95rem; margin-bottom:10px;">Quais estão corretas?</p>
+
+        <div class="options-group">
+          <label class="option-item">
+            <input type="radio" name="q1" value="A">
+            <span class="option-label">(A) Apenas I.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q1" value="B">
+            <span class="option-label">(B) Apenas II.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q1" value="C">
+            <span class="option-label">(C) Apenas I e III.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q1" value="D">
+            <span class="option-label">(D) Apenas II e III.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q1" value="E">
+            <span class="option-label">(E) I, II e III.</span>
+          </label>
+        </div>
+
+        <div class="resolution-wrapper" id="res-q1">
+          <div class="resolution-title">
+            <span>💡 Resolução Analítica & Justificativa (Gabarito Oficial: C)</span>
+          </div>
+          <div class="resolution-content">
+            <p>A análise diagnóstica inicial em microcomputadores que não apresentam resposta ao botão de ligar demanda a compreensão dos circuitos elementares de energia. Quando o acionamento do interruptor do painel frontal não resulta em qualquer rotação de hélices de arrefecimento nem na emissão de luz por diodos sinalizadores, o equipamento encontra-se totalmente privado de alimentação em corrente contínua, o que valida a afirmativa I ao apontar a interrupção do suprimento elétrico externo ou falhas nos cabos como a hipótese mais provável.</p>
+            <p>Em contrapartida, a afirmativa II comete um equívoco conceitual comum sobre fontes de alimentação chaveadas: a representação internacional da chave seletora (I/O) baseia-se na lógica binária elementar, na qual o dígito <strong>I</strong> (<em>Input</em>) indica circuito condutivo fechado e habilitado, enquanto a marcação <strong>O</strong> (<em>Output/Open</em>) representa circuito aberto e desativado. Dessa maneira, para que haja transmissão de eletricidade da tomada aos transformadores, a chave precisa estar necessariamente na posição <strong>I</strong>.</p>
+            <p>Por fim, a afirmativa III sustenta-se nas boas práticas de triagem em bancada de suporte, as quais estabelecem que problemas aparentemente graves devem ser descartados por meio de testes não invasivos, tais como o reencaixe meticuloso de conexões e a aferição funcional da tomada elétrica predial por meio de instrumentos ou outros aparelhos funcionais, antes de despender tempo com testes intrusivos na placa de circuito. Portanto, apenas as proposições I e III estão corretas.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q2">
+        <div class="question-meta">
+          <div class="question-number">Questão 02 <span class="result-indicator"></span></div>
+          <span class="theme-tag">Memória RAM e Limpeza de Contatos</span>
+        </div>
+        <p class="question-statement">
+          Assinale a alternativa que preenche, correta e respectivamente, as lacunas do parágrafo a seguir, referente ao diagnóstico e à manutenção corretiva de subsistemas de memória volátil.
+        </p>
+        <div class="statement-block">
+          <p>Durante a inicialização de uma estação de trabalho, constata-se que o circuito de ventilação entra em rotação e os sinalizadores visuais da placa-mãe acendem, porém o monitor exibe a mensagem "Sem Sinal" e a tela permanece estática em preto. Constatado o mau contato decorrente da oxidação superficial nos terminais da memória RAM, o operador deve desenergizar a fonte, abrir as travas dos slots e extrair os módulos. O procedimento técnico adequado para restabelecer a condutividade elétrica nas trilhas douradas consiste na aplicação direta de spray _________ ou, alternativamente, no atrito suave de uma _________, exigindo-se a completa eliminação de detritos antes da reinserção do componente até o travamento mecânico audível.</p>
+        </div>
+
+        <div class="options-group">
+          <label class="option-item">
+            <input type="radio" name="q2" value="A">
+            <span class="option-label">(A) desengripante automotivo – fita adesiva eletrostática</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q2" value="B">
+            <span class="option-label">(B) limpador de contatos elétricos – borracha escolar branca e limpa</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q2" value="C">
+            <span class="option-label">(C) verniz isolante de poliuretano – escova de cerdas de cobre</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q2" value="D">
+            <span class="option-label">(D) detergente tensoativo neutro – lâmina de aço cirúrgico</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q2" value="E">
+            <span class="option-label">(E) fluido lubrificante de silicone – flanela umedecida com água destilada</span>
+          </label>
+        </div>
+
+        <div class="resolution-wrapper" id="res-q2">
+          <div class="resolution-title">
+            <span>💡 Resolução Analítica & Justificativa (Gabarito Oficial: B)</span>
+          </div>
+          <div class="resolution-content">
+            <p>O quadro operacional no qual uma máquina energiza ventoinhas e ilumina indicadores da placa-mãe, porém não inicializa o subsistema de vídeo, permanecendo sem sinal nos monitores externos, caracteriza um bloqueio nos estágios preliminares do auto-teste de partida (<em>Power-On Self-Test</em> – POST). Na ausência de memória RAM funcional, a CPU é incapaz de alocar o código de inicialização do sistema, resultando na ausência total de saída de imagem pela placa gráfica. Essa anomalia frequentemente decorre do acúmulo de películas microscópicas de oxidação ou partículas isolantes nos contatos banhados a ouro dos módulos voláteis.</p>
+            <p>A intervenção requer a limpeza dos terminais de contato com substâncias apropriadas. A utilização de spray limpador de contatos elétricos constitui o padrão técnico recomendado, uma vez que sua composição à base de solventes de rápida evaporação e alta pureza remove a camada oxidada e desengordura as trilhas sem deixar películas residuais nem promover condução parasita.</p>
+            <p>Quando o limpador químico não estiver imediatamente acessível, o emprego de uma borracha escolar branca e limpa atua mecanicamente sobre os contatos, retirando as impurezas por fricção suave sem agredir as trilhas banhadas a ouro. Após esse atrito, a remoção meticulosa dos farelos residuais de borracha é mandatória para evitar que novos isolamentos ocorram no interior das fendas dos slots, finalizando-se o procedimento com a fixação simétrica das travas mecânicas com o clique perceptível. Distratores que sugerem desengripantes, esponjas de aço ou fluidos aquosos conduzem à corrosão ou curto-circuito irreparável da placa-mãe. Assim, a alternativa B é a única que preenche as lacunas de modo tecnicamente correto.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q3">
+        <div class="question-meta">
+          <div class="question-number">Questão 03 <span class="result-indicator"></span></div>
+          <span class="theme-tag">Termodinâmica e Arrefecimento de CPUs</span>
+        </div>
+        <p class="question-statement">
+          Considere as seguintes afirmações relativas à termodinâmica de processadores centrais (CPUs) e às práticas de manutenção preventiva e corretiva do sistema de arrefecimento.
+        </p>
+        <div class="statement-block">
+          <p><strong>I</strong> - O desligamento repentino do computador sob regimes de processamento intenso ocorre, em geral, pelo disparo de rotinas de emergência em nível de firmware e hardware quando o encapsulamento térmico ultrapassa limites críticos de segurança, costumeiramente fixados acima de 95 °C, visando mitigar a degradação estrutural do silício.</p>
+          <p><strong>II</strong> - O ressecamento da interface térmica aliado ao acúmulo de partículas de poeira nas aletas dos dissipadores metálicos eleva a resistência de contato térmico, impedindo a dissipação do calor gerado pela CPU para o fluxo de ar forçado pelo cooler.</p>
+          <p><strong>III</strong> - A substituição da pasta térmica ressecada exige a higienização prévia da superfície do processador com álcool isopropílico, solvente que assegura a remoção do resíduo enrijecido sem deixar umidade condutiva antes da aplicação da nova camada.</p>
+        </div>
+        <p class="question-statement" style="font-size:0.95rem; margin-bottom:10px;">Quais estão corretas?</p>
+
+        <div class="options-group">
+          <label class="option-item">
+            <input type="radio" name="q3" value="A">
+            <span class="option-label">(A) Apenas I.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q3" value="B">
+            <span class="option-label">(B) Apenas I e II.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q3" value="C">
+            <span class="option-label">(C) Apenas I e III.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q3" value="D">
+            <span class="option-label">(D) Apenas II e III.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q3" value="E">
+            <span class="option-label">(E) I, II e III.</span>
+          </label>
+        </div>
+
+        <div class="resolution-wrapper" id="res-q3">
+          <div class="resolution-title">
+            <span>💡 Resolução Analítica & Justificativa (Gabarito Oficial: E)</span>
+          </div>
+          <div class="resolution-content">
+            <p>A arquitetura térmica dos processadores modernos opera com limites estritos de segurança visando assegurar a longevidade dos semicondutores. A afirmativa I está correta ao descrever a atuação do mecanismo de proteção térmica emergencial (<em>thermal shutdown</em>), implementado internamente nos registradores e diodos da CPU. Ao detectar a elevação contínua da temperatura além do limiar estipulado (frequentemente na faixa dos 95 °C a 105 °C sob cargas pesadas contínuas), o hardware força a interrupção abrupta do fornecimento de energia, evitando a fusão térmica ou eletromigração catastrófica dos circuitos.</p>
+            <p>A afirmativa II descreve fielmente a física do acoplamento térmico: a superfície metálica da CPU e a base do dissipador contêm microimperfeições que retêm ar, que atua como um isolante térmico. A função da pasta térmica é preencher essas lacunas microscópicas para garantir condução fluida. Com o transcorrer do tempo e a exposição a ciclos de calor, a pasta resseca e perde suas características elásticas, aumentando a resistência térmica da interface, ao passo que a poeira compactada nas aletas do bloco de alumínio bloqueia o escoamento do ar forçado pela ventoinha.</p>
+            <p>Por sua vez, a afirmativa III atesta uma das rotinas de bancada mais consolidadas: a remoção do composto ressecado não deve ser realizada a seco nem com solventes que contenham água, optando-se pelo álcool isopropílico de pureza elevada (tipicamente 99,8%), cuja ausência quase total de umidade permite dissolver a matriz de silicone antiga sem expor a peça ao risco de oxidação precoce ou condutividade elétrica induzida antes da deposição de nova pasta condutora. Dessa maneira, todas as afirmações (I, II e III) encontram-se plenamente corretas, respaldando a alternativa E.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q4">
+        <div class="question-meta">
+          <div class="question-number">Questão 04 <span class="result-indicator"></span></div>
+          <span class="theme-tag">Armazenamento: HD vs SSD</span>
+        </div>
+        <p class="question-statement">
+          Um microcomputador corporativo apresenta tempo excessivo para carregar a interface gráfica do sistema operacional e extrema lentidão para abrir pastas e programas rotineiros de escritório. A análise de desempenho via utilitários do sistema evidencia que a taxa de atividade da unidade primária de armazenamento opera continuamente em 100%, registrando vazões de leitura e gravação muito baixas, ao passo que os consumos de memória RAM e processador encontram-se em patamares moderados.
+        </p>
+        <p class="question-statement" style="font-size:0.98rem;">
+          Considerando os conceitos de arquitetura de computadores e armazenamento em massa, a modificação definitiva de hardware recomendada para eliminar essa degradação de desempenho consiste em:
+        </p>
+
+        <div class="options-group">
+          <label class="option-item">
+            <input type="radio" name="q4" value="A">
+            <span class="option-label">(A) configurar o barramento da memória principal para operar em subtensão eletrostática permanente.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q4" value="B">
+            <span class="option-label">(B) desativar os canais de controle DMA diretamente no subsistema de entrada e saída.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q4" value="C">
+            <span class="option-label">(C) substituir a unidade de disco rígido mecânico magnético (HD) por uma unidade de estado sólido (SSD).</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q4" value="D">
+            <span class="option-label">(D) particionar o disco magnético existente utilizando o padrão FAT32 sem fragmentação lógica.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q4" value="E">
+            <span class="option-label">(E) limitar a frequência de operação do processador para compatibilizá-la à latência mecânica da agulha de leitura.</span>
+          </label>
+        </div>
+
+        <div class="resolution-wrapper" id="res-q4">
+          <div class="resolution-title">
+            <span>💡 Resolução Analítica & Justificativa (Gabarito Oficial: C)</span>
+          </div>
+          <div class="resolution-content">
+            <p>O estrangulamento de desempenho caracterizado pelo uso contínuo de disco em 100% sob taxas de transferência ínfimas advém das limitações mecânicas da tecnologia de discos rígidos convencionais (<em>Hard Disk Drives</em> – HDs). Nos HDs, as operações de leitura e gravação requerem o deslocamento físico de um braço atuador mecânico e a rotação magnética de pratos. Quando o sistema operacional contemporâneo e suas tarefas em segundo plano demandam múltiplos acessos simultâneos a pequenos blocos aleatórios de arquivos, a latência de posicionamento das cabeças magnéticas satura a fila de requisições de I/O, congelando o tempo de resposta do sistema operacional, mesmo que a memória RAM e os núcleos da CPU estejam ociosos.</p>
+            <p>A única intervenção definitiva de hardware apta a suprimir essa latência consiste na troca do HD magnético mecânico por uma unidade de estado sólido (<em>Solid-State Drive</em> – SSD). Construídos sobre matrizes de memória flash não voláteis (geralmente baseadas em células NAND), os SSDs realizam o endereçamento puramente eletrônico dos dados, sem componentes móveis. Isso resulta em taxas de acesso centenas de vezes superiores e velocidades sequenciais significativamente mais altas, fazendo com que o boot do sistema e o carregamento de arquivos ocorram quase instantaneamente.</p>
+            <p>As demais alternativas configuram distratores incompatíveis com os padrões arquiteturais: a desativação de controladores DMA deterioraria ainda mais as transferências de dados; a formatação em FAT32 removeria recursos indispensáveis de permissão e segurança sem suprimir o tempo de busca da agulha; e limitar a frequência da CPU agravaria o tempo global de execução das tarefas lógicas. Logo, a alternativa C responde à questão.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q5">
+        <div class="question-meta">
+          <div class="question-number">Questão 05 <span class="result-indicator"></span></div>
+          <span class="theme-tag">Inicialização do Sistema e Gerenciador de Tarefas</span>
+        </div>
+        <p class="question-statement">
+          Considere as seguintes afirmações a respeito do gerenciamento da inicialização de processos e serviços no sistema operacional Microsoft Windows.
+        </p>
+        <div class="statement-block">
+          <p><strong>I</strong> - Equipamentos dotados de processadores avançados e unidades de processamento gráfico dedicadas podem apresentar lentidão após a carga do sistema caso haja excesso de aplicações de inicialização automática disputando ciclos de instrução e barramentos de I/O.</p>
+          <p><strong>II</strong> - O utilitário Gerenciador de Tarefas pode ser invocado diretamente pela combinação simultânea de teclas <code>Ctrl + Shift + Esc</code>, disponibilizando interface para que o técnico possa desabilitar inicializadores não essenciais.</p>
+          <p><strong>III</strong> - A metodologia adequada de otimização requer a desabilitação sistemática de todos os processos de inicialização rápida vinculados a serviços de proteção antivírus e módulos executáveis de drivers de vídeo e áudio, liberando memória residente no boot.</p>
+        </div>
+        <p class="question-statement" style="font-size:0.95rem; margin-bottom:10px;">Quais estão corretas?</p>
+
+        <div class="options-group">
+          <label class="option-item">
+            <input type="radio" name="q5" value="A">
+            <span class="option-label">(A) Apenas I.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q5" value="B">
+            <span class="option-label">(B) Apenas III.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q5" value="C">
+            <span class="option-label">(C) Apenas I e II.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q5" value="D">
+            <span class="option-label">(D) Apenas II e III.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q5" value="E">
+            <span class="option-label">(E) I, II e III.</span>
+          </label>
+        </div>
+
+        <div class="resolution-wrapper" id="res-q5">
+          <div class="resolution-title">
+            <span>💡 Resolução Analítica & Justificativa (Gabarito Oficial: C)</span>
+          </div>
+          <div class="resolution-content">
+            <p>A degradação do tempo de carga do sistema em computadores dotados de especificações técnicas elevadas ilustra o fenômeno no qual o software anula as vantagens do hardware. A afirmativa I reflete com exatidão que hardwares modernos (como processadores multinúcleo de arquitetura recente) sucumbem à concorrência desenfreada gerada quando dezenas de aplicações de inicialização automática disputam ciclos de CPU, alocação de página e tráfego de armazenamento de modo simultâneo no momento do boot.</p>
+            <p>A afirmativa II comprova-se correta, pois a combinação de teclas de atalho <code>Ctrl + Shift + Esc</code> envia um comando prioritário ao sistema para a abertura direta do Gerenciador de Tarefas, dispensando a tela intermediária de interrupção comumente acionada pelo comando <code>Ctrl + Alt + Del</code>. Dentro do Gerenciador de Tarefas, a aba correspondente aos aplicativos de inicialização elenca os executáveis carregados com o sistema e mensura o respectivo grau de impacto no boot, permitindo ao técnico desabilitá-los com segurança.</p>
+            <p>Por sua vez, a afirmativa III apresenta uma prática inadequada de manutenção: desabilitar serviços críticos vinculados à proteção antimalware e drivers de dispositivos essenciais (como controladores de vídeo e codecs de áudio) desestabiliza a operação do ambiente e expõe a máquina a infecções precoces. Apenas aplicações de terceiros desprovidas de caráter vital (tais como sincronizadores de nuvem, inicializadores de jogos e utilitários secundários) devem ser retiradas da rotina automática de carregamento. Logo, apenas as afirmações I e II são verdadeiras, determinando o acerto da alternativa C.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q6">
+        <div class="question-meta">
+          <div class="question-number">Questão 06 <span class="result-indicator"></span></div>
+          <span class="theme-tag">BSOD, Integridade de Kernel e Drivers</span>
+        </div>
+        <p class="question-statement">
+          Relacione as ações e eventos técnicos associados a incidentes operacionais de parada crítica (<em>Blue Screen of Death</em> – BSOD) no Windows, dispostos na <strong>Coluna 1</strong>, às respectivas descrições conceituais e funcionais, situadas na <strong>Coluna 2</strong>.
+        </p>
+        <div class="statement-block">
+          <p><strong>Coluna 1</strong><br>
+          1. Atualização direcionada de drivers a partir de canais oficiais dos fabricantes<br>
+          2. Reparação lógica com a instrução <code>sfc /scannow</code> em linha de comando elevada<br>
+          3. Tela Azul de Erro Fatal (<em>Kernel Panic / BSOD</em>) com parada crítica de sistema</p>
+          
+          <p style="margin-top:12px;"><strong>Coluna 2</strong><br>
+          ( ) Manifestação terminal de colapso do sistema operacional desencadeada por falhas graves de comunicação entre controladores corrompidos e componentes físicos ou inconsistência severa de binários vitais do núcleo.<br>
+          ( ) Medida voltada ao alinhamento das camadas de abstração de hardware que mitiga conflitos entre novas versões do sistema e dispositivos como adaptadores gráficos de fabricantes como NVIDIA, AMD ou Intel.<br>
+          ( ) Execução do Verificador de Arquivos do Sistema, cujo objetivo consiste em rastrear, comparar assinaturas de integridade e substituir arquivos essenciais do sistema corrompidos por versões mantidas em cache íntegro.</p>
+        </div>
+        <p class="question-statement" style="font-size:0.95rem; margin-bottom:10px;">A sequência correta de preenchimento dos parênteses da Coluna 2, de cima para baixo, é:</p>
+
+        <div class="options-group">
+          <label class="option-item">
+            <input type="radio" name="q6" value="A">
+            <span class="option-label">(A) 1 – 2 – 3.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q6" value="B">
+            <span class="option-label">(B) 2 – 1 – 3.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q6" value="C">
+            <span class="option-label">(C) 3 – 1 – 2.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q6" value="D">
+            <span class="option-label">(D) 3 – 2 – 1.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q6" value="E">
+            <span class="option-label">(E) 2 – 3 – 1.</span>
+          </label>
+        </div>
+
+        <div class="resolution-wrapper" id="res-q6">
+          <div class="resolution-title">
+            <span>💡 Resolução Analítica & Justificativa (Gabarito Oficial: C)</span>
+          </div>
+          <div class="resolution-content">
+            <p>A associação conceitual das ocorrências de telas azuis da morte (<em>Blue Screen of Death</em> – BSOD) demanda a compreensão dos limites entre o espaço de usuário (<em>user space</em>) e o anel privilegiado do núcleo (<em>kernel space</em>). A tela azul é a representação visual da interrupção catastrófica de segurança em nível de núcleo. Quando um processo essencial falha de modo irreparável — exemplificado pelo código de erro <code>CRITICAL_PROCESS_DIED</code> —, o Windows encerra as atividades e gera um despejo de memória (<em>crash dump</em>) para resguardar a integridade dos dados armazenados no disco. Tal manifestação conecta-se diretamente ao elemento 3 da primeira coluna.</p>
+            <p>A mitigação técnica de instabilidades provocadas por drivers defeituosos envolve a busca de pacotes assinados digitalmente diretamente nos repositórios dos próprios fabricantes dos equipamentos periféricos. Componentes complexos como placas de vídeo dependem de drivers homologados para traduzir as instruções de vídeo em sinais físicos de clock e tensão. Falhas nesses módulos resultam em travamentos e telas azuis, justificando a conexão com o item 1.</p>
+            <p>Por fim, no que concerne a arquivos corrompidos por falhas de desligamento ou interrupções elétricas abruptas, o sistema operacional dispõe do Verificador de Arquivos de Sistema, acionado pelo comando <code>sfc /scannow</code> em janela de terminal com privilégios de administrador. Essa ferramenta calcula os hashes dos componentes binários cruciais do sistema, compara-os com o catálogo oficial protegido e substitui automaticamente eventuais bibliotecas danificadas a partir da cópia de segurança mantida no diretório <em>WinSxS</em>. Essa dinâmica descreve com fidelidade o item 2, consolidando a ordem correta de preenchimento dos parênteses como 3 – 1 – 2, expressa na alternativa C.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q7">
+        <div class="question-meta">
+          <div class="question-number">Questão 07 <span class="result-indicator"></span></div>
+          <span class="theme-tag">Segurança Defensiva e Saneamento de Malwares</span>
+        </div>
+        <p class="question-statement">
+          Considere as seguintes afirmações sobre a manifestação de pragas digitais em ambientes operacionais e suas estratégias de remediação.
+        </p>
+        <div class="statement-block">
+          <p><strong>I</strong> - A abertura espontânea de janelas pop-up publicitárias, a substituição arbitrária dos mecanismos de pesquisa padrão nos navegadores web e a perda generalizada de responsividade computacional são sintomas frequentemente atrelados à ação de malwares e adwares.</p>
+          <p><strong>II</strong> - O uso de geradores ilegais de chaves de ativação, utilitários piratas e o download de binários executáveis (<code>.exe</code>) a partir de fontes não certificadas compõem as rotas preferenciais de vetorização de ameaças digitais no sistema.</p>
+          <p><strong>III</strong> - A realização de verificações abrangentes na central Segurança do Windows somada à desinstalação de utilitários espúrios e à remoção de extensões não reconhecidas em navegadores constituem passos básicos de saneamento do sistema infectado.</p>
+        </div>
+        <p class="question-statement" style="font-size:0.95rem; margin-bottom:10px;">Quais estão corretas?</p>
+
+        <div class="options-group">
+          <label class="option-item">
+            <input type="radio" name="q7" value="A">
+            <span class="option-label">(A) Apenas I.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q7" value="B">
+            <span class="option-label">(B) Apenas II.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q7" value="C">
+            <span class="option-label">(C) Apenas I e III.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q7" value="D">
+            <span class="option-label">(D) Apenas II e III.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q7" value="E">
+            <span class="option-label">(E) I, II e III.</span>
+          </label>
+        </div>
+
+        <div class="resolution-wrapper" id="res-q7">
+          <div class="resolution-title">
+            <span>💡 Resolução Analítica & Justificativa (Gabarito Oficial: E)</span>
+          </div>
+          <div class="resolution-content">
+            <p>A proliferação de artefatos nocivos no ambiente operacional e sua consequente eliminação sustentam-se em parâmetros consolidados de segurança defensiva. A afirmativa I aponta manifestações clássicas da contaminação por pragas do tipo adware e malwares de redirecionamento de tráfego. Esses códigos executam requisições não solicitadas que alteram as chaves do registro do sistema responsáveis por ancorar o motor de busca padrão nos navegadores, bombardeando a interface do usuário com anúncios pop-up invasivos e consumindo largura de banda e memória, o que acarreta lentidão no equipamento.</p>
+            <p>A afirmativa II retrata a engenharia social e o vetor de infecção mais expressivo em ambientes corporativos e domésticos: a busca por ativadores ilegais de licenças (<em>cracks</em>) e instaladores piratas hospeda rotineiramente cavalos de troia (<em>trojans</em>) e empacotadores maliciosos compilados em formato executável com extensão <code>.exe</code>. Ao serem executados sob privilégios elevados concedidos pelo próprio operador desavisado, esses arquivos bypassam os alertas preliminares do sistema operacional e se alojam na inicialização.</p>
+            <p>A afirmativa III sintetiza a postura técnica de remediação recomendada. Para sanear a estação de trabalho, faz-se imperativo acionar a verificação completa por meio dos motores de assinatura heurística da Segurança do Windows, seguida de uma varredura nas pastas de complementos e extensões dos navegadores de internet para desinstalar plugins desconhecidos e desinstalar aplicações instaladas sem consentimento. Todas as três afirmações estão tecnicamente corretas, resultando na escolha da alternativa E.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q8">
+        <div class="question-meta">
+          <div class="question-number">Questão 08 <span class="result-indicator"></span></div>
+          <span class="theme-tag">Conectividade, Cache DNS e Conflitos de IP</span>
+        </div>
+        <p class="question-statement">
+          Considere as seguintes afirmações relativas ao estado operacional caracterizado por "Conectado ao Wi-Fi, mas Sem Internet" e às respectivas intervenções corretivas.
+        </p>
+        <div class="statement-block">
+          <p><strong>I</strong> - A presença de tabelas residuais ou dados inconsistentes na memória cache do resolvedor DNS impede a transcrição de nomes de domínio totalmente qualificados (FQDN) em seus correspondentes endereços lógicos IP, impossibilitando a resolução de endereços web válidos.</p>
+          <p><strong>II</strong> - O conflito de endereçamento IP, decorrente da atribuição do mesmo número identificador IPv4 a dois dispositivos ativos na mesma sub-rede local, anula o roteamento adequado dos pacotes e isola as máquinas da saída para redes externas.</p>
+          <p><strong>III</strong> - O comando <code>ipconfig /flushdns</code>, digitado na interface do Prompt de Comando em modo de administrador, redefine a tabela estática do barramento e reinicia os serviços de comutação por hardware do adaptador físico de rede.</p>
+        </div>
+        <p class="question-statement" style="font-size:0.95rem; margin-bottom:10px;">Quais estão corretas?</p>
+
+        <div class="options-group">
+          <label class="option-item">
+            <input type="radio" name="q8" value="A">
+            <span class="option-label">(A) Apenas I.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q8" value="B">
+            <span class="option-label">(B) Apenas III.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q8" value="C">
+            <span class="option-label">(C) Apenas I e II.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q8" value="D">
+            <span class="option-label">(D) Apenas II e III.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q8" value="E">
+            <span class="option-label">(E) I, II e III.</span>
+          </label>
+        </div>
+
+        <div class="resolution-wrapper" id="res-q8">
+          <div class="resolution-title">
+            <span>💡 Resolução Analítica & Justificativa (Gabarito Oficial: C)</span>
+          </div>
+          <div class="resolution-content">
+            <p>A perda do acesso à internet em dispositivos que permanecem devidamente conectados ao ponto de acesso Wi-Fi reflete problemas na camada lógica da rede. A afirmativa I aborda a quebra na resolução de nomes do sistema de nomes de domínio (<em>Domain Name System</em> – DNS). O sistema operacional mantém em memória volátil um cache local com as últimas resoluções realizadas. Se essa estrutura reter registros desatualizados ou se tornar inconsistente, as tentativas de conversão entre identificadores textuais amigáveis (como <code>www.google.com</code>) e os respectivos endereços de destino na camada de rede (endereços IPv4/IPv6 numéricos) falham, fazendo com que as aplicações web acusem falta de conectividade.</p>
+            <p>A afirmativa II detalha a problemática do conflito de endereços lógicos. Caso dois equipamentos compartilhem o mesmo endereço IPv4 dentro da mesma máscara de sub-rede, as tabelas ARP do switch ou ponto de acesso passam a receber respostas duplicadas para o mesmo IP, o que causa oscilações nos canais de comunicação e bloqueia a transmissão de pacotes para o gateway de saída.</p>
+            <p>Entretanto, a afirmativa III está incorreta: a execução do comando <code>ipconfig /flushdns</code> na interface de linha de comando atua apenas liberando o cache do resolvedor DNS em nível de software no Windows. O comando não reseta tabelas de barramento físico e não reinicia controladores de hardware de comutação da interface sem fio. O flush de DNS é uma rotina rápida que força o resolvedor a buscar novas tabelas de tradução de nomes a partir dos servidores DNS configurados na rede. Logo, apenas as afirmações I e II mostram-se acertadas, o que torna a alternativa C a opção correta.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q9">
+        <div class="question-meta">
+          <div class="question-number">Questão 09 <span class="result-indicator"></span></div>
+          <span class="theme-tag">Manutenção Preventiva Física e Lógica</span>
+        </div>
+        <p class="question-statement">
+          Assinale V (verdadeiro) ou F (falso) para as afirmativas a seguir, concernentes às rotinas de manutenção preventiva lógica e física em microcomputadores.
+        </p>
+        <div class="statement-block">
+          <p>( ) O posicionamento do chassi em locais arejados, mantendo entradas e saídas de ar livres de barreiras mecânicas, previne a formação de bolsões térmicos que aceleram o desgaste do hardware.</p>
+          <p>( ) A utilização de filtros de linha homologados atua na contenção de surtos de tensão e atenua picos transientes provenientes da rede elétrica predial, preservando os estágios de entrada das fontes chaveadas.</p>
+          <p>( ) Rotinas regulares de salvaguarda de dados (backups) em dispositivos externos ou repositórios remotos tornam-se desnecessárias caso a partição de inicialização do sistema seja mantida atualizada com os últimos patches do sistema operacional.</p>
+          <p>( ) A manutenção do sistema operacional por meio da aplicação contínua de correções oficiais de segurança é essencial para sanar brechas de código e prevenir falhas de compatibilidade sistêmica.</p>
+        </div>
+        <p class="question-statement" style="font-size:0.95rem; margin-bottom:10px;">A sequência correta de preenchimento dos parênteses, de cima para baixo, é:</p>
+
+        <div class="options-group">
+          <label class="option-item">
+            <input type="radio" name="q9" value="A">
+            <span class="option-label">(A) V – V – F – V.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q9" value="B">
+            <span class="option-label">(B) V – F – V – F.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q9" value="C">
+            <span class="option-label">(C) F – V – V – V.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q9" value="D">
+            <span class="option-label">(D) V – V – V – F.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q9" value="E">
+            <span class="option-label">(E) F – F – V – V.</span>
+          </label>
+        </div>
+
+        <div class="resolution-wrapper" id="res-q9">
+          <div class="resolution-title">
+            <span>💡 Resolução Analítica & Justificativa (Gabarito Oficial: A)</span>
+          </div>
+          <div class="resolution-content">
+            <p>A avaliação das premissas de manutenção preventiva de hardware e software orienta-se pela mitigação de riscos físicos e salvaguarda lógica de estações de trabalho. O primeiro item é verdadeiro, pois manter a máquina em ambientes dotados de livre convecção de ar atmosférico e evitar que poeira bloqueie as grades do chassi impede o confinamento térmico que deteriora os isolamentos dielétricos dos componentes semicondutores.</p>
+            <p>O segundo item também é verdadeiro, já que a utilização de filtros de linha equipados com varistores de óxido metálico (MOV) atenua picos transientes e desvios de sobretensão gerados pela rede elétrica predial, impedindo que essas descargas atinjam os circuitos retificadores da fonte de alimentação.</p>
+            <p>O terceiro item é manifestamente falso: rotinas de salvaguarda de dados (backups regulares) mantêm-se como a única garantia contra a perda catastrófica de informações, sendo impossível dispensá-las com base em sistemas atualizados. Incidentes de quebra de componentes físicos, ataques de sequestro de dados (<em>ransomware</em>) e erros operacionais humanos comprometem discos e dados mesmo em sistemas devidamente atualizados.</p>
+            <p>O quarto item é verdadeiro, tendo em vista que a aplicação pontual dos pacotes de segurança emitidos pelos canais oficiais dos desenvolvedores corrige brechas de segurança de dia zero (<em>zero-day</em>) e instabilidades nas camadas de chamada de sistema, preservando o equilíbrio funcional do ecossistema computacional. Assim, o preenchimento correto é V – V – F – V, consolidando a alternativa A.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="question-card" id="card-q10">
+        <div class="question-meta">
+          <div class="question-number">Questão 10 <span class="result-indicator"></span></div>
+          <span class="theme-tag">Protocolo Integrado de Suporte e Diagnóstico</span>
+        </div>
+        <p class="question-statement">
+          Durante a assistência técnica de campo, quatro estações de trabalho de uma mesma repartição apresentaram cenários de falha distintos:
+        </p>
+        <div class="statement-block">
+          <p><strong>1. Estação 1:</strong> Desliga-se subitamente sob carga de processamento pesada, operando com temperaturas medidas no encapsulamento da CPU superiores a 95 °C.</p>
+          <p><strong>2. Estação 2:</strong> Emite sinal elétrico, gira ventiladores, mas não gera sinal de varredura no monitor de vídeo ("Sem Sinal" e tela preta).</p>
+          <p><strong>3. Estação 3:</strong> Apresenta lentidão sistêmica pronunciada e taxa de uso do subsistema de disco rígido magnético congelada em 100% em operações rotineiras de leitura e escrita.</p>
+          <p><strong>4. Estação 4:</strong> Encontra-se associada à rede local sem fio com sinal estável, porém é incapaz de resolver requisições web por inconsistência no cache do resolvedor local.</p>
+        </div>
+        <p class="question-statement" style="font-size:0.98rem;">
+          Assinale a alternativa que elenca as abordagens técnicas indicadas para reparar, <strong>correta e respectivamente</strong>, os incidentes descritos.
+        </p>
+
+        <div class="options-group">
+          <label class="option-item">
+            <input type="radio" name="q10" value="A">
+            <span class="option-label">(A) Redução de frequência de memória RAM – Troca da bateria do CMOS – Desfragmentação de arquivos de paginação – Substituição do adaptador de rede sem fio.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q10" value="B">
+            <span class="option-label">(B) Limpeza e reaplicação de pasta térmica – Higienização dos contatos da RAM com limpador apropriado e reinstalação – Troca do disco mecânico por SSD – Execução da instrução <code>ipconfig /flushdns</code>.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q10" value="C">
+            <span class="option-label">(C) Reinstalação de software antivírus – Formatação com sistema de arquivos ext4 – Aumento de rotação forçada da GPU – Substituição do cabo de força.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q10" value="D">
+            <span class="option-label">(D) Atualização de BIOS – Troca imediata da placa-mãe – Supressão de partições de recuperação – Reinicialização do switch central.</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="q10" value="E">
+            <span class="option-label">(E) Limpeza com esponja metálica – Troca do painel frontal do gabinete – Instalação de drivers em modo de compatibilidade – Redefinição física de roteadores.</span>
+          </label>
+        </div>
+
+        <div class="resolution-wrapper" id="res-q10">
+          <div class="resolution-title">
+            <span>💡 Resolução Analítica & Justificativa (Gabarito Oficial: B)</span>
+          </div>
+          <div class="resolution-content">
+            <p>O atendimento integrado de múltiplos incidentes exige a aplicação direta dos procedimentos diagnósticos abordados ao longo do suporte computacional. Para o primeiro incidente, em que o desligamento ocorre por aquecimento térmico excessivo da CPU (ultrapassando os 95 °C sob esforço contínuo), a intervenção necessária consiste na limpeza das aletas dos dissipadores, desobstrução das saídas de ar e troca da camada de pasta térmica desgastada.</p>
+            <p>No segundo incidente, o acionamento de rotação de ventiladores e de LEDs da placa-mãe sem a geração de vídeo ("Sem Sinal" e tela preta) aponta para interrupção de contato no barramento dos pentes de memória RAM, exigindo a sua extração e limpeza com produto apropriado (spray limpador de contatos elétricos ou borracha escolar branca), seguida do reencaixe firme no slot até travar com clique.</p>
+            <p>No terceiro incidente, a taxa de ocupação permanente em 100% associada à lentidão extrema ao carregar a interface e abrir pastas revela a saturação de um disco rígido magnético convencional (HD), solucionada por meio do upgrade para um disco de estado sólido (SSD), eliminando a latência dos atuadores mecânicos.</p>
+            <p>Por fim, no quarto incidente, o problema de conectividade decorrente de inconsistência na resolução de nomes de domínio resolve-se com a limpeza da memória de caminhos de rede por meio da linha de comando <code>ipconfig /flushdns</code>, restaurando a fluidez das consultas aos servidores DNS da rede. Essa sequência correlaciona-se perfeitamente com a alternativa B.</p>
+          </div>
+        </div>
+      </article>
+
+      <div class="action-panel">
+        <div class="alert-banner" id="unansweredWarning">
+          ⚠️ Você ainda não respondeu todas as questões. Recomendamos marcar todas antes de finalizar, ou você pode finalizar agora para ver o resultado parcial.
+        </div>
+        <button type="button" class="btn-submit" id="btnFinish" onclick="handleQuizSubmit()">
+          Finalizar Simulado & Ver Resoluções
+        </button>
+        <button type="button" class="btn-reset" id="btnRestart" onclick="resetQuiz()" style="display: none;">
+          Refazer Simulado
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <script>
+    /* Official Answer Key according to FAURGS Document */
+    const GABARITO = {
+      q1: "C",
+      q2: "B",
+      q3: "E",
+      q4: "C",
+      q5: "C",
+      q6: "C",
+      q7: "E",
+      q8: "C",
+      q9: "A",
+      q10: "B"
+    };
+
+    const TOTAL_QUESTIONS = Object.keys(GABARITO).length;
+    let isEvaluated = false;
+
+    // Attach click and change listeners to radio inputs
+    document.addEventListener("DOMContentLoaded", () => {
+      const radios = document.querySelectorAll('input[type="radio"]');
+      radios.forEach(radio => {
+        radio.addEventListener("change", (e) => {
+          handleOptionSelection(e.target);
+        });
+      });
+      updateProgressBar();
+    });
+
+    function handleOptionSelection(radioInput) {
+      if (isEvaluated) return;
+
+      const groupName = radioInput.name;
+      const questionCard = document.getElementById(`card-${groupName}`);
+
+      // Highlight selected container
+      const groupLabels = questionCard.querySelectorAll(".option-item");
+      groupLabels.forEach(label => label.classList.remove("selected"));
+
+      const activeLabel = radioInput.closest(".option-item");
+      if (activeLabel) {
+        activeLabel.classList.add("selected");
+      }
+
+      questionCard.classList.add("answered");
+      updateProgressBar();
+    }
+
+    function updateProgressBar() {
+      const answeredCount = getAnsweredCount();
+      const pct = (answeredCount / TOTAL_QUESTIONS) * 100;
+      
+      const fillEl = document.getElementById("progressFill");
+      const statusEl = document.getElementById("progressStatus");
+      
+      if (fillEl && statusEl) {
+        fillEl.style.width = `${pct}%`;
+        statusEl.textContent = `Respondidas: ${answeredCount} de ${TOTAL_QUESTIONS}`;
+      }
+    }
+
+    function getAnsweredCount() {
+      let count = 0;
+      for (let i = 1; i <= TOTAL_QUESTIONS; i++) {
+        if (document.querySelector(`input[name="q${i}"]:checked`)) {
+          count++;
+        }
+      }
+      return count;
+    }
+
+    function handleQuizSubmit() {
+      const answeredCount = getAnsweredCount();
+      const warningEl = document.getElementById("unansweredWarning");
+
+      if (answeredCount < TOTAL_QUESTIONS && warningEl.style.display !== "block") {
+        warningEl.style.display = "block";
+        warningEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      if (warningEl) {
+        warningEl.style.display = "none";
+      }
+
+      isEvaluated = true;
+      let score = 0;
+      const navPillsContainer = document.getElementById("scoreNavPills");
+      navPillsContainer.innerHTML = "";
+
+      for (let i = 1; i <= TOTAL_QUESTIONS; i++) {
+        const qKey = `q${i}`;
+        const correctChoice = GABARITO[qKey];
+        const card = document.getElementById(`card-${qKey}`);
+        const selectedRadio = document.querySelector(`input[name="${qKey}"]:checked`);
+        const userChoice = selectedRadio ? selectedRadio.value : null;
+
+        const resultIndicator = card.querySelector(".result-indicator");
+        const resolutionBox = document.getElementById(`res-${qKey}`);
+
+        // Disable radios after evaluation
+        card.querySelectorAll('input[type="radio"]').forEach(r => r.disabled = true);
+
+        // Highlight correct and wrong options
+        const allOptionItems = card.querySelectorAll(".option-item");
+        allOptionItems.forEach(item => {
+          const radio = item.querySelector('input[type="radio"]');
+          if (radio.value === correctChoice) {
+            item.classList.add("is-correct-target");
+          } else if (userChoice && radio.value === userChoice && userChoice !== correctChoice) {
+            item.classList.add("is-user-wrong");
+          }
+        });
+
+        // Evaluate question accuracy
+        const isCorrect = (userChoice === correctChoice);
+        if (isCorrect) {
+          score++;
+          card.classList.add("status-correct");
+          card.classList.remove("status-incorrect");
+          resultIndicator.innerHTML = `<span class="result-badge correct">✓ Correta</span>`;
+        } else {
+          card.classList.add("status-incorrect");
+          card.classList.remove("status-correct");
+          resultIndicator.innerHTML = `<span class="result-badge incorrect">✗ Incorreta (Gabarito: ${correctChoice})</span>`;
+        }
+
+        // Reveal resolution text box on the same page
+        if (resolutionBox) {
+          resolutionBox.style.display = "block";
+        }
+
+        // Build navigation pill for scorecard
+        const pill = document.createElement("a");
+        pill.href = `#card-${qKey}`;
+        pill.className = `q-nav-pill ${isCorrect ? "is-correct" : "is-incorrect"}`;
+        pill.innerHTML = `Q${i} ${isCorrect ? "✓" : "✗"}`;
+        navPillsContainer.appendChild(pill);
+      }
+
+      // Display Scorecard
+      const scorecard = document.getElementById("scorecard");
+      const scoreValEl = document.getElementById("scoreValue");
+      const scoreTitleEl = document.getElementById("scoreTitle");
+      const scoreMsgEl = document.getElementById("scoreMessage");
+
+      scoreValEl.textContent = score;
+
+      const percentage = (score / TOTAL_QUESTIONS) * 100;
+      if (percentage >= 80) {
+        scoreTitleEl.textContent = "Excelente Desempenho! 🎯";
+        scoreMsgEl.textContent = `Você acertou ${score} de ${TOTAL_QUESTIONS} questões (${percentage}%). Domínio sólido dos padrões de hardware, diagnóstico e diretrizes da banca FAURGS.`;
+      } else if (percentage >= 60) {
+        scoreTitleEl.textContent = "Bom Resultado! 📚";
+        scoreMsgEl.textContent = `Você acertou ${score} de ${TOTAL_QUESTIONS} questões (${percentage}%). Vale a pena revisar as questões assinaladas em vermelho e conferir os detalhes analíticos nos tópicos onde houve dúvida.`;
+      } else {
+        scoreTitleEl.textContent = "Continue Praticando! 💡";
+        scoreMsgEl.textContent = `Você acertou ${score} de ${TOTAL_QUESTIONS} questões (${percentage}%). Analise com atenção as resoluções comentadas abaixo para consolidar os conceitos-chave de arquitetura, sistemas e suporte.`;
+      }
+
+      scorecard.style.display = "block";
+      scorecard.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      // Update submit buttons
+      document.getElementById("btnFinish").style.display = "none";
+      document.getElementById("btnRestart").style.display = "inline-block";
+    }
+
+    function resetQuiz() {
+      isEvaluated = false;
+      const form = document.getElementById("quizForm");
+      form.reset();
+
+      // Reset all cards and styles
+      for (let i = 1; i <= TOTAL_QUESTIONS; i++) {
+        const qKey = `q${i}`;
+        const card = document.getElementById(`card-${qKey}`);
+        card.classList.remove("answered", "status-correct", "status-incorrect");
+
+        const resultIndicator = card.querySelector(".result-indicator");
+        if (resultIndicator) resultIndicator.innerHTML = "";
+
+        const resolutionBox = document.getElementById(`res-${qKey}`);
+        if (resolutionBox) resolutionBox.style.display = "none";
+
+        const optionItems = card.querySelectorAll(".option-item");
+        optionItems.forEach(item => {
+          item.classList.remove("selected", "is-correct-target", "is-user-wrong");
+          const radio = item.querySelector('input[type="radio"]');
+          if (radio) radio.disabled = false;
+        });
+      }
+
+      // Hide scorecard
+      const scorecard = document.getElementById("scorecard");
+      scorecard.style.display = "none";
+
+      // Reset buttons
+      document.getElementById("btnFinish").style.display = "inline-block";
+      document.getElementById("btnRestart").style.display = "none";
+
+      updateProgressBar();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  </script>
+</body>
+</html>
