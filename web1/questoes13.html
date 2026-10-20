@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado FAURGS: Animações CSS3</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Warm, eye-friendly editorial palette */
+            --bg-page: #fbf9f5;
+            --bg-card: #ffffff;
+            --bg-subtle: #f3efe6;
+            --border-soft: #e5dfd3;
+            --border-focus: #c8bda8;
+            --text-primary: #1f2328;
+            --text-secondary: #57606a;
+            --text-muted: #6e7781;
+            
+            --brand-primary: #1e3a5f;
+            --brand-primary-hover: #162c47;
+            --brand-light: #eef3f9;
+            --accent-gold: #b25e00;
+
+            --correct-bg: #eaf5ea;
+            --correct-border: #2da44e;
+            --correct-text: #116329;
+
+            --incorrect-bg: #fdebee;
+            --incorrect-border: #cf222e;
+            --incorrect-text: #82071e;
+
+            --code-bg: #21262d;
+            --code-text: #f0f6fc;
+            --code-inline-bg: #efece4;
+
+            --shadow-subtle: 0 2px 8px rgba(31, 35, 40, 0.04);
+            --shadow-card: 0 4px 16px rgba(31, 35, 40, 0.06);
+            --font-editorial: 'Crimson Pro', Georgia, serif;
+            --font-ui: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            font-family: var(--font-ui);
+            line-height: 1.65;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--border-soft);
+            padding: 32px 0 24px;
+            margin-bottom: 32px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .badge-banca {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--brand-primary);
+            background-color: var(--brand-light);
+            border: 1px solid rgba(30, 58, 95, 0.2);
+            padding: 4px 10px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+
+        .page-title {
+            font-family: var(--font-editorial);
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: var(--brand-primary);
+            line-height: 1.25;
+        }
+
+        .exam-info {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .top-stats {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: var(--bg-subtle);
+            padding: 8px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--border-soft);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: var(--border-soft);
+            border-radius: 999px;
+            margin-top: 16px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--brand-primary);
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-subtle);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .question-card:hover {
+            box-shadow: var(--shadow-card);
+        }
+
+        .question-number {
+            font-family: var(--font-ui);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--brand-primary);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .question-status-badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .question-statement {
+            font-family: var(--font-editorial);
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .statement-list {
+            margin: 16px 0;
+            padding-left: 20px;
+            list-style: none;
+        }
+
+        .statement-list li {
+            position: relative;
+            padding-left: 8px;
+            margin-bottom: 10px;
+            font-family: var(--font-editorial);
+            font-size: 1.2rem;
+            line-height: 1.55;
+        }
+
+        .matching-column {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-soft);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 18px 0;
+            font-family: var(--font-editorial);
+            font-size: 1.15rem;
+            line-height: 1.7;
+        }
+
+        .matching-column p {
+            margin-bottom: 6px;
+        }
+
+        .matching-column p:last-child {
+            margin-bottom: 0;
+        }
+
+        code.inline-code {
+            font-family: var(--font-code);
+            font-size: 0.9em;
+            background-color: var(--code-inline-bg);
+            color: #b31d28;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #e1ded7;
+        }
+
+        pre.code-block {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            font-family: var(--font-code);
+            font-size: 0.88rem;
+            line-height: 1.5;
+            padding: 18px 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 18px 0;
+            border: 1px solid #30363d;
+        }
+
+        .alternatives-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .alternative-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px 18px;
+            border-radius: 8px;
+            border: 1px solid var(--border-soft);
+            background-color: #ffffff;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        .alternative-label:hover {
+            border-color: var(--border-focus);
+            background-color: var(--bg-subtle);
+        }
+
+        .alternative-label input[type="radio"] {
+            margin-top: 4px;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #8c959f;
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+            transition: all 0.15s ease;
+        }
+
+        .alternative-label input[type="radio"]:checked {
+            border-color: var(--brand-primary);
+            background-color: var(--brand-primary);
+            box-shadow: inset 0 0 0 3px #ffffff;
+        }
+
+        .alternative-letter {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--brand-primary);
+            flex-shrink: 0;
+        }
+
+        .alternative-text {
+            font-size: 0.98rem;
+            color: var(--text-primary);
+            line-height: 1.45;
+        }
+
+        /* Validation states after submission */
+        .alternative-label.is-correct {
+            background-color: var(--correct-bg) !important;
+            border-color: var(--correct-border) !important;
+            color: var(--correct-text) !important;
+        }
+
+        .alternative-label.is-correct .alternative-letter {
+            color: var(--correct-text) !important;
+        }
+
+        .alternative-label.is-incorrect {
+            background-color: var(--incorrect-bg) !important;
+            border-color: var(--incorrect-border) !important;
+            color: var(--incorrect-text) !important;
+        }
+
+        .alternative-label.is-incorrect .alternative-letter {
+            color: var(--incorrect-text) !important;
+        }
+
+        .alternative-label.is-dimmed {
+            opacity: 0.55;
+        }
+
+        .resolution-box {
+            display: none;
+            margin-top: 22px;
+            padding: 20px 24px;
+            background-color: #fcfcfb;
+            border: 1px solid var(--border-soft);
+            border-left: 4px solid var(--brand-primary);
+            border-radius: 0 8px 8px 0;
+            font-size: 0.96rem;
+            line-height: 1.6;
+        }
+
+        .resolution-box.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .resolution-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: var(--brand-primary);
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .resolution-content p {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        .resolution-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .action-bar {
+            background: #ffffff;
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            padding: 24px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 10px;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .btn {
+            font-family: var(--font-ui);
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--brand-primary);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--brand-primary-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-soft);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--bg-subtle);
+            border-color: var(--border-focus);
+            color: var(--text-primary);
+        }
+
+        .score-panel {
+            display: none;
+            background: #ffffff;
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            padding: 36px 32px;
+            margin-top: 32px;
+            box-shadow: var(--shadow-card);
+            text-align: center;
+        }
+
+        .score-panel.visible {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .score-badge {
+            font-size: 3.2rem;
+            font-weight: 800;
+            font-family: var(--font-ui);
+            color: var(--brand-primary);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .score-label {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .score-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            max-width: 600px;
+            margin: 0 auto 28px;
+        }
+
+        .metric-card {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-soft);
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .metric-val {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .metric-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .gabarito-table-container {
+            margin-top: 28px;
+            overflow-x: auto;
+            text-align: left;
+        }
+
+        .gabarito-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.92rem;
+        }
+
+        .gabarito-table th, .gabarito-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .gabarito-table th {
+            background-color: var(--bg-subtle);
+            color: var(--text-primary);
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .user-tag-correct {
+            color: var(--correct-text);
+            font-weight: 700;
+        }
+
+        .user-tag-incorrect {
+            color: var(--incorrect-text);
+            font-weight: 700;
+        }
+
+        @media (max-width: 640px) {
+            .question-card {
+                padding: 20px 16px;
+            }
+            .page-title {
+                font-size: 1.4rem;
+            }
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div>
+                    <span class="badge-banca">Simulado Padrão FAURGS</span>
+                    <h1 class="page-title">Animações em CSS3</h1>
+                    <p class="exam-info">Caderno Completo de Questões &bull; 10 Itens de Múltipla Escolha</p>
+                </div>
+                <div class="top-stats">
+                    <span>Respondidas: <strong id="answered-counter">0/10</strong></span>
+                </div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="exam-progress"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <article class="question-card" id="qcard-0">
+            <div class="question-number">
+                <span>Questão 01</span>
+                <span class="question-status-badge" id="badge-0"></span>
+            </div>
+            <p class="question-statement">Considere as seguintes afirmações sobre a especificação de animações em folhas de estilo CSS3 e o emprego de propriedades individuais:</p>
+            <ul class="statement-list">
+                <li><strong>I -</strong> A propriedade <code class="inline-code">animation-duration</code> define a duração temporal de um ciclo completo da animação, aceitando unidades de tempo como segundos (<code class="inline-code">s</code>) ou milissegundos (<code class="inline-code">ms</code>).</li>
+                <li><strong>II -</strong> Na declaração <code class="inline-code">animation: pulsar 1.2s ease-in-out infinite alternate;</code>, o termo <code class="inline-code">infinite</code> atua sobre o comportamento direcional da interpolação, alternando a ordem física dos quadros-chave.</li>
+                <li><strong>III -</strong> A vinculação funcional entre o elemento estilizado no DOM e a sequência de transformações declarada na regra <code class="inline-code">@keyframes</code> é realizada por meio da propriedade <code class="inline-code">animation-name</code>.</li>
+            </ul>
+            <p class="question-statement" style="font-size: 1.1rem; margin-bottom: 12px;">Quais estão corretas?</p>
+            <div class="alternatives-group" data-q="0">
+                <label class="alternative-label"><input type="radio" name="q0" value="A"><span class="alternative-letter">(A)</span><span class="alternative-text">Apenas I.</span></label>
+                <label class="alternative-label"><input type="radio" name="q0" value="B"><span class="alternative-letter">(B)</span><span class="alternative-text">Apenas II.</span></label>
+                <label class="alternative-label"><input type="radio" name="q0" value="C"><span class="alternative-letter">(C)</span><span class="alternative-text">Apenas III.</span></label>
+                <label class="alternative-label"><input type="radio" name="q0" value="D"><span class="alternative-letter">(D)</span><span class="alternative-text">Apenas I e III.</span></label>
+                <label class="alternative-label"><input type="radio" name="q0" value="E"><span class="alternative-letter">(E)</span><span class="alternative-text">I, II e III.</span></label>
+            </div>
+            <div class="resolution-box" id="res-0">
+                <div class="resolution-header">📖 Resolução Comentada</div>
+                <div class="resolution-content">
+                    <p><strong>Alternativa Correta: D</strong></p>
+                    <p>A proposição I é correta, uma vez que a propriedade <code class="inline-code">animation-duration</code> estabelece o intervalo temporal necessário para que um ciclo completo da animação seja percorrido do início ao fim, admitindo valores expressos em segundos ou milissegundos.</p>
+                    <p>A proposição II é incorreta, pois a palavra-chave <code class="inline-code">infinite</code> é um valor válido para a propriedade <code class="inline-code">animation-iteration-count</code>, determinando que o ciclo seja repetido indefinidamente em um laço ininterrupto. A alternância na direção de percurso não decorre de <code class="inline-code">infinite</code>, mas sim do valor <code class="inline-code">alternate</code> aplicado à propriedade <code class="inline-code">animation-direction</code>.</p>
+                    <p>A proposição III é correta, haja vista que a propriedade <code class="inline-code">animation-name</code> é o mecanismo formal do CSS3 encarregado de apontar o identificador da regra <code class="inline-code">@keyframes</code> que contém os marcos de progresso a serem executados pelo elemento selecionado. Dessa forma, apenas as afirmações I e III são verdadeiras.</p>
+                </div>
+            </div>
+        </article>
+
+        <article class="question-card" id="qcard-1">
+            <div class="question-number">
+                <span>Questão 02</span>
+                <span class="question-status-badge" id="badge-1"></span>
+            </div>
+            <p class="question-statement">Numere a segunda coluna de acordo com a primeira, associando as propriedades de animação do CSS3 às suas respectivas funções conceituais no ciclo de vida de renderização:</p>
+            <div class="matching-column">
+                <p>(1) <code class="inline-code">animation-name</code></p>
+                <p>(2) <code class="inline-code">animation-duration</code></p>
+                <p>(3) <code class="inline-code">animation-timing-function</code></p>
+                <p>(4) <code class="inline-code">animation-iteration-count</code></p>
+                <p>(5) <code class="inline-code">animation-direction</code></p>
+                <hr style="border: none; border-top: 1px dashed var(--border-soft); margin: 12px 0;">
+                <p>( ) Estabelece a curva de aceleração e a modulação de velocidade ao longo da transição entre os quadros (ex.: <code class="inline-code">linear</code>, <code class="inline-code">ease-in-out</code>).</p>
+                <p>( ) Especifica a quantidade de vezes que o ciclo completo da animação deve ser executado, admitindo valores numéricos inteiros ou o valor <code class="inline-code">infinite</code>.</p>
+                <p>( ) Informa o identificador do bloco de regras <code class="inline-code">@keyframes</code> cujos marcos de progresso serão associados ao seletor CSS.</p>
+                <p>( ) Define o sentido de progressão da trajetória temporal, possibilitando a inversão alternada dos quadros a cada novo ciclo (ex.: <code class="inline-code">alternate</code>).</p>
+                <p>( ) Determina a grandeza temporal demandada para a conclusão integral de uma única iteração da animação.</p>
+            </div>
+            <p class="question-statement" style="font-size: 1.1rem; margin-bottom: 12px;">A sequência correta de preenchimento dos parênteses da segunda coluna, de cima para baixo, é:</p>
+            <div class="alternatives-group" data-q="1">
+                <label class="alternative-label"><input type="radio" name="q1" value="A"><span class="alternative-letter">(A)</span><span class="alternative-text">3 – 4 – 1 – 5 – 2.</span></label>
+                <label class="alternative-label"><input type="radio" name="q1" value="B"><span class="alternative-letter">(B)</span><span class="alternative-text">2 – 4 – 1 – 3 – 5.</span></label>
+                <label class="alternative-label"><input type="radio" name="q1" value="C"><span class="alternative-letter">(C)</span><span class="alternative-text">3 – 1 – 5 – 4 – 2.</span></label>
+                <label class="alternative-label"><input type="radio" name="q1" value="D"><span class="alternative-letter">(D)</span><span class="alternative-text">5 – 4 – 1 – 3 – 2.</span></label>
+                <label class="alternative-label"><input type="radio" name="q1" value="E"><span class="alternative-letter">(E)</span><span class="alternative-text">3 – 5 – 4 – 1 – 2.</span></label>
+            </div>
+            <div class="resolution-box" id="res-1">
+                <div class="resolution-header">📖 Resolução Comentada</div>
+                <div class="resolution-content">
+                    <p><strong>Alternativa Correta: A</strong></p>
+                    <p>A primeira lacuna refere-se à propriedade encarregada de ditar a curva de aceleração e desaceleração do movimento, papel desempenhado por <code class="inline-code">animation-timing-function</code> (3), cujos valores expressam curvas de transição como <code class="inline-code">linear</code> e <code class="inline-code">ease-in-out</code>.</p>
+                    <p>A segunda lacuna aborda o número de repetições do ciclo animado, correspondendo à definição de <code class="inline-code">animation-iteration-count</code> (4), que recebe grandezas inteiras ou a instrução de repetição contínua via <code class="inline-code">infinite</code>.</p>
+                    <p>A terceira lacuna descreve a vinculação do identificador do bloco de quadros temporais ao seletor de estilo, caracterizando a atribuição de <code class="inline-code">animation-name</code> (1).</p>
+                    <p>A quarta lacuna contempla o direcionamento e a reversão cíclica suave da trajetória do elemento, função desempenhada por <code class="inline-code">animation-direction</code> (5) através de parâmetros como <code class="inline-code">alternate</code>.</p>
+                    <p>A quinta lacuna define a grandeza temporal gasta para completar uma iteração inteira, o que conceitua a propriedade <code class="inline-code">animation-duration</code> (2). A sequência numérica obtida de cima para baixo é 3 – 4 – 1 – 5 – 2.</p>
+                </div>
+            </div>
+        </article>
+
+        <article class="question-card" id="qcard-2">
+            <div class="question-number">
+                <span>Questão 03</span>
+                <span class="question-status-badge" id="badge-2"></span>
+            </div>
+            <p class="question-statement">Considere o fragmento de código CSS abaixo, planejado para controlar o deslocamento autônomo de um componente visual de interface (<em>card</em>):</p>
+            <pre class="code-block"><code>@keyframes andarLado {
+    0% {
+        transform: translateX(0px);
+    }
+    100% {
+        transform: translateX(50px);
+    }
+}
+
+.card {
+    animation-name: andarLado;
+    animation-duration: 1.5s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}</code></pre>
+            <p class="question-statement" style="font-size: 1.1rem; margin-bottom: 12px;">A respeito dos efeitos de renderização e do comportamento geométrico do elemento <code class="inline-code">.card</code>, assinale a alternativa correta.</p>
+            <div class="alternatives-group" data-q="2">
+                <label class="alternative-label"><input type="radio" name="q2" value="A"><span class="alternative-letter">(A)</span><span class="alternative-text">O deslocamento contínuo de 50 pixels força o recálculo da árvore de formatação geométrica (<em>reflow</em>), empurrando horizontalmente os nós vizinhos contidos no mesmo elemento pai.</span></label>
+                <label class="alternative-label"><input type="radio" name="q2" value="B"><span class="alternative-letter">(B)</span><span class="alternative-text">A função <code class="inline-code">translateX()</code> realiza o translado estritamente no eixo horizontal sem provocar alterações nas coordenadas geométricas dos componentes irmãos adjacentes no fluxo do documento.</span></label>
+                <label class="alternative-label"><input type="radio" name="q2" value="C"><span class="alternative-letter">(C)</span><span class="alternative-text">A diretiva <code class="inline-code">animation-direction: alternate</code> faz com que o componente salte abruptamente da posição final de volta ao ponto zero ao término de cada 1,5 segundo, sem interpolação reversa.</span></label>
+                <label class="alternative-label"><input type="radio" name="q2" value="D"><span class="alternative-letter">(D)</span><span class="alternative-text">A declaração <code class="inline-code">infinite</code> impede que os motores de renderização transfiram o processamento da animação para a GPU, restringindo o redesenho à thread principal da CPU.</span></label>
+                <label class="alternative-label"><input type="radio" name="q2" value="E"><span class="alternative-letter">(E)</span><span class="alternative-text">O valor atribuído a <code class="inline-code">animation-timing-function</code> impõe uma taxa de velocidade constante e invariável durante toda a trajetória do movimento.</span></label>
+            </div>
+            <div class="resolution-box" id="res-2">
+                <div class="resolution-header">📖 Resolução Comentada</div>
+                <div class="resolution-content">
+                    <p><strong>Alternativa Correta: B</strong></p>
+                    <p>A alternativa A incorre em erro conceitual porque a função <code class="inline-code">translateX()</code> atua no estágio de composição gráfica do navegador (<em>composite stage</em>), não alterando o modelo de caixa tradicional nem desencadeando recálculo de fluxo (<em>reflow</em>); os nós vizinhos permanecem exatamente em suas posições de origem sem sofrer qualquer empurrão lateral.</p>
+                    <p>A alternativa B está correta ao destacar que as translações executadas no eixo cartesiano horizontal via <code class="inline-code">translateX()</code> não impactam a posição estrutural dos demais elementos que compõem o documento HTML.</p>
+                    <p>A alternativa C é falsa, pois a diretiva <code class="inline-code">animation-direction: alternate</code> faz com que a animação inverta o seu sentido suavemente a cada ciclo, transitando de 50px de volta a 0px de forma interpolada, em vez de recorrer a saltos bruscos.</p>
+                    <p>A alternativa D é incorreta, dado que o valor <code class="inline-code">infinite</code> não restringe a aceleração gráfica nem impede o uso da GPU.</p>
+                    <p>A alternativa E apresenta equívoco, pois a velocidade uniforme contínua decorre do valor <code class="inline-code">linear</code>, enquanto <code class="inline-code">ease-in-out</code> impõe aceleração inicial e desaceleração final.</p>
+                </div>
+            </div>
+        </article>
+
+        <article class="question-card" id="qcard-3">
+            <div class="question-number">
+                <span>Questão 04</span>
+                <span class="question-status-badge" id="badge-3"></span>
+            </div>
+            <p class="question-statement">Assinale a alternativa que preenche, correta e respectivamente, as lacunas do enunciado abaixo sobre a estrutura da linha do tempo no CSS3:</p>
+            <p class="question-statement" style="background: var(--bg-subtle); padding: 16px 20px; border-radius: 8px; border: 1px solid var(--border-soft);">
+                A regra ________ é empregada para estruturar a linha do tempo e declarar os passos intermediários da animação ao longo de um ciclo. O marco de progresso temporal ________ define a configuração estilística inicial do elemento no início do trajeto, enquanto o marco ________ estabelece as propriedades visuais terminais para o encerramento do ciclo.
+            </p>
+            <div class="alternatives-group" data-q="3">
+                <label class="alternative-label"><input type="radio" name="q3" value="A"><span class="alternative-letter">(A)</span><span class="alternative-text"><code class="inline-code">@transition</code> – <code class="inline-code">from</code> – <code class="inline-code">middle</code></span></label>
+                <label class="alternative-label"><input type="radio" name="q3" value="B"><span class="alternative-letter">(B)</span><span class="alternative-text"><code class="inline-code">@keyframes</code> – <code class="inline-code">0%</code> – <code class="inline-code">100%</code></span></label>
+                <label class="alternative-label"><input type="radio" name="q3" value="C"><span class="alternative-letter">(C)</span><span class="alternative-text"><code class="inline-code">@keyframes</code> – <code class="inline-code">100%</code> – <code class="inline-code">0%</code></span></label>
+                <label class="alternative-label"><input type="radio" name="q3" value="D"><span class="alternative-letter">(D)</span><span class="alternative-text"><code class="inline-code">@media</code> – <code class="inline-code">0%</code> – <code class="inline-code">100%</code></span></label>
+                <label class="alternative-label"><input type="radio" name="q3" value="E"><span class="alternative-letter">(E)</span><span class="alternative-text"><code class="inline-code">@timeline</code> – <code class="inline-code">start</code> – <code class="inline-code">finish</code></span></label>
+            </div>
+            <div class="resolution-box" id="res-3">
+                <div class="resolution-header">📖 Resolução Comentada</div>
+                <div class="resolution-content">
+                    <p><strong>Alternativa Correta: B</strong></p>
+                    <p>O bloco no qual se estabelece o desenho dos passos e estados visuais ao longo do tempo é iniciado pela regra declarativa <code class="inline-code">@keyframes</code>. As regras <code class="inline-code">@transition</code> e <code class="inline-code">@timeline</code> não existem na sintaxe do CSS3 para essa finalidade, enquanto <code class="inline-code">@media</code> destina-se a consultas de responsividade e capacidades do dispositivo.</p>
+                    <p>Dentro de um bloco <code class="inline-code">@keyframes</code>, a linha do tempo é mapeada por porcentagens que indicam o progresso do ciclo: o marco inicial corresponde a <code class="inline-code">0%</code> (equivalente à palavra-chave <code class="inline-code">from</code>), e o marco final corresponde a <code class="inline-code">100%</code> (equivalente à palavra-chave <code class="inline-code">to</code>). A ordem cronológica apresentada no texto requer, portanto, os termos <code class="inline-code">@keyframes</code>, <code class="inline-code">0%</code> e <code class="inline-code">100%</code>.</p>
+                </div>
+            </div>
+        </article>
+
+        <article class="question-card" id="qcard-4">
+            <div class="question-number">
+                <span>Questão 05</span>
+                <span class="question-status-badge" id="badge-4"></span>
+            </div>
+            <p class="question-statement">Considere as seguintes afirmações a respeito do emprego da propriedade <code class="inline-code">transform</code> (<code class="inline-code">scale</code> e <code class="inline-code">translateX</code>) e seus impactos no desempenho de aplicações web modernas:</p>
+            <ul class="statement-list">
+                <li><strong>I -</strong> As mutações de coordenadas e dimensões aplicadas por funções de <code class="inline-code">transform</code> são processadas na etapa de composição gráfica via aceleração por hardware (GPU), contribuindo para a manutenção de uma taxa de 60 quadros por segundo.</li>
+                <li><strong>II -</strong> A função de transformação <code class="inline-code">scale(1.08)</code> reduz a escala visual do elemento original em 8%, liberando espaço em tela para os componentes contíguos.</li>
+                <li><strong>III -</strong> A utilização de <code class="inline-code">transform: scale()</code> permite executar animações dimensionais cíclicas sem disparar o recálculo de layout dos nós vizinhos, preservando a estabilidade estrutural da página.</li>
+            </ul>
+            <p class="question-statement" style="font-size: 1.1rem; margin-bottom: 12px;">Quais estão corretas?</p>
+            <div class="alternatives-group" data-q="4">
+                <label class="alternative-label"><input type="radio" name="q4" value="A"><span class="alternative-letter">(A)</span><span class="alternative-text">Apenas I.</span></label>
+                <label class="alternative-label"><input type="radio" name="q4" value="B"><span class="alternative-letter">(B)</span><span class="alternative-text">Apenas II.</span></label>
+                <label class="alternative-label"><input type="radio" name="q4" value="C"><span class="alternative-letter">(C)</span><span class="alternative-text">Apenas III.</span></label>
+                <label class="alternative-label"><input type="radio" name="q4" value="D"><span class="alternative-letter">(D)</span><span class="alternative-text">Apenas I e III.</span></label>
+                <label class="alternative-label"><input type="radio" name="q4" value="E"><span class="alternative-letter">(E)</span><span class="alternative-text">I, II e III.</span></label>
+            </div>
+            <div class="resolution-box" id="res-4">
+                <div class="resolution-header">📖 Resolução Comentada</div>
+                <div class="resolution-content">
+                    <p><strong>Alternativa Correta: D</strong></p>
+                    <p>A afirmativa I expressa preceito fundamental da engenharia de desempenho web, pois mutações tratadas por meio da propriedade <code class="inline-code">transform</code> (incluindo <code class="inline-code">scale</code> e <code class="inline-code">translateX</code>) contornam as fases de recálculo de layout (<em>reflow</em>) e repintura (<em>repaint</em>), sendo delegadas diretamente ao hardware gráfico da GPU, o que viabiliza a manutenção da cadência estável de 60 quadros por segundo sem engasgos de interface.</p>
+                    <p>A afirmativa II é inverídica, visto que o valor base da função <code class="inline-code">scale</code> é a unidade 1 (representando 100% da escala física do elemento); portanto, a atribuição de <code class="inline-code">scale(1.08)</code> configura um aumento dimensional de 8% em relação ao tamanho natural, e não uma redução.</p>
+                    <p>A afirmativa III é verdadeira ao evidenciar que transformações dimensionais aplicadas por <code class="inline-code">scale()</code> alteram a representação visual na camada gráfica sem reconfigurar a geometria de layout ocupada pelo nó no fluxo normal, resguardando os elementos periféricos de deslocamentos indesejados. Dessa maneira, figuram como corretas apenas as afirmativas I e III.</p>
+                </div>
+            </div>
+        </article>
+
+        <article class="question-card" id="qcard-5">
+            <div class="question-number">
+                <span>Questão 06</span>
+                <span class="question-status-badge" id="badge-5"></span>
+            </div>
+            <p class="question-statement">Considere a folha de estilos CSS transcrita a seguir:</p>
+            <pre class="code-block"><code>@keyframes pulsar {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.08);
+    }
+}
+
+.notificacao {
+    animation: pulsar 1.2s ease-in-out infinite alternate;
+}</code></pre>
+            <p class="question-statement" style="font-size: 1.1rem; margin-bottom: 12px;">A análise semântica e comportamental do código permite afirmar que o elemento identificado pela classe <code class="inline-code">.notificacao</code>:</p>
+            <div class="alternatives-group" data-q="5">
+                <label class="alternative-label"><input type="radio" name="q5" value="A"><span class="alternative-letter">(A)</span><span class="alternative-text">expandirá suas dimensões até atingir um incremento de 8% em relação à sua escala original e retornará de forma gradual e contínua ao tamanho inicial, reiterando essa dinâmica ininterruptamente.</span></label>
+                <label class="alternative-label"><input type="radio" name="q5" value="B"><span class="alternative-letter">(B)</span><span class="alternative-text">terá seu tamanho acrescido em 80% do valor nativo a cada 1,2 segundo, fixando-se permanentemente na escala expandida após o término do primeiro ciclo.</span></label>
+                <label class="alternative-label"><input type="radio" name="q5" value="C"><span class="alternative-letter">(C)</span><span class="alternative-text">será transladado linearmente ao longo do plano cartesiano horizontal durante 1,2 segundo, retornando à origem por salto discreto.</span></label>
+                <label class="alternative-label"><input type="radio" name="q5" value="D"><span class="alternative-letter">(D)</span><span class="alternative-text">necessitará da propriedade complementar <code class="inline-code">animation-fill-mode: forwards</code> para possibilitar o retorno dimensional suave ao estado demarcado em 0%.</span></label>
+                <label class="alternative-label"><input type="radio" name="q5" value="E"><span class="alternative-letter">(E)</span><span class="alternative-text">interromperá a reprodução da transformação ao final de 1,2 segundo, dado que a sintaxe abreviada omite a taxa de quadros.</span></label>
+            </div>
+            <div class="resolution-box" id="res-5">
+                <div class="resolution-header">📖 Resolução Comentada</div>
+                <div class="resolution-content">
+                    <p><strong>Alternativa Correta: A</strong></p>
+                    <p>A alternativa A reflete fielmente as instruções contidas no bloco de código. A regra <code class="inline-code">@keyframes pulsar</code> transita a escala de 1 (tamanho nativo de 100%) até 1,08 (expansão correspondente a 108%, ou seja, um acréscimo de 8%).</p>
+                    <p>A declaração unificada conjuga o tempo de 1,2 segundo com a função de aceleração <code class="inline-code">ease-in-out</code>, fazendo com que o crescimento e a retração ocorram com suavidade nas extremidades temporais. A presença de <code class="inline-code">alternate</code> assegura o retorno contínuo ao marco inicial sem quebras, enquanto <code class="inline-code">infinite</code> mantém essa dinâmica em repetição contínua.</p>
+                    <p>A alternativa B erra ao sugerir um aumento de 80% e a paralisação do ciclo. A alternativa C incorre em erro crasso ao alegar movimentação translacional em um código restrito a redimensionamento por escala. As alternativas D e E apresentam fundamentações falsas, visto que <code class="inline-code">alternate</code> dispensa o uso de <code class="inline-code">forwards</code> para o retorno suave em repetição contínua, e o valor <code class="inline-code">infinite</code> garante a execução ininterrupta dos quadros.</p>
+                </div>
+            </div>
+        </article>
+
+        <article class="question-card" id="qcard-6">
+            <div class="question-number">
+                <span>Questão 07</span>
+                <span class="question-status-badge" id="badge-6"></span>
+            </div>
+            <p class="question-statement">Durante a refatoração do código CSS de uma interface web com vistas à simplificação sintática, um desenvolvedor decide consolidar cinco propriedades de animação isoladas em uma única declaração abreviada (<em>shorthand</em>):</p>
+            <ul class="statement-list">
+                <li><code class="inline-code">animation-name: mover;</code></li>
+                <li><code class="inline-code">animation-duration: 3s;</code></li>
+                <li><code class="inline-code">animation-timing-function: ease;</code></li>
+                <li><code class="inline-code">animation-iteration-count: infinite;</code></li>
+                <li><code class="inline-code">animation-direction: alternate;</code></li>
+            </ul>
+            <p class="question-statement" style="font-size: 1.1rem; margin-bottom: 12px;">Assinale a alternativa que apresenta a declaração abreviada canônica e equivalente a essas propriedades.</p>
+            <div class="alternatives-group" data-q="6">
+                <label class="alternative-label"><input type="radio" name="q6" value="A"><span class="alternative-letter">(A)</span><span class="alternative-text"><code class="inline-code">animation: mover 3s ease infinite alternate;</code></span></label>
+                <label class="alternative-label"><input type="radio" name="q6" value="B"><span class="alternative-letter">(B)</span><span class="alternative-text"><code class="inline-code">animation-shorthand: 3s mover ease alternate infinite;</code></span></label>
+                <label class="alternative-label"><input type="radio" name="q6" value="C"><span class="alternative-letter">(C)</span><span class="alternative-text"><code class="inline-code">animation-properties: ease mover 3s infinite alternate;</code></span></label>
+                <label class="alternative-label"><input type="radio" name="q6" value="D"><span class="alternative-letter">(D)</span><span class="alternative-text"><code class="inline-code">animation: 3s ease infinite alternate;</code></span></label>
+                <label class="alternative-label"><input type="radio" name="q6" value="E"><span class="alternative-letter">(E)</span><span class="alternative-text"><code class="inline-code">keyframes-animation: mover alternate ease infinite 3s;</code></span></label>
+            </div>
+            <div class="resolution-box" id="res-6">
+                <div class="resolution-header">📖 Resolução Comentada</div>
+                <div class="resolution-content">
+                    <p><strong>Alternativa Correta: A</strong></p>
+                    <p>A especificação do CSS3 prevê o uso da propriedade abreviada <code class="inline-code">animation</code> para agregar múltiplos descritores de animação em uma linha única, promovendo concisão de código e ganho de produtividade no desenvolvimento de software. A convenção estrutural dessa sintaxe combina nome, duração, função de temporização, contagem de repetições e direção:</p>
+                    <pre class="code-block" style="background:#161b22; margin: 8px 0;"><code>animation: [name] [duration] [timing-function] [iteration-count] [direction];</code></pre>
+                    <p>Substituindo os descritores fornecidos no enunciado (<code class="inline-code">mover</code>, <code class="inline-code">3s</code>, <code class="inline-code">ease</code>, <code class="inline-code">infinite</code>, <code class="inline-code">alternate</code>), consolida-se a expressão canônica <code class="inline-code">animation: mover 3s ease infinite alternate;</code>.</p>
+                    <p>As opções B, C e E introduzem propriedades inexistentes no padrão do consórcio W3C (como <code class="inline-code">animation-shorthand</code>, <code class="inline-code">animation-properties</code> e <code class="inline-code">keyframes-animation</code>), ao passo que a alternativa D omite o nome da animação, tornando a declaração incompleta.</p>
+                </div>
+            </div>
+        </article>
+
+        <article class="question-card" id="qcard-7">
+            <div class="question-number">
+                <span>Questão 08</span>
+                <span class="question-status-badge" id="badge-7"></span>
+            </div>
+            <p class="question-statement">Numere a segunda coluna de acordo com a primeira, associando os valores admitidos por propriedades de animação às suas respectivas características operacionais:</p>
+            <div class="matching-column">
+                <p>(1) <code class="inline-code">alternate</code></p>
+                <p>(2) <code class="inline-code">ease-in-out</code></p>
+                <p>(3) <code class="inline-code">infinite</code></p>
+                <p>(4) <code class="inline-code">linear</code></p>
+                <hr style="border: none; border-top: 1px dashed var(--border-soft); margin: 12px 0;">
+                <p>( ) Determina que o ciclo deve iniciar com aceleração gradual e encerrar com desaceleração suave, conferindo organicidade ao movimento.</p>
+                <p>( ) Estabelece que o ciclo de animação deve ser executado perpetuamente, sem cessar após uma contagem finita de repetições.</p>
+                <p>( ) Configura a reversão da trajetória a cada ciclo subsequente, fazendo a animação percorrer o sentido direto e depois o sentido inverso.</p>
+                <p>( ) Assegura que a taxa de variação de velocidade seja perfeitamente homogênea e uniforme do marco inicial ao marco final.</p>
+            </div>
+            <p class="question-statement" style="font-size: 1.1rem; margin-bottom: 12px;">A sequência correta de preenchimento dos parênteses da segunda coluna, de cima para baixo, é:</p>
+            <div class="alternatives-group" data-q="7">
+                <label class="alternative-label"><input type="radio" name="q7" value="A"><span class="alternative-letter">(A)</span><span class="alternative-text">2 – 1 – 3 – 4.</span></label>
+                <label class="alternative-label"><input type="radio" name="q7" value="B"><span class="alternative-letter">(B)</span><span class="alternative-text">4 – 3 – 1 – 2.</span></label>
+                <label class="alternative-label"><input type="radio" name="q7" value="C"><span class="alternative-letter">(C)</span><span class="alternative-text">2 – 3 – 1 – 4.</span></label>
+                <label class="alternative-label"><input type="radio" name="q7" value="D"><span class="alternative-letter">(D)</span><span class="alternative-text">1 – 3 – 2 – 4.</span></label>
+                <label class="alternative-label"><input type="radio" name="q7" value="E"><span class="alternative-letter">(E)</span><span class="alternative-text">3 – 2 – 4 – 1.</span></label>
+            </div>
+            <div class="resolution-box" id="res-7">
+                <div class="resolution-header">📖 Resolução Comentada</div>
+                <div class="resolution-content">
+                    <p><strong>Alternativa Correta: C</strong></p>
+                    <p>A primeira assertiva define a suavização de transição com início e término amenizados, o que constitui a curva cúbica de interpolação expressa pelo valor <code class="inline-code">ease-in-out</code> (2).</p>
+                    <p>A segunda assertiva aborda a repetição contínua sem limite predefinido de iterações, caracterizando o valor <code class="inline-code">infinite</code> (3) aplicado à contagem de execuções.</p>
+                    <p>A terceira assertiva trata do comportamento cinemático em que a animação percorre o sentido direto e regride no sentido oposto de maneira sucessiva, função exclusiva do valor direcional <code class="inline-code">alternate</code> (1).</p>
+                    <p>A quarta assertiva explicita a manutenção de uma taxa de velocidade invariável e linear durante todo o intervalo do ciclo, atributo delimitado pelo valor <code class="inline-code">linear</code> (4). Constrói-se, assim, a ordem vertical 2 – 3 – 1 – 4.</p>
+                </div>
+            </div>
+        </article>
+
+        <article class="question-card" id="qcard-8">
+            <div class="question-number">
+                <span>Questão 09</span>
+                <span class="question-status-badge" id="badge-8"></span>
+            </div>
+            <p class="question-statement">Considere as seguintes afirmações sobre parâmetros de controle de animação e especificidades de execução no navegador:</p>
+            <ul class="statement-list">
+                <li><strong>I -</strong> A atribuição do valor <code class="inline-code">0s</code> à propriedade <code class="inline-code">animation-duration</code> impede a visualização da transição animada, anulando a execução prática dos quadros intermediários.</li>
+                <li><strong>II -</strong> O valor padrão (<em>initial value</em>) da propriedade <code class="inline-code">animation-direction</code>, quando não declarada de modo explícito pelo autor da folha de estilos, é <code class="inline-code">alternate</code>.</li>
+                <li><strong>III -</strong> O comando <code class="inline-code">transform: translateX(40px)</code> orienta o motor gráfico a renderizar o deslocamento do elemento na camada de composição, sem demandar recálculo de geometria para os elementos adjacentes.</li>
+            </ul>
+            <p class="question-statement" style="font-size: 1.1rem; margin-bottom: 12px;">Quais estão corretas?</p>
+            <div class="alternatives-group" data-q="8">
+                <label class="alternative-label"><input type="radio" name="q8" value="A"><span class="alternative-letter">(A)</span><span class="alternative-text">Apenas I.</span></label>
+                <label class="alternative-label"><input type="radio" name="q8" value="B"><span class="alternative-letter">(B)</span><span class="alternative-text">Apenas II.</span></label>
+                <label class="alternative-label"><input type="radio" name="q8" value="C"><span class="alternative-letter">(C)</span><span class="alternative-text">Apenas I e III.</span></label>
+                <label class="alternative-label"><input type="radio" name="q8" value="D"><span class="alternative-letter">(D)</span><span class="alternative-text">Apenas II e III.</span></label>
+                <label class="alternative-label"><input type="radio" name="q8" value="E"><span class="alternative-letter">(E)</span><span class="alternative-text">I, II e III.</span></label>
+            </div>
+            <div class="resolution-box" id="res-8">
+                <div class="resolution-header">📖 Resolução Comentada</div>
+                <div class="resolution-content">
+                    <p><strong>Alternativa Correta: C</strong></p>
+                    <p>A afirmativa I é tecnicamente procedente, pois o valor padrão ou a configuração de <code class="inline-code">0s</code> em <code class="inline-code">animation-duration</code> anula o intervalo temporal de transição, impossibilitando a exibição prática da animação, que salta instantaneamente ou simplesmente não produz efeito perceptível na interface do usuário.</p>
+                    <p>A afirmativa II é incorreta, dado que o valor inicial (<em>initial value</em>) da propriedade <code class="inline-code">animation-direction</code> determinado pela especificação oficial do CSS é <code class="inline-code">normal</code>, situação em que a animação transita unicamente de 0% para 100% e reinicia do ponto inicial em cada ciclo; o comportamento de ida e volta proporcionado por <code class="inline-code">alternate</code> exige intervenção declarativa expressa.</p>
+                    <p>A afirmativa III é verdadeira ao constatar que manipulações executadas por <code class="inline-code">transform: translateX()</code> instruem o subsistema de renderização a atuar no nível das camadas compostas (<em>compositing layer</em>), o que previne o custo computacional de recálculo da árvore geométrica e isola a renderização dos componentes vizinhos. Conclui-se que apenas os itens I e III estão corretos.</p>
+                </div>
+            </div>
+        </article>
+
+        <article class="question-card" id="qcard-9">
+            <div class="question-number">
+                <span>Questão 10</span>
+                <span class="question-status-badge" id="badge-9"></span>
+            </div>
+            <p class="question-statement">No que tange aos mecanismos de definição de linha do tempo e marcos de interpolação no módulo de animações do CSS3, assinale a alternativa correta.</p>
+            <div class="alternatives-group" data-q="9">
+                <label class="alternative-label"><input type="radio" name="q9" value="A"><span class="alternative-letter">(A)</span><span class="alternative-text">A declaração de uma diretiva <code class="inline-code">@keyframes</code> vincula automaticamente seus efeitos a todos os elementos estruturais da página, dispensando a especificação de seletores individuais.</span></label>
+                <label class="alternative-label"><input type="radio" name="q9" value="B"><span class="alternative-letter">(B)</span><span class="alternative-text">Os marcos percentuais (como <code class="inline-code">0%</code>, <code class="inline-code">50%</code> e <code class="inline-code">100%</code>) representam intervalos temporais relativos calculados diretamente a partir do montante temporal total atribuído em <code class="inline-code">animation-duration</code>.</span></label>
+                <label class="alternative-label"><input type="radio" name="q9" value="C"><span class="alternative-letter">(C)</span><span class="alternative-text">Para que uma regra <code class="inline-code">@keyframes</code> seja válida pelo padrão CSS3, é obrigatória a existência de pelo menos três marcos distintos, inviabilizando transições configuradas unicamente com <code class="inline-code">0%</code> e <code class="inline-code">100%</code>.</span></label>
+                <label class="alternative-label"><input type="radio" name="q9" value="D"><span class="alternative-letter">(D)</span><span class="alternative-text">O parâmetro <code class="inline-code">scale(1)</code> provoca o colapso dimensional do componente, resultando em uma área renderizada equivalente a zero pixels.</span></label>
+                <label class="alternative-label"><input type="radio" name="q9" value="E"><span class="alternative-letter">(E)</span><span class="alternative-text">A palavra-chave <code class="inline-code">infinite</code> pode ser declarada no interior de <code class="inline-code">@keyframes</code> em substituição aos seletores percentuais para estender a duração de um quadro específico.</span></label>
+            </div>
+            <div class="resolution-box" id="res-9">
+                <div class="resolution-header">📖 Resolução Comentada</div>
+                <div class="resolution-content">
+                    <p><strong>Alternativa Correta: B</strong></p>
+                    <p>A alternativa A é incorreta porque a regra <code class="inline-code">@keyframes</code> atua como um repositório declarativo de passos; ela permanece inerte na folha de estilos até que um seletor a invoque explicitamente através da propriedade <code class="inline-code">animation-name</code> ou do atalho <code class="inline-code">animation</code>.</p>
+                    <p>A alternativa B é verdadeira, visto que os marcos percentuais correspondem a frações temporais relativas da duração estipulada em <code class="inline-code">animation-duration</code>. Como exemplo, em uma animação com duração parametrizada de 2 segundos, o marco de 50% será processado no instante exato de 1,0 segundo daquele ciclo de execução.</p>
+                    <p>A alternativa C apresenta afirmação falsa, uma vez que a especificação admite blocos constituídos exclusivamente pelos extremos <code class="inline-code">0%</code> e <code class="inline-code">100%</code> (ou <code class="inline-code">from</code> e <code class="inline-code">to</code>), sendo a inclusão de marcos percentuais intermediários puramente opcional.</p>
+                    <p>A alternativa D é falsa, pois <code class="inline-code">scale(1)</code> demarca a preservação de 100% do tamanho geométrico original do componente.</p>
+                    <p>A alternativa E é absurda sob a ótica do analisador sintático do CSS, pois <code class="inline-code">infinite</code> é uma palavra-chave atribuível à repetição da animação, não podendo ocupar o lugar das porcentagens de tempo na linha cronológica de <code class="inline-code">@keyframes</code>.</p>
+                </div>
+            </div>
+        </article>
+
+        <section class="action-bar">
+            <div>
+                <span id="validation-hint" style="font-size: 0.9rem; color: var(--text-secondary);">Marque suas respostas acima e clique para finalizar.</span>
+            </div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-outline" id="btn-reset" style="display: none;">Reiniciar Simulado</button>
+                <button type="button" class="btn btn-primary" id="btn-submit">Finalizar e Ver Gabarito</button>
+            </div>
+        </section>
+
+        <section class="score-panel" id="score-section">
+            <div class="score-badge" id="score-display">0/10</div>
+            <p class="score-label" id="score-feedback">Desempenho avaliado</p>
+            
+            <div class="score-metrics">
+                <div class="metric-card">
+                    <div class="metric-val" id="metric-correct" style="color: var(--correct-text);">0</div>
+                    <div class="metric-desc">Acertos</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-val" id="metric-incorrect" style="color: var(--incorrect-text);">0</div>
+                    <div class="metric-desc">Erros</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-val" id="metric-pct">0%</div>
+                    <div class="metric-desc">Aproveitamento</div>
+                </div>
+            </div>
+
+            <div class="gabarito-table-container">
+                <h3 style="font-family: var(--font-editorial); font-size: 1.4rem; color: var(--brand-primary); margin-bottom: 14px;">Quadro Comparativo de Respostas</h3>
+                <table class="gabarito-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">Item</th>
+                            <th style="width: 25%;">Sua Resposta</th>
+                            <th style="width: 25%;">Gabarito Oficial</th>
+                            <th style="width: 35%;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gabarito-tbody">
+                        <!-- Populated dynamically via pure JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const officialKeys = ["D", "A", "B", "B", "D", "A", "A", "C", "C", "B"];
+        const totalQuestions = 10;
+        let isSubmitted = false;
+
+        // Element references
+        const answeredCounter = document.getElementById("answered-counter");
+        const progressBar = document.getElementById("exam-progress");
+        const btnSubmit = document.getElementById("btn-submit");
+        const btnReset = document.getElementById("btn-reset");
+        const scoreSection = document.getElementById("score-section");
+        const scoreDisplay = document.getElementById("score-display");
+        const scoreFeedback = document.getElementById("score-feedback");
+        const metricCorrect = document.getElementById("metric-correct");
+        const metricIncorrect = document.getElementById("metric-incorrect");
+        const metricPct = document.getElementById("metric-pct");
+        const gabaritoTbody = document.getElementById("gabarito-tbody");
+        const validationHint = document.getElementById("validation-hint");
+
+        function updateProgress() {
+            let answered = 0;
+            for (let i = 0; i < totalQuestions; i++) {
+                const checked = document.querySelector(`input[name="q${i}"]:checked`);
+                if (checked) answered++;
+            }
+            answeredCounter.textContent = `${answered}/${totalQuestions}`;
+            const pct = (answered / totalQuestions) * 100;
+            progressBar.style.width = `${pct}%`;
+
+            if (answered === totalQuestions && !isSubmitted) {
+                validationHint.textContent = "Todas as 10 questões foram marcadas. Pronto para corrigir!";
+                validationHint.style.color = "var(--correct-text)";
+            } else if (!isSubmitted) {
+                validationHint.textContent = `${totalQuestions - answered} questão(ões) pendente(s).`;
+                validationHint.style.color = "var(--text-secondary)";
+            }
+        }
+
+        // Attach change listeners to all radios
+        const radioInputs = document.querySelectorAll('input[type="radio"]');
+        radioInputs.forEach(input => {
+            input.addEventListener('change', () => {
+                if (!isSubmitted) {
+                    updateProgress();
+                }
+            });
+        });
+
+        btnSubmit.addEventListener('click', () => {
+            if (isSubmitted) {
+                // If already submitted, scroll to score
+                scoreSection.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            let correctCount = 0;
+            let tableRowsHtml = "";
+
+            for (let i = 0; i < totalQuestions; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                const userChoice = selected ? selected.value : null;
+                const correctChoice = officialKeys[i];
+                const card = document.getElementById(`qcard-${i}`);
+                const badge = document.getElementById(`badge-${i}`);
+                const resBox = document.getElementById(`res-${i}`);
+                const options = card.querySelectorAll('.alternative-label');
+
+                // Reveal resolution block below the question
+                resBox.classList.add('show');
+                badge.style.display = 'inline-block';
+
+                let rowStatus = "";
+                if (userChoice === correctChoice) {
+                    correctCount++;
+                    badge.textContent = "ACERTOU";
+                    badge.style.backgroundColor = "var(--correct-bg)";
+                    badge.style.color = "var(--correct-text)";
+                    rowStatus = `<span class="user-tag-correct">✓ Correto</span>`;
+                } else {
+                    badge.textContent = userChoice ? "ERROU" : "EM BRANCO";
+                    badge.style.backgroundColor = "var(--incorrect-bg)";
+                    badge.style.color = "var(--incorrect-text)";
+                    rowStatus = `<span class="user-tag-incorrect">✗ Incorreto</span>`;
+                }
+
+                // Highlight correct and incorrect options
+                options.forEach(opt => {
+                    const input = opt.querySelector('input');
+                    const val = input.value;
+                    input.disabled = true;
+
+                    if (val === correctChoice) {
+                        opt.classList.add('is-correct');
+                    } else if (val === userChoice) {
+                        opt.classList.add('is-incorrect');
+                    } else {
+                        opt.classList.add('is-dimmed');
+                    }
+                });
+
+                // Generate table row for comparison summary
+                tableRowsHtml += `
+                    <tr>
+                        <td><strong>Questão ${String(i + 1).padStart(2, '0')}</strong></td>
+                        <td>${userChoice ? `<strong>(${userChoice})</strong>` : '<em style="color:var(--text-muted);">Não respondida</em>'}</td>
+                        <td><strong style="color:var(--brand-primary);">(${correctChoice})</strong></td>
+                        <td>${rowStatus}</td>
+                    </tr>
+                `;
+            }
+
+            isSubmitted = true;
+            btnSubmit.textContent = "Ver Resultado Detalhado";
+            btnReset.style.display = "inline-flex";
+            validationHint.textContent = "Gabarito aplicado e resoluções completas disponibilizadas abaixo de cada questão.";
+            validationHint.style.color = "var(--text-primary)";
+
+            // Update Score Metrics
+            const incorrectCount = totalQuestions - correctCount;
+            const percentage = Math.round((correctCount / totalQuestions) * 100);
+
+            scoreDisplay.textContent = `${correctCount}/${totalQuestions}`;
+            metricCorrect.textContent = correctCount;
+            metricIncorrect.textContent = incorrectCount;
+            metricPct.textContent = `${percentage}%`;
+
+            if (percentage >= 80) {
+                scoreFeedback.textContent = "Excelente! Domínio avançado dos conceitos de animação e renderização da FAURGS.";
+            } else if (percentage >= 60) {
+                scoreFeedback.textContent = "Bom desempenho! Vale revisar os detalhes de GPU e sintaxe abreviada.";
+            } else {
+                scoreFeedback.textContent = "Continue praticando! Leia com atenção as resoluções comentadas de cada item.";
+            }
+
+            gabaritoTbody.innerHTML = tableRowsHtml;
+            scoreSection.classList.add('visible');
+
+            // Smooth scroll to score summary
+            scoreSection.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        btnReset.addEventListener('click', () => {
+            if (!confirm("Deseja reiniciar o simulado e limpar todas as respostas?")) {
+                return;
+            }
+
+            isSubmitted = false;
+            radioInputs.forEach(input => {
+                input.checked = false;
+                input.disabled = false;
+            });
+
+            // Reset labels and status
+            for (let i = 0; i < totalQuestions; i++) {
+                const card = document.getElementById(`qcard-${i}`);
+                const badge = document.getElementById(`badge-${i}`);
+                const resBox = document.getElementById(`res-${i}`);
+                const options = card.querySelectorAll('.alternative-label');
+
+                badge.style.display = 'none';
+                resBox.classList.remove('show');
+
+                options.forEach(opt => {
+                    opt.classList.remove('is-correct', 'is-incorrect', 'is-dimmed');
+                });
+            }
+
+            scoreSection.classList.remove('visible');
+            btnSubmit.textContent = "Finalizar e Ver Gabarito";
+            btnReset.style.display = "none";
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Initial progress check
+        updateProgress();
+    </script>
+</body>
+</html>
