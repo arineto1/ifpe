@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulado FAURGS - JavaScript e Manipulação do DOM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* -------------------------------------------------------------
+       Variáveis de Tema e Paleta Confortável para Leituras Longas
+       Fundo em tom suave (off-white/cinza sutil) e tipografia em ardósia escura
+       ------------------------------------------------------------- */
+    :root {
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-code: #f1f5f9;
+      --text-main: #1e293b;
+      --text-muted: #475569;
+      --text-subtle: #64748b;
+      --border-color: #e2e8f0;
+      --border-focus: #3b82f6;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --accent-correct-bg: #ecfdf5;
+      --accent-correct-border: #10b981;
+      --accent-correct-text: #065f46;
+      --accent-wrong-bg: #fef2f2;
+      --accent-wrong-border: #ef4444;
+      --accent-wrong-text: #991b1b;
+      --accent-resolution-bg: #f8fafc;
+      --accent-resolution-border: #94a3b8;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      padding: 24px 16px 80px 16px;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* -------------------------------------------------------------
+       Cabeçalho do Caderno de Questões
+       ------------------------------------------------------------- */
+    header.header-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .badge-banca {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background-color: #eff6ff;
+      color: var(--primary);
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #bfdbfe;
+      margin-bottom: 12px;
+    }
+
+    h1.header-title {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.35;
+      margin-bottom: 10px;
+    }
+
+    p.header-subtitle {
+      font-size: 0.98rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Barra de Progresso Superior */
+    .progress-bar-container {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-subtle);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background-color: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background-color: var(--primary);
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+
+    /* -------------------------------------------------------------
+       Cartões das Questões
+       ------------------------------------------------------------- */
+    .question-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .question-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .question-number {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .question-topic-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-subtle);
+      background-color: #f1f5f9;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      border: 1px solid #cbd5e1;
+    }
+
+    .question-stem {
+      font-size: 1rem;
+      color: var(--text-main);
+      margin-bottom: 20px;
+      line-height: 1.7;
+    }
+
+    .question-stem p {
+      margin-bottom: 14px;
+    }
+
+    .question-stem p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Formatação dos Itens I, II, III */
+    .roman-list {
+      margin: 16px 0;
+      padding-left: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .roman-list li {
+      position: relative;
+      padding-left: 44px;
+      font-size: 0.98rem;
+      color: var(--text-main);
+    }
+
+    .roman-label {
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-weight: 700;
+      color: var(--text-muted);
+      width: 36px;
+    }
+
+    /* Blocos de Código das Questões */
+    pre.code-block {
+      background-color: var(--bg-code);
+      border: 1px solid #cbd5e1;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin: 18px 0;
+      overflow-x: auto;
+      font-family: 'Fira Code', Consolas, Monaco, monospace;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: #0f172a;
+    }
+
+    code {
+      font-family: 'Fira Code', Consolas, Monaco, monospace;
+      font-size: 0.88em;
+      background-color: #f1f5f9;
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: #0f172a;
+      border: 1px solid #e2e8f0;
+    }
+
+    pre.code-block code {
+      background-color: transparent;
+      padding: 0;
+      border: none;
+      color: inherit;
+    }
+
+    /* -------------------------------------------------------------
+       Alternativas de Resposta (A, B, C, D, E)
+       ------------------------------------------------------------- */
+    .options-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 18px;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background-color: #ffffff;
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+      user-select: none;
+    }
+
+    .option-item:hover {
+      background-color: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    .option-item.selected {
+      border-color: var(--primary);
+      background-color: #eff6ff;
+    }
+
+    .option-radio {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #94a3b8;
+      border-radius: 50%;
+      outline: none;
+      margin-top: 3px;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .option-radio:checked {
+      border-color: var(--primary);
+      background-color: var(--primary);
+      box-shadow: inset 0 0 0 3px #ffffff;
+    }
+
+    .option-text {
+      font-size: 0.96rem;
+      color: var(--text-main);
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .option-letter {
+      font-weight: 700;
+      margin-right: 4px;
+      color: var(--text-muted);
+    }
+
+    /* -------------------------------------------------------------
+       Feedback Pós-Submissão nas Questões
+       ------------------------------------------------------------- */
+    .question-card.evaluated-correct {
+      border-color: var(--accent-correct-border);
+    }
+
+    .question-card.evaluated-incorrect {
+      border-color: var(--accent-wrong-border);
+    }
+
+    .option-item.state-correct {
+      background-color: var(--accent-correct-bg) !important;
+      border-color: var(--accent-correct-border) !important;
+      color: var(--accent-correct-text) !important;
+    }
+
+    .option-item.state-correct .option-text {
+      color: var(--accent-correct-text) !important;
+      font-weight: 500;
+    }
+
+    .option-item.state-wrong-chosen {
+      background-color: var(--accent-wrong-bg) !important;
+      border-color: var(--accent-wrong-border) !important;
+      color: var(--accent-wrong-text) !important;
+      text-decoration: line-through;
+    }
+
+    .option-item.state-wrong-chosen .option-text {
+      color: var(--accent-wrong-text) !important;
+    }
+
+    .status-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-top: 14px;
+    }
+
+    .status-tag.correct {
+      background-color: var(--accent-correct-bg);
+      color: var(--accent-correct-text);
+      border: 1px solid var(--accent-correct-border);
+    }
+
+    .status-tag.incorrect {
+      background-color: var(--accent-wrong-bg);
+      color: var(--accent-wrong-text);
+      border: 1px solid var(--accent-wrong-border);
+    }
+
+    .status-tag.unanswered {
+      background-color: #f1f5f9;
+      color: var(--text-muted);
+      border: 1px solid #cbd5e1;
+    }
+
+    /* Seção de Resolução da Questão (oculta até submeter) */
+    .resolution-box {
+      display: none;
+      margin-top: 22px;
+      padding: 20px 22px;
+      border-radius: var(--radius-md);
+      background-color: var(--accent-resolution-bg);
+      border-left: 4px solid var(--accent-resolution-border);
+      border-top: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .resolution-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .resolution-text {
+      font-size: 0.94rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* -------------------------------------------------------------
+       Ações Finais e Painel de Resultados
+       ------------------------------------------------------------- */
+    .actions-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      margin-top: 36px;
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 14px 32px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background-color: #f1f5f9;
+      color: var(--text-main);
+      border: 1px solid #cbd5e1;
+      padding: 12px 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .btn-secondary:hover {
+      background-color: #e2e8f0;
+    }
+
+    .validation-alert {
+      display: none;
+      background-color: #fffbeb;
+      color: #92400e;
+      border: 1px solid #fde68a;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      margin-bottom: 18px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    /* Painel Consolidado de Resumo de Acertos */
+    .results-summary-section {
+      display: none;
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: var(--radius-lg);
+      padding: 36px 30px;
+      margin-top: 32px;
+      box-shadow: var(--shadow-md);
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .results-summary-section.active {
+      display: block;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 18px;
+      margin: 24px 0 32px 0;
+    }
+
+    .metric-card {
+      background: var(--bg-page);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .metric-card.highlight {
+      background-color: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    .metric-number {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 6px;
+      color: var(--primary);
+    }
+
+    .metric-label {
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* Tabela do Gabarito Oficial */
+    .table-container {
+      overflow-x: auto;
+      margin: 24px 0;
+    }
+
+    table.gabarito-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      text-align: left;
+    }
+
+    table.gabarito-table th {
+      background-color: #f1f5f9;
+      color: var(--text-main);
+      padding: 12px 16px;
+      font-weight: 700;
+      border: 1px solid var(--border-color);
+    }
+
+    table.gabarito-table td {
+      padding: 12px 16px;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+    }
+
+    table.gabarito-table tr:nth-child(even) td {
+      background-color: #f8fafc;
+    }
+
+    .badge-result-cell {
+      display: inline-block;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+    .badge-result-cell.c-ok {
+      background-color: var(--accent-correct-bg);
+      color: var(--accent-correct-text);
+      border: 1px solid var(--accent-correct-border);
+    }
+    .badge-result-cell.c-err {
+      background-color: var(--accent-wrong-bg);
+      color: var(--accent-wrong-text);
+      border: 1px solid var(--accent-wrong-border);
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 16px 12px 60px 12px;
+      }
+      header.header-card, .question-card, .actions-panel, .results-summary-section {
+        padding: 22px 18px;
+      }
+      h1.header-title {
+        font-size: 1.35rem;
+      }
+      .roman-list li {
+        padding-left: 36px;
+      }
+      .roman-label {
+        width: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="container">
+    <!-- Cabeçalho -->
+    <header class="header-card">
+      <span class="badge-banca">Banca Examinadora • Padrão FAURGS</span>
+      <h1 class="header-title">Simulado: Programação Web, JavaScript &amp; Manipulação do DOM</h1>
+      <p class="header-subtitle">
+        Caderno composto por 10 questões de múltipla escolha elaboradas conforme o estilo conceitual e normativo da FAURGS. 
+        Selecione uma alternativa por questão e clique em <strong>"Finalizar e Ver Resoluções"</strong> para conferir seu índice de acertos e fundamentações completas integradas.
+      </p>
+
+      <div class="progress-bar-container">
+        <div class="progress-info">
+          <span>Progresso de Preenchimento</span>
+          <span id="progress-text">0 de 10 respondidas</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-bar"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Formulário do Quiz com as 10 Questões -->
+    <form id="quiz-form">
+
+      <!-- ========================================== -->
+      <!-- QUESTÃO 01                                 -->
+      <!-- ========================================== -->
+      <article class="question-card" id="card-q1">
+        <div class="question-header">
+          <span class="question-number">Questão 01</span>
+          <span class="question-topic-badge">Tríade Fundamental da Web</span>
+        </div>
+        <div class="question-stem">
+          <p>Considere as seguintes afirmações sobre a tríade fundamental do desenvolvimento de aplicações web client-side (HTML, CSS e JavaScript) e seus respectivos papéis na construção de interfaces gráficas:</p>
+          <ul class="roman-list">
+            <li><span class="roman-label">I -</span>O HTML (HyperText Markup Language) provê a semântica estrutural básica e o delineamento dos nós de conteúdo do documento, atuando como o esqueleto composicional da página.</li>
+            <li><span class="roman-label">II -</span>O CSS (Cascading Style Sheets) gerencia a apresentação visual, as regras de diagramação espacial e os atributos cosméticos do documento, promovendo a separação entre a camada estética e a árvore estrutural da informação.</li>
+            <li><span class="roman-label">III -</span>O JavaScript opera como a camada de comportamento dinâmico e controle de fluxo interativo, viabilizando a reação síncrona ou assíncrona a eventos desencadeados pelo usuário sem a obrigatoriedade de recarregamento integral da página no navegador.</li>
+          </ul>
+          <p>Quais estão corretas?</p>
+        </div>
+
+        <div class="options-group">
+          <label class="option-item" for="q1_a">
+            <input class="option-radio" type="radio" name="q1" id="q1_a" value="A">
+            <span class="option-text"><span class="option-letter">(A)</span> Apenas I.</span>
+          </label>
+          <label class="option-item" for="q1_b">
+            <input class="option-radio" type="radio" name="q1" id="q1_b" value="B">
+            <span class="option-text"><span class="option-letter">(B)</span> Apenas II.</span>
+          </label>
+          <label class="option-item" for="q1_c">
+            <input class="option-radio" type="radio" name="q1" id="q1_c" value="C">
+            <span class="option-text"><span class="option-letter">(C)</span> Apenas I e II.</span>
+          </label>
+          <label class="option-item" for="q1_d">
+            <input class="option-radio" type="radio" name="q1" id="q1_d" value="D">
+            <span class="option-text"><span class="option-letter">(D)</span> Apenas II e III.</span>
+          </label>
+          <label class="option-item" for="q1_e">
+            <input class="option-radio" type="radio" name="q1" id="q1_e" value="E">
+            <span class="option-text"><span class="option-letter">(E)</span> I, II e III.</span>
+          </label>
+        </div>
+
+        <div class="resolution-box" id="res-q1">
+          <div class="resolution-title">
+            <span>Gabarito Oficial: Alternativa (E)</span>
+          </div>
+          <p class="resolution-text">
+            <strong>Resolução e Fundamentação Técnica:</strong> O ecossistema de front-end assenta-se sobre o desacoplamento de responsabilidades entre estrutura, apresentação visual e comportamento dinâmico. O HTML atua como a infraestrutura elementar do documento, provendo hierarquia semântica e delineando a organização dos dados textuais e midiáticos da aplicação. O CSS atua de forma complementar, concentrando as definições cosméticas, responsivas e tipográficas, o que garante a uniformidade estética e o isolamento em relação à estrutura conceitual da página. O JavaScript desempenha a função de orquestração comportamental no ambiente do cliente, conferindo reatividade à página mediante escuta ativa e tratamento síncrono ou assíncrono de eventos disparados pelo usuário. Dessa forma, ele viabiliza a mutação de estado e a reconstrução de fragmentos da interface gráfica em tempo de execução sem demandar uma nova requisição HTTP de recarregamento integral do documento ao servidor. Em decorrência do alinhamento técnico de todas as proposições apresentadas, constata-se a veracidade integral das afirmações I, II e III.
+          </p>
+        </div>
+      </article>
+
+      <!-- ========================================== -->
+      <!-- QUESTÃO 02                                 -->
+      <!-- ========================================== -->
+      <article class="question-card" id="card-q2">
+        <div class="question-header">
+          <span class="question-number">Questão 02</span>
+          <span class="question-topic-badge">Ciclo de Vida e Tag &lt;script&gt;</span>
+        </div>
+        <div class="question-stem">
+          <p>No ciclo de vida de processamento de uma página web pelo motor de renderização do navegador, a inserção de scripts por meio do elemento <code>&lt;script&gt;</code> afeta diretamente o fluxo de construção da interface. Acerca do motivo técnico pelo qual se recomenda a inclusão do elemento <code>&lt;script&gt;</code> imediatamente antes do fechamento da tag <code>&lt;/body&gt;</code>, assinale a alternativa correta:</p>
+        </div>
+
+        <div class="options-group">
+          <label class="option-item" for="q2_a">
+            <input class="option-radio" type="radio" name="q2" id="q2_a" value="A">
+            <span class="option-text"><span class="option-letter">(A)</span> Tal posicionamento restringe a visibilidade das funções declaradas no script ao contêiner <code>&lt;body&gt;</code>, impedindo violações de escopo e acessos indevidos aos nós do elemento <code>&lt;head&gt;</code>.</span>
+          </label>
+          <label class="option-item" for="q2_b">
+            <input class="option-radio" type="radio" name="q2" id="q2_b" value="B">
+            <span class="option-text"><span class="option-letter">(B)</span> Essa diretiva é obrigatória para que o compilador do servidor web execute a transmutação prévia das instruções JavaScript em código de máquina antes da emissão da resposta HTTP.</span>
+          </label>
+          <label class="option-item" for="q2_c">
+            <input class="option-radio" type="radio" name="q2" id="q2_c" value="C">
+            <span class="option-text"><span class="option-letter">(C)</span> Como o analisador sintático (parser) do navegador processa o arquivo sequencialmente de cima para baixo, esse posicionamento assegura que os elementos estruturais do HTML sejam analisados e desenhados na tela antes da execução do código, evitando bloqueios prematuros de renderização e erros decorrentes da manipulação de nós ainda não instanciados.</span>
+          </label>
+          <label class="option-item" for="q2_d">
+            <input class="option-radio" type="radio" name="q2" id="q2_d" value="D">
+            <span class="option-text"><span class="option-letter">(D)</span> O posicionamento ao término do documento anula a necessidade de identificação dos elementos da interface por seletores ou atributos de chave primária, transferindo a vinculação dos nós para o gerenciador de memória do navegador.</span>
+          </label>
+          <label class="option-item" for="q2_e">
+            <input class="option-radio" type="radio" name="q2" id="q2_e" value="E">
+            <span class="option-text"><span class="option-letter">(E)</span> Essa prática impede formalmente que rotinas assíncronas do motor de execução possam despachar eventos de interação durante o ciclo operacional da interface.</span>
+          </label>
+        </div>
+
+        <div class="resolution-box" id="res-q2">
+          <div class="resolution-title">
+            <span>Gabarito Oficial: Alternativa (C)</span>
+          </div>
+          <p class="resolution-text">
+            <strong>Resolução e Fundamentação Técnica:</strong> O motor de renderização implementado em navegadores web opera de modo sequencial linear, executando o processamento do código-fonte HTML estritamente no fluxo descendente. Ao deparar-se com uma declaração síncrona da tag <code>&lt;script&gt;</code> desprovida de modificadores de execução diferida, o analisador sintático suspende de pronto o fluxo de parsing da árvore estrutural para priorizar o carregamento e a avaliação do arquivo de script. Quando o arquivo JavaScript é alocado imediatamente antes da tag de fechamento <code>&lt;/body&gt;</code>, assegura-se que a totalidade dos elementos visuais e de marcação contidos no corpo da página tenha sido devidamente lida, instanciada na memória e pintada na tela (<em>first paint</em>). Esse mecanismo previne atrasos na disponibilização visual da página ao usuário e resguarda as rotinas lógicas de consultar referências a nós que ainda não foram convertidos em objetos válidos na memória. As demais opções mostram-se errôneas, pois scripts client-side não passam por compilação prévia no servidor web de hospedagem, o escopo léxico das variáveis independe da seção do corpo do documento e os identificadores unívocos de nós permanecem mandatórios para consultas estruturadas.
+          </p>
+        </div>
+      </article>
+
+      <!-- ========================================== -->
+      <!-- QUESTÃO 03                                 -->
+      <!-- ========================================== -->
+      <article class="question-card" id="card-q3">
+        <div class="question-header">
+          <span class="question-number">Questão 03</span>
+          <span class="question-topic-badge">Arquitetura e Fundamentos do DOM</span>
+        </div>
+        <div class="question-stem">
+          <p>O Document Object Model (DOM) constitui uma das abstrações fundamentais da arquitetura de navegadores web modernos. Sobre a concepção estrutural e a operação do DOM no contexto da execução de scripts client-side, considere as seguintes afirmações:</p>
+          <ul class="roman-list">
+            <li><span class="roman-label">I -</span>O DOM representa uma modelagem hierárquica em memória mantida pelo navegador para refletir a estrutura de um documento HTML ativo.</li>
+            <li><span class="roman-label">II -</span>Quaisquer alterações de propriedades estruturais ou estilísticas promovidas no DOM via código JavaScript refletem-se exclusivamente no ambiente em execução no cliente, não provocando a modificação persistente do arquivo HTML originalmente hospedado no servidor web.</li>
+            <li><span class="roman-label">III -</span>A árvore de nós do DOM fornece uma interface programática unificada pela qual o código JavaScript é capaz de ler, injetar, alterar e remover nós, estilos e atributos do documento em tempo real.</li>
+          </ul>
+          <p>Quais estão corretas?</p>
+        </div>
+
+        <div class="options-group">
+          <label class="option-item" for="q3_a">
+            <input class="option-radio" type="radio" name="q3" id="q3_a" value="A">
+            <span class="option-text"><span class="option-letter">(A)</span> Apenas I.</span>
+          </label>
+          <label class="option-item" for="q3_b">
+            <input class="option-radio" type="radio" name="q3" id="q3_b" value="B">
+            <span class="option-text"><span class="option-letter">(B)</span> Apenas II.</span>
+          </label>
+          <label class="option-item" for="q3_c">
+            <input class="option-radio" type="radio" name="q3" id="q3_c" value="C">
+            <span class="option-text"><span class="option-letter">(C)</span> Apenas I e III.</span>
+          </label>
+          <label class="option-item" for="q3_d">
+            <input class="option-radio" type="radio" name="q3" id="q3_d" value="D">
+            <span class="option-text"><span class="option-letter">(D)</span> Apenas II e III.</span>
+          </label>
+          <label class="option-item" for="q3_e">
+            <input class="option-radio" type="radio" name="q3" id="q3_e" value="E">
+            <span class="option-text"><span class="option-letter">(E)</span> I, II e III.</span>
+          </label>
+        </div>
+
+        <div class="resolution-box" id="res-q3">
+          <div class="resolution-title">
+            <span>Gabarito Oficial: Alternativa (E)</span>
+          </div>
+          <p class="resolution-text">
+            <strong>Resolução e Fundamentação Técnica:</strong> O Document Object Model consiste em uma interface de programação de aplicações (API) criada e mantida na memória volátil do navegador, que espelha as declarações do código-fonte em nós de objetos navegáveis e manipuláveis estruturados sob a forma de uma árvore hierárquica. Toda alteração arquitetural, cromática ou contextual exercida pelo motor JavaScript atua unicamente sobre essa representação volátil mantida no subsistema do navegador cliente, gerando impactos estritamente locais no tempo de vida da sessão. Por conseguinte, tais mutações são incapazes de transpor a camada do cliente para regravar o arquivo-fonte HTML estático armazenado fisicamente no servidor remoto. Ademais, a interface de manipulação do DOM oferece controle dinâmico para operações de leitura, mutação, inserção e deleção de elementos estruturais, atributos funcionais e propriedades de estilização, conferindo interatividade ampla à página. Logo, todas as afirmativas avaliadas (I, II e III) encontram-se rigorosamente corretas.
+          </p>
+        </div>
+      </article>
+
+      <!-- ========================================== -->
+      <!-- QUESTÃO 04                                 -->
+      <!-- ========================================== -->
+      <article class="question-card" id="card-q4">
+        <div class="question-header">
+          <span class="question-number">Questão 04</span>
+          <span class="question-topic-badge">Métodos de Seleção no DOM</span>
+        </div>
+        <div class="question-stem">
+          <p>Considere o fragmento de código HTML a seguir, integrante do corpo estrutural de um documento web:</p>
+          <pre class="code-block">&lt;h1 id="titulo"&gt;Texto Padrão Inicial&lt;/h1&gt;
+&lt;div class="grupo-botoes"&gt;
+    &lt;button type="button" id="btn-sucesso"&gt;Sucesso&lt;/button&gt;
+&lt;/div&gt;</pre>
+          <p>Para recuperar a referência em memória do elemento de cabeçalho estrutural identificado pelo valor de ID <code>titulo</code>, um desenvolvedor pode recorrer aos métodos nativos expostos pela interface <code>Document</code>. Assinale a alternativa que apresenta duas instruções JavaScript formalmente válidas e equivalentes na identificação e recuperação exclusiva dessa mesma referência de elemento:</p>
+        </div>
+
+        <div class="options-group">
+          <label class="option-item" for="q4_a">
+            <input class="option-radio" type="radio" name="q4" id="q4_a" value="A">
+            <span class="option-text"><span class="option-letter">(A)</span> <code>document.getElementById("titulo")</code> e <code>document.querySelector("#titulo")</code></span>
+          </label>
+          <label class="option-item" for="q4_b">
+            <input class="option-radio" type="radio" name="q4" id="q4_b" value="B">
+            <span class="option-text"><span class="option-letter">(B)</span> <code>document.getElementById("#titulo")</code> e <code>document.querySelector("titulo")</code></span>
+          </label>
+          <label class="option-item" for="q4_c">
+            <input class="option-radio" type="radio" name="q4" id="q4_c" value="C">
+            <span class="option-text"><span class="option-letter">(C)</span> <code>document.getElementByName("titulo")</code> e <code>document.querySelector(".titulo")</code></span>
+          </label>
+          <label class="option-item" for="q4_d">
+            <input class="option-radio" type="radio" name="q4" id="q4_d" value="D">
+            <span class="option-text"><span class="option-letter">(D)</span> <code>document.getElementById("titulo")</code> e <code>document.querySelectorAll("titulo")</code></span>
+          </label>
+          <label class="option-item" for="q4_e">
+            <input class="option-radio" type="radio" name="q4" id="q4_e" value="E">
+            <span class="option-text"><span class="option-letter">(E)</span> <code>document.findNodeById("titulo")</code> e <code>document.selectElement("#titulo")</code></span>
+          </label>
+        </div>
+
+        <div class="resolution-box" id="res-q4">
+          <div class="resolution-title">
+            <span>Gabarito Oficial: Alternativa (A)</span>
+          </div>
+          <p class="resolution-text">
+            <strong>Resolução e Fundamentação Técnica:</strong> A interface <code>Document</code> disponibiliza múltiplos métodos voltados à recuperação de referências a nós na árvore instanciada. O método <code>getElementById()</code> foi projetado especificamente para localizar elementos a partir do valor estrito atribuído à sua propriedade de identificação unívoca <code>id</code>; como sua própria semântica já presume a busca por tal atributo, ele requer a passagem apenas do literal de caracteres correspondente (<code>"titulo"</code>), tornando redundante e incorreto o uso de caracteres de marcação visual. Por sua vez, o método <code>querySelector()</code> opera como um localizador genérico orientado pelo padrão de seletores da linguagem CSS. Em folhas de estilo, a referência precisa a um elemento mediante seu identificador único requer a presença do prefixo de cerquilha (<code>#</code>), demandando a sintaxe formal <code>"#titulo"</code> para identificar o elemento <code>&lt;h1&gt;</code> em questão. As alternativas concorrentes falham ao inserir marcadores CSS indevidos no interior do método <code>getElementById</code>, omitir o caractere obrigatório no seletor de consulta ou referenciar métodos espúrios e inexistentes no padrão do DOM W3C/WHATWG, tais como <code>findNodeById</code> e <code>selectElement</code>.
+          </p>
+        </div>
+      </article>
+
+      <!-- ========================================== -->
+      <!-- QUESTÃO 05                                 -->
+      <!-- ========================================== -->
+      <article class="question-card" id="card-q5">
+        <div class="question-header">
+          <span class="question-number">Questão 05</span>
+          <span class="question-topic-badge">Mutação Textual e Dinamismo</span>
+        </div>
+        <div class="question-stem">
+          <p>Assinale a alternativa que preenche, correta e respectivamente, as lacunas do enunciado abaixo sobre a mutação textual de elementos no modelo de objetos do documento:</p>
+          <p><em>Ao recuperar a referência de um nó do DOM e efetuar a atribuição de uma cadeia de caracteres diretamente à sua propriedade __________, o navegador recalcula e reflete a mutação visual do texto na interface de forma __________, prescindindo de qualquer rotina voltada a __________ o documento no cliente.</em></p>
+        </div>
+
+        <div class="options-group">
+          <label class="option-item" for="q5_a">
+            <input class="option-radio" type="radio" name="q5" id="q5_a" value="A">
+            <span class="option-text"><span class="option-letter">(A)</span> <code>className</code> – diferida – interpretar</span>
+          </label>
+          <label class="option-item" for="q5_b">
+            <input class="option-radio" type="radio" name="q5" id="q5_b" value="B">
+            <span class="option-text"><span class="option-letter">(B)</span> <code>innerText</code> – instantânea – recarregar</span>
+          </label>
+          <label class="option-item" for="q5_c">
+            <input class="option-radio" type="radio" name="q5" id="q5_c" value="C">
+            <span class="option-text"><span class="option-letter">(C)</span> <code>styleColor</code> – assíncrona – compilar</span>
+          </label>
+          <label class="option-item" for="q5_d">
+            <input class="option-radio" type="radio" name="q5" id="q5_d" value="D">
+            <span class="option-text"><span class="option-letter">(D)</span> <code>valueText</code> – intermitente – retransmitir</span>
+          </label>
+          <label class="option-item" for="q5_e">
+            <input class="option-radio" type="radio" name="q5" id="q5_e" value="E">
+            <span class="option-text"><span class="option-letter">(E)</span> <code>textContent</code> – nula – serializar</span>
+          </label>
+        </div>
+
+        <div class="resolution-box" id="res-q5">
+          <div class="resolution-title">
+            <span>Gabarito Oficial: Alternativa (B)</span>
+          </div>
+          <p class="resolution-text">
+            <strong>Resolução e Fundamentação Técnica:</strong> A propriedade <code>innerText</code> pertence à especificação dos nós de elementos do DOM e serve como canal direto para a extração ou sobrescrita do conteúdo textual legível renderizado. Ao atribuir uma nova cadeia literal de caracteres a <code>elemento.innerText</code>, o motor de layout do navegador invalida a subárvore textual correspondente e efetua a substituição do texto exibido de maneira instantânea e perceptualmente imediata. Essa característica viabiliza respostas dinâmicas a interações do usuário sem a obrigatoriedade de recarregar a página, diferenciando as páginas reativas modernas dos antigos hiperdocumentos puramente estáticos que dependiam de sucessivos ciclos de recarga (<em>reload</em>) para cada variação de estado. A alternativa B é a única que preenche harmoniosa e acertadamente as lacunas propostas.
+          </p>
+        </div>
+      </article>
+
+      <!-- ========================================== -->
+      <!-- QUESTÃO 06                                 -->
+      <!-- ========================================== -->
+      <article class="question-card" id="card-q6">
+        <div class="question-header">
+          <span class="question-number">Questão 06</span>
+          <span class="question-topic-badge">Regras de Sintaxe CSS no JavaScript</span>
+        </div>
+        <div class="question-stem">
+          <p>A respeito das regras sintáticas e conceituais que regem a manipulação de propriedades de estilo CSS por intermédio da interface de objetos <code>style</code> de elementos no JavaScript, considere as seguintes afirmações:</p>
+          <ul class="roman-list">
+            <li><span class="roman-label">I -</span>Propriedades de folha de estilo originalmente nomeadas segundo o padrão delimitado por hífens (<em>kebab-case</em>), a exemplo de <code>font-size</code> e <code>background-color</code>, são mapeadas no objeto <code>style</code> pela convenção <em>camelCase</em>, resultando respectivamente em <code>fontSize</code> e <code>backgroundColor</code>.</li>
+            <li><span class="roman-label">II -</span>Valores que exprimem dimensões métricas ou escalares no CSS devem ser informados como literais do tipo cadeia de caracteres agregados de suas unidades (como <code>"22px"</code> ou <code>"32px"</code>), não sendo suficiente o envio de literais numéricos puros para a correta aplicação das diretivas de layout dependentes de dimensão.</li>
+            <li><span class="roman-label">III -</span>A atribuição de valores a propriedades por meio do objeto <code>style</code> em tempo de execução invalida as classes declaradas no atributo <code>class</code> do HTML, forçando o navegador a suprimir permanentemente os estilos externos aplicados ao elemento.</li>
+          </ul>
+          <p>Quais estão corretas?</p>
+        </div>
+
+        <div class="options-group">
+          <label class="option-item" for="q6_a">
+            <input class="option-radio" type="radio" name="q6" id="q6_a" value="A">
+            <span class="option-text"><span class="option-letter">(A)</span> Apenas I.</span>
+          </label>
+          <label class="option-item" for="q6_b">
+            <input class="option-radio" type="radio" name="q6" id="q6_b" value="B">
+            <span class="option-text"><span class="option-letter">(B)</span> Apenas II.</span>
+          </label>
+          <label class="option-item" for="q6_c">
+            <input class="option-radio" type="radio" name="q6" id="q6_c" value="C">
+            <span class="option-text"><span class="option-letter">(C)</span> Apenas I e II.</span>
+          </label>
+          <label class="option-item" for="q6_d">
+            <input class="option-radio" type="radio" name="q6" id="q6_d" value="D">
+            <span class="option-text"><span class="option-letter">(D)</span> Apenas II e III.</span>
+          </label>
+          <label class="option-item" for="q6_e">
+            <input class="option-radio" type="radio" name="q6" id="q6_e" value="E">
+            <span class="option-text"><span class="option-letter">(E)</span> I, II e III.</span>
+          </label>
+        </div>
+
+        <div class="resolution-box" id="res-q6">
+          <div class="resolution-title">
+            <span>Gabarito Oficial: Alternativa (C)</span>
+          </div>
+          <p class="resolution-text">
+            <strong>Resolução e Fundamentação Técnica:</strong> A manipulação de regras de estilização direta em elementos por intermédio da propriedade <code>style</code> exige a harmonização entre os padrões de sintaxe do CSS e do JavaScript. Como na linguagem JavaScript o símbolo de traço (<code>-</code>) atua como operador aritmético de subtração, a especificação do DOM mapeia as propriedades CSS nativamente nomeadas em notação <em>kebab-case</em> para a convenção <em>camelCase</em>. Desse modo, propriedades compostas como <code>font-size</code> e <code>background-color</code> transformam-se, respectivamente, nas propriedades de objeto <code>fontSize</code> e <code>backgroundColor</code>. Paralelamente, os atributos de estilo dimensionais demandam uma unidade métrica CSS expressa em uma cadeia de caracteres (por exemplo, <code>"22px"</code> ou <code>"32px"</code>), sendo ignoradas ou invalidadas eventuais atribuições escalares desprovidas de unidade métrica. Por fim, a terceira afirmação mostra-se errônea, dado que a mutação direta do objeto <code>style</code> opera como estilo em nível de nó (<em>inline style</em>), mantendo a integridade das classes aplicadas e sobrepondo-se a elas unicamente no âmbito de especificidade em cascata, sem que haja supressão das definições estéticas estruturadas em arquivos externos. Apenas as afirmações I e II mostram-se corretas.
+          </p>
+        </div>
+      </article>
+
+      <!-- ========================================== -->
+      <!-- QUESTÃO 07                                 -->
+      <!-- ========================================== -->
+      <article class="question-card" id="card-q7">
+        <div class="question-header">
+          <span class="question-number">Questão 07</span>
+          <span class="question-topic-badge">Eventos e addEventListener</span>
+        </div>
+        <div class="question-stem">
+          <p>No contexto da programação orientada a eventos no navegador, a captura e o tratamento de interações do usuário sobre a interface gráfica são comumente operacionalizados via <code>addEventListener</code>. Acerca da estrutura, sintaxe e funcionamento do método <code>addEventListener</code>, assinale a alternativa correta:</p>
+        </div>
+
+        <div class="options-group">
+          <label class="option-item" for="q7_a">
+            <input class="option-radio" type="radio" name="q7" id="q7_a" value="A">
+            <span class="option-text"><span class="option-letter">(A)</span> O método registra um manipulador de evento vinculado ao nó de destino, exigindo a passagem do nome da ação pretendida sem o prefixo <code>on</code> (como <code>"click"</code>) e uma função de retorno (<em>callback</em>) que será invocada quando a ação correspondente for disparada.</span>
+          </label>
+          <label class="option-item" for="q7_b">
+            <input class="option-radio" type="radio" name="q7" id="q7_b" value="B">
+            <span class="option-text"><span class="option-letter">(B)</span> O método aceita como primeiro argumento obrigatório o prefixo <code>on</code>, de modo que a escuta de cliques do mouse deve ser formalmente invocada como <code>addEventListener("onclick", function() { ... })</code>.</span>
+          </label>
+          <label class="option-item" for="q7_c">
+            <input class="option-radio" type="radio" name="q7" id="q7_c" value="C">
+            <span class="option-text"><span class="option-letter">(C)</span> A execução de uma chamada a <code>addEventListener</code> sobrescreve imperativamente todos os event listeners previamente associados àquele mesmo nó para aquele mesmo tipo de ação.</span>
+          </label>
+          <label class="option-item" for="q7_d">
+            <input class="option-radio" type="radio" name="q7" id="q7_d" value="D">
+            <span class="option-text"><span class="option-letter">(D)</span> Esse método constitui um recurso exclusivo de nós do tipo botão (<code>&lt;button&gt;</code>), sendo explicitamente rejeitado pelo interpretador do navegador com o lançamento de uma exceção quando invocado a partir de elementos estruturais como <code>&lt;h1&gt;</code> ou <code>&lt;div&gt;</code>.</span>
+          </label>
+          <label class="option-item" for="q7_e">
+            <input class="option-radio" type="radio" name="q7" id="q7_e" value="E">
+            <span class="option-text"><span class="option-letter">(E)</span> O método opera unicamente de forma assíncrona com o envio automático de requisições de persistência ao servidor de hospedagem no encerramento de sua execução.</span>
+          </label>
+        </div>
+
+        <div class="resolution-box" id="res-q7">
+          <div class="resolution-title">
+            <span>Gabarito Oficial: Alternativa (A)</span>
+          </div>
+          <p class="resolution-text">
+            <strong>Resolução e Fundamentação Técnica:</strong> O modelo moderno de controle e tratamento de eventos fundamenta-se no registro explícito de observadores (<em>listeners</em>) por intermédio da interface unificada <code>EventTarget.addEventListener()</code>. Essa função demanda em sua assinatura primordial o envio de uma cadeia de texto descritiva do tipo do evento sem o prefixo histórico <code>on</code> (sendo, por conseguinte, empregado <code>"click"</code>, e não <code>"onclick"</code>), associada a uma função executável (<em>callback</em>) encarregada de recepcionar o evento e deflagrar a lógica programática correspondente. Diferente de atribuições diretas de propriedades de nós legadas, a abordagem por <code>addEventListener</code> não sobrescreve ouvintes anteriormente vinculados ao mesmo elemento, permitindo coexistência e múltiplos tratamentos concorrentes. Além disso, tal funcionalidade é compartilhada por todos os objetos herdados da classe <code>Node</code>, incluindo divisões estruturais, títulos, campos textuais e o próprio objeto <code>document</code>, afastando a alegação restritiva de aplicabilidade unicamente sobre elementos <code>&lt;button&gt;</code>.
+          </p>
+        </div>
+      </article>
+
+      <!-- ========================================== -->
+      <!-- QUESTÃO 08                                 -->
+      <!-- ========================================== -->
+      <article class="question-card" id="card-q8">
+        <div class="question-header">
+          <span class="question-number">Questão 08</span>
+          <span class="question-topic-badge">Execução Sequencial e Mutação Cumulativa</span>
+        </div>
+        <div class="question-stem">
+          <p>Considere o fragmento de código integrado contendo trechos de marcação HTML e lógica em JavaScript:</p>
+          <pre class="code-block">&lt;h1 id="titulo"&gt;Texto Padrão Inicial&lt;/h1&gt;
+&lt;div class="grupo-botoes"&gt;
+    &lt;button type="button" id="btn-sucesso"&gt;Sucesso&lt;/button&gt;
+    &lt;button type="button" id="btn-alerta"&gt;Alerta&lt;/button&gt;
+    &lt;button type="button" id="btn-urgente"&gt;Urgente&lt;/button&gt;
+&lt;/div&gt;</pre>
+
+          <pre class="code-block">const titulo = document.getElementById("titulo");
+const botaoSucesso = document.getElementById("btn-sucesso");
+const botaoAlerta = document.getElementById("btn-alerta");
+const botaoUrgente = document.getElementById("btn-urgente");
+
+botaoSucesso.addEventListener("click", function() {
+    titulo.innerText = "Tudo Certo! Operação Concluída.";
+    titulo.style.color = "#16a34a";
+    titulo.style.fontSize = "22px";
+});
+
+botaoAlerta.addEventListener("click", function() {
+    titulo.innerText = "Atenção: Verifique os Campos!";
+    titulo.style.color = "#ea580c";
+    titulo.style.fontSize = "20px";
+});
+
+botaoUrgente.addEventListener("click", function() {
+    titulo.innerText = "ERRO CRÍTICO NO SISTEMA!";
+    titulo.style.color = "#dc2626";
+    titulo.style.fontSize = "26px";
+});</pre>
+
+          <p>Considere que um usuário efetua o carregamento padrão da referida página em um navegador moderno e, na sequência estrita de uso, clica uma vez sobre o botão "Sucesso" e, logo em seguida, clica uma vez sobre o botão "Urgente".</p>
+          <p>Assinale a alternativa que apresenta com precisão o estado visual final dos atributos de texto, coloração e tipografia do elemento <code>&lt;h1&gt;</code> ao término das ações descritas:</p>
+        </div>
+
+        <div class="options-group">
+          <label class="option-item" for="q8_a">
+            <input class="option-radio" type="radio" name="q8" id="q8_a" value="A">
+            <span class="option-text"><span class="option-letter">(A)</span> Texto: <code>"Tudo Certo! Operação Concluída."</code>; Cor: <code>#16a34a</code>; Tamanho da fonte: <code>22px</code>.</span>
+          </label>
+          <label class="option-item" for="q8_b">
+            <input class="option-radio" type="radio" name="q8" id="q8_b" value="B">
+            <span class="option-text"><span class="option-letter">(B)</span> Texto: <code>"ERRO CRÍTICO NO SISTEMA!"</code>; Cor: <code>#dc2626</code>; Tamanho da fonte: <code>26px</code>.</span>
+          </label>
+          <label class="option-item" for="q8_c">
+            <input class="option-radio" type="radio" name="q8" id="q8_c" value="C">
+            <span class="option-text"><span class="option-letter">(C)</span> Texto: <code>"ERRO CRÍTICO NO SISTEMA!"</code>; Cor: <code>#16a34a</code>; Tamanho da fonte: <code>22px</code>.</span>
+          </label>
+          <label class="option-item" for="q8_d">
+            <input class="option-radio" type="radio" name="q8" id="q8_d" value="D">
+            <span class="option-text"><span class="option-letter">(D)</span> Texto: <code>"Texto Padrão Inicial"</code>; Cor: <code>#dc2626</code>; Tamanho da fonte: <code>26px</code>.</span>
+          </label>
+          <label class="option-item" for="q8_e">
+            <input class="option-radio" type="radio" name="q8" id="q8_e" value="E">
+            <span class="option-text"><span class="option-letter">(E)</span> Texto: <code>"Atenção: Verifique os Campos!"</code>; Cor: <code>#ea580c</code>; Tamanho da fonte: <code>20px</code>.</span>
+          </label>
+        </div>
+
+        <div class="resolution-box" id="res-q8">
+          <div class="resolution-title">
+            <span>Gabarito Oficial: Alternativa (B)</span>
+          </div>
+          <p class="resolution-text">
+            <strong>Resolução e Fundamentação Técnica:</strong> A análise sequencial do ciclo de despacho de eventos denota que o primeiro evento desencadeado a partir do clique sobre o botão "Sucesso" promoveu a redefinição pontual do elemento <code>&lt;h1&gt;</code>, ajustando o valor de <code>innerText</code> para <code>"Tudo Certo! Operação Concluída."</code>, a cor tipográfica para <code>#16a34a</code> e o corpo de fonte para <code>"22px"</code>. Entretanto, a posterior ação deliberada do usuário, ao clicar imediatamente sobre o componente "Urgente", acionou a função anônima registrada no manipulador do terceiro botão. As instruções ali presentes reatribuíram o conteúdo textual para <code>"ERRO CRÍTICO NO SISTEMA!"</code>, redefiniram a cor da propriedade <code>color</code> para <code>#dc2626</code> e expandiram o corpo da fonte para a escala de <code>"26px"</code>. Dado que a atribuição de propriedades a nós do DOM é executada de modo determinístico e cumulativo, as propriedades alteradas em um instante posterior sobrescrevem os valores definidos pelo gatilho antecedente. Desse modo, o estado final exposto ao usuário compreende o texto <code>"ERRO CRÍTICO NO SISTEMA!"</code>, a coloração <code>#dc2626</code> e a métrica de tamanho equivalente a <code>26px</code>.
+          </p>
+        </div>
+      </article>
+
+      <!-- ========================================== -->
+      <!-- QUESTÃO 09                                 -->
+      <!-- ========================================== -->
+      <article class="question-card" id="card-q9">
+        <div class="question-header">
+          <span class="question-number">Questão 09</span>
+          <span class="question-topic-badge">Fluxo de Carregamento e Seleção de Nós</span>
+        </div>
+        <div class="question-stem">
+          <p>Analise o trecho dissertativo a seguir, relativo à dinâmica de carregamento estrutural e à arquitetura de representação de documentos na web:</p>
+          <p><em>"O fluxo interpretativo de documentos no navegador efetua a conversão sucessiva das tags recebidas em uma representação na memória primária denominada árvore do __________. Ao posicionar a declaração do elemento <code>&lt;script&gt;</code> ao término do corpo do documento, imediatamente antes do fechamento de __________, assegura-se que a pintura inicial da interface já esteja concluída antes da intervenção lógica. Com isso, métodos utilitários de seleção como __________ encontram o nó referenciado devidamente mapeado, mitigando incongruências estruturais em tempo de execução."</em></p>
+          <p>Assinale a alternativa que preenche, correta e respectivamente, as lacunas do texto:</p>
+        </div>
+
+        <div class="options-group">
+          <label class="option-item" for="q9_a">
+            <input class="option-radio" type="radio" name="q9" id="q9_a" value="A">
+            <span class="option-text"><span class="option-letter">(A)</span> CSSOM – <code>&lt;/head&gt;</code> – <code>document.getElementById</code></span>
+          </label>
+          <label class="option-item" for="q9_b">
+            <input class="option-radio" type="radio" name="q9" id="q9_b" value="B">
+            <span class="option-text"><span class="option-letter">(B)</span> DOM – <code>&lt;/body&gt;</code> – <code>document.getElementById</code></span>
+          </label>
+          <label class="option-item" for="q9_c">
+            <input class="option-radio" type="radio" name="q9" id="q9_c" value="C">
+            <span class="option-text"><span class="option-letter">(C)</span> DOM – <code>&lt;header&gt;</code> – <code>document.querySelector</code></span>
+          </label>
+          <label class="option-item" for="q9_d">
+            <input class="option-radio" type="radio" name="q9" id="q9_d" value="D">
+            <span class="option-text"><span class="option-letter">(D)</span> Virtual DOM – <code>&lt;/main&gt;</code> – <code>document.findElement</code></span>
+          </label>
+          <label class="option-item" for="q9_e">
+            <input class="option-radio" type="radio" name="q9" id="q9_e" value="E">
+            <span class="option-text"><span class="option-letter">(E)</span> JSON – <code>&lt;/html&gt;</code> – <code>document.readNode</code></span>
+          </label>
+        </div>
+
+        <div class="resolution-box" id="res-q9">
+          <div class="resolution-title">
+            <span>Gabarito Oficial: Alternativa (B)</span>
+          </div>
+          <p class="resolution-text">
+            <strong>Resolução e Fundamentação Técnica:</strong> Durante o ciclo analítico de carregamento, o navegador instancia na memória primária o Document Object Model (DOM), construindo progressivamente a estrutura de nós a partir da interpretação direta das tags do documento HTML. A estratégia de engenharia web consistente em declarar scripts ao final do documento, imediatamente antes da tag de encerramento <code>&lt;/body&gt;</code>, assegura que todo o corpo principal da página já tenha sido analisado, minimizando bloqueios de pintura e garantindo a disponibilização imediata do conteúdo ao usuário. Quando essa disposição é empregada, métodos de seleção consolidados na API, a exemplo de <code>document.getElementById()</code>, conseguem interceptar e associar a variável do script ao ponteiro de memória de nós devidamente existentes. As opções distratoras introduzem incoerências, como relacionar o fechamento de cabeçalho com o término da renderização estrutural ou invocar métodos e estruturas inexistentes na API padrão do DOM, como <code>findElement</code> ou <code>readNode</code>.
+          </p>
+        </div>
+      </article>
+
+      <!-- ========================================== -->
+      <!-- QUESTÃO 10                                 -->
+      <!-- ========================================== -->
+      <article class="question-card" id="card-q10">
+        <div class="question-header">
+          <span class="question-number">Questão 10</span>
+          <span class="question-topic-badge">Falhas de Referência Nula (TypeError)</span>
+        </div>
+        <div class="question-stem">
+          <p>Considere a seguinte estrutura de documento web:</p>
+          <pre class="code-block">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Exemplo de Renderização&lt;/title&gt;
+    &lt;script&gt;
+        const elemento = document.getElementById("titulo");
+        elemento.innerText = "Novo Texto Injetado";
+    &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1 id="titulo"&gt;Texto Padrão Inicial&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+          <p>Ao processar o código supramencionado de forma síncrona, estrita e sem a utilização de atributos de diferimento (<code>defer</code> ou <code>async</code>) no elemento de script, o comportamento manifesto pelo navegador consistirá em:</p>
+        </div>
+
+        <div class="options-group">
+          <label class="option-item" for="q10_a">
+            <input class="option-radio" type="radio" name="q10" id="q10_a" value="A">
+            <span class="option-text"><span class="option-letter">(A)</span> Atualização transparente do cabeçalho estrutural para o valor <code>"Novo Texto Injetado"</code>, em razão do pré-carregamento estático de seletores promovido pelo motor JavaScript moderno.</span>
+          </label>
+          <label class="option-item" for="q10_b">
+            <input class="option-radio" type="radio" name="q10" id="q10_b" value="B">
+            <span class="option-text"><span class="option-letter">(B)</span> Interrupção do fluxo de execução do bloco de script decorrente do disparo de um erro em tempo de execução do tipo <code>TypeError</code> (tal como <code>Cannot set property 'innerText' of null</code>), haja vista que o analisador do navegador ainda não leu o corpo do documento e o método retornou <code>null</code>.</span>
+          </label>
+          <label class="option-item" for="q10_c">
+            <input class="option-radio" type="radio" name="q10" id="q10_c" value="C">
+            <span class="option-text"><span class="option-letter">(C)</span> Injeção de um nó de texto orfão dentro da hierarquia do elemento <code>&lt;head&gt;</code>, mantendo o nó <code>&lt;h1&gt;</code> do corpo da página com sua renderização bloqueada permanentemente.</span>
+          </label>
+          <label class="option-item" for="q10_d">
+            <input class="option-radio" type="radio" name="q10" id="q10_d" value="D">
+            <span class="option-text"><span class="option-letter">(D)</span> Lançamento de uma exceção de compilação sintática (<code>SyntaxError</code>), em virtude de as normas do padrão ECMAScript impedirem a atribuição de referências do DOM a constantes declaradas com <code>const</code>.</span>
+          </label>
+          <label class="option-item" for="q10_e">
+            <input class="option-radio" type="radio" name="q10" id="q10_e" value="E">
+            <span class="option-text"><span class="option-letter">(E)</span> Deslocamento automático do elemento <code>&lt;script&gt;</code> para o encerramento da tag <code>&lt;/body&gt;</code> por mecanismo de autorrecuperação nativo do motor de renderização.</span>
+          </label>
+        </div>
+
+        <div class="resolution-box" id="res-q10">
+          <div class="resolution-title">
+            <span>Gabarito Oficial: Alternativa (B)</span>
+          </div>
+          <p class="resolution-text">
+            <strong>Resolução e Fundamentação Técnica:</strong> O navegador analisa o documento HTML sequencialmente de cima para baixo. Ao posicionar o elemento <code>&lt;script&gt;</code> no interior do <code>&lt;head&gt;</code> sem atributos que adiem sua execução (tais como <code>defer</code> ou <code>async</code>), o motor de renderização interrompe o parsing do documento para executar imediatamente o bloco de código. Nesse instante, o corpo da página (<code>&lt;body&gt;</code>) e o elemento <code>&lt;h1 id="titulo"&gt;</code> ainda não foram processados nem inseridos na memória como nós do DOM. Em decorrência dessa ausência, a chamada <code>document.getElementById("titulo")</code> falha em encontrar qualquer elemento associado e retorna o valor primitivo <code>null</code>. Na instrução subsequente, quando o interpretador tenta atribuir um valor à propriedade <code>innerText</code> sobre uma referência nula (<code>null.innerText = ...</code>), ocorre uma quebra de fluxo síncrona decorrente do lançamento de uma exceção irrecuperável de tipo (<code>TypeError: Cannot set property 'innerText' of null</code> ou formato correlato no motor do navegador). Esse erro interrompe a execução do script e deixa o elemento <code>&lt;h1&gt;</code> com seu texto original intacto quando for finalmente processado pelo parser.
+          </p>
+        </div>
+      </article>
+
+      <!-- Painel de Ações de Submissão -->
+      <section class="actions-panel">
+        <div class="validation-alert" id="validation-msg">
+          Existem questões não respondidas. Responda todas as 10 questões para consolidar sua pontuação ou clique novamente para submeter assim mesmo.
+        </div>
+        <button type="button" class="btn-primary" id="btn-submit">
+          Finalizar Simulado e Ver Resoluções
+        </button>
+      </section>
+
+    </form>
+
+    <!-- ========================================== -->
+    <!-- PAINEL DE RESULTADOS E RESUMO FINAL        -->
+    <!-- ========================================== -->
+    <section class="results-summary-section" id="results-panel">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <span class="badge-banca">Relatório de Desempenho</span>
+        <h2 style="font-size: 1.5rem; color: var(--text-main); margin-top: 8px;">Resultado Consolidado</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Confira abaixo sua taxa de acerto e a correspondência com a folha de respostas oficial da banca.</p>
+      </div>
+
+      <div class="results-grid">
+        <div class="metric-card highlight">
+          <div class="metric-number" id="metric-score">0 / 10</div>
+          <div class="metric-label">Pontuação Total</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-number" id="metric-percent" style="color: #0d9488;">0%</div>
+          <div class="metric-label">Aproveitamento Geral</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-number" id="metric-status" style="font-size: 1.35rem; padding-top: 10px; color: var(--text-main);">-</div>
+          <div class="metric-label">Desempenho</div>
+        </div>
+      </div>
+
+      <!-- Tabela Resumo do Gabarito -->
+      <h3 style="font-size: 1.1rem; margin-bottom: 12px; color: var(--text-main);">Tabela de Correspondência e Gabarito Oficial</h3>
+      <div class="table-container">
+        <table class="gabarito-table">
+          <thead>
+            <tr>
+              <th>Questão</th>
+              <th>Sua Escolha</th>
+              <th>Gabarito Oficial</th>
+              <th>Resultado</th>
+              <th>Tópico Avaliado</th>
+            </tr>
+          </thead>
+          <tbody id="gabarito-table-body">
+            <!-- Linhas geradas via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+
+      <div style="text-align: center; margin-top: 24px;">
+        <button type="button" class="btn-secondary" id="btn-reset">
+          Recomeçar Simulado
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Definição estrita das chaves de resposta e tópicos oficiais
+    const GABARITO = {
+      q1: { oficial: 'E', topico: 'Papel da Tríade Web (HTML, CSS e JavaScript)' },
+      q2: { oficial: 'C', topico: 'Ordem de Parsing e Posicionamento da Tag <script>' },
+      q3: { oficial: 'E', topico: 'Fundamentos e Escopo Operacional do DOM' },
+      q4: { oficial: 'A', topico: 'Seletores de Elementos: getElementById e querySelector' },
+      q5: { oficial: 'B', topico: 'Propriedade innerText e Atualização em Tempo Real' },
+      q6: { oficial: 'C', topico: 'Manipulação de Estilos via style e Regra camelCase' },
+      q7: { oficial: 'A', topico: 'Mecanismo de Eventos e Assinatura do addEventListener' },
+      q8: { oficial: 'B', topico: 'Execução Sequencial e Sobrescrita de Propriedades no DOM' },
+      q9: { oficial: 'B', topico: 'Ciclo de Parsing, Fechamento de </body> e Localização de Nós' },
+      q10: { oficial: 'B', topico: 'Ciclo de Vida do DOM e Ocorrência de Falha por Referência Nula' }
+    };
+
+    const TOTAL_QUESTOES = 10;
+    let allowIncompleteSubmit = false;
+
+    // Atualização visual das opções selecionadas e da barra de progresso
+    function atualizarProgresso() {
+      let respondidas = 0;
+      for (let i = 1; i <= TOTAL_QUESTOES; i++) {
+        const selecionada = document.querySelector(`input[name="q${i}"]:checked`);
+        if (selecionada) {
+          respondidas++;
+        }
+      }
+
+      const percent = Math.round((respondidas / TOTAL_QUESTOES) * 100);
+      document.getElementById('progress-bar').style.width = `${percent}%`;
+      document.getElementById('progress-text').innerText = `${respondidas} de ${TOTAL_QUESTOES} respondidas`;
+    }
+
+    // Configuração dos eventos das opções
+    document.querySelectorAll('.option-item').forEach(item => {
+      const radio = item.querySelector('input[type="radio"]');
+
+      radio.addEventListener('change', () => {
+        // Remove destaque de irmãos no mesmo grupo
+        const name = radio.name;
+        document.querySelectorAll(`input[name="${name}"]`).forEach(sibling => {
+          sibling.closest('.option-item').classList.remove('selected');
+        });
+        
+        // Destaca a selecionada
+        if (radio.checked) {
+          item.classList.add('selected');
+        }
+
+        // Esconde alerta se estiver aberto
+        const validationMsg = document.getElementById('validation-msg');
+        if (validationMsg.style.display === 'block') {
+          validationMsg.style.display = 'none';
+          allowIncompleteSubmit = false;
+        }
+
+        atualizarProgresso();
+      });
+    });
+
+    // Submissão e Avaliação do Simulado
+    document.getElementById('btn-submit').addEventListener('click', () => {
+      let respondidas = 0;
+      for (let i = 1; i <= TOTAL_QUESTOES; i++) {
+        if (document.querySelector(`input[name="q${i}"]:checked`)) {
+          respondidas++;
+        }
+      }
+
+      // Alerta não intrusivo se faltarem questões
+      if (respondidas < TOTAL_QUESTOES && !allowIncompleteSubmit) {
+        const validationMsg = document.getElementById('validation-msg');
+        validationMsg.style.display = 'block';
+        allowIncompleteSubmit = true;
+        validationMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      // Desabilitar radios para congelar respostas
+      document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.disabled = true;
+      });
+
+      let acertos = 0;
+      const tabelaCorpo = document.getElementById('gabarito-table-body');
+      tabelaCorpo.innerHTML = '';
+
+      for (let i = 1; i <= TOTAL_QUESTOES; i++) {
+        const qKey = `q${i}`;
+        const info = GABARITO[qKey];
+        const card = document.getElementById(`card-${qKey}`);
+        const checkedRadio = document.querySelector(`input[name="${qKey}"]:checked`);
+        const resolucaoBox = document.getElementById(`res-${qKey}`);
+
+        const escolha = checkedRadio ? checkedRadio.value : null;
+        const correta = info.oficial;
+        const ehCorreta = (escolha === correta);
+
+        if (ehCorreta) {
+          acertos++;
+          card.classList.add('evaluated-correct');
+        } else {
+          card.classList.add('evaluated-incorrect');
+        }
+
+        // Destaca visualmente a alternativa correta e a alternativa errada marcada (se houver)
+        document.querySelectorAll(`input[name="${qKey}"]`).forEach(radio => {
+          const item = radio.closest('.option-item');
+          if (radio.value === correta) {
+            item.classList.add('state-correct');
+          } else if (radio.checked && !ehCorreta) {
+            item.classList.add('state-wrong-chosen');
+          }
+        });
+
+        // Adiciona tag de status na questão
+        let tagStatus = card.querySelector('.status-tag');
+        if (!tagStatus) {
+          tagStatus = document.createElement('div');
+          card.querySelector('.options-group').after(tagStatus);
+        }
+
+        if (!escolha) {
+          tagStatus.className = 'status-tag unanswered';
+          tagStatus.innerHTML = `⚠️ Você não respondeu esta questão. Gabarito Oficial: (${correta})`;
+        } else if (ehCorreta) {
+          tagStatus.className = 'status-tag correct';
+          tagStatus.innerHTML = `✓ Resposta Correta: (${escolha})`;
+        } else {
+          tagStatus.className = 'status-tag incorrect';
+          tagStatus.innerHTML = `✕ Resposta Incorreta: Você marcou (${escolha}), mas o correto é (${correta})`;
+        }
+
+        // Exibe a resolução explicativa detalhada logo abaixo da questão
+        resolucaoBox.style.display = 'block';
+
+        // Linha na tabela consolidada
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>Questão ${String(i).padStart(2, '0')}</strong></td>
+          <td>${escolha ? `(${escolha})` : '<em style="color:#94a3b8">Em branco</em>'}</td>
+          <td><strong>(${correta})</strong></td>
+          <td>
+            <span class="badge-result-cell ${ehCorreta ? 'c-ok' : 'c-err'}">
+              ${ehCorreta ? 'ACERTO' : 'ERRO'}
+            </span>
+          </td>
+          <td>${info.topico}</td>
+        `;
+        tabelaCorpo.appendChild(tr);
+      }
+
+      // Atualiza métricas do resultado
+      const percentual = Math.round((acertos / TOTAL_QUESTOES) * 100);
+      document.getElementById('metric-score').innerText = `${acertos} / ${TOTAL_QUESTOES}`;
+      document.getElementById('metric-percent').innerText = `${percentual}%`;
+
+      const statusEl = document.getElementById('metric-status');
+      if (acertos >= 8) {
+        statusEl.innerText = 'Excelente!';
+        statusEl.style.color = '#10b981';
+      } else if (acertos >= 6) {
+        statusEl.innerText = 'Bom Desempenho';
+        statusEl.style.color = '#2563eb';
+      } else if (acertos >= 4) {
+        statusEl.innerText = 'Regular';
+        statusEl.style.color = '#d97706';
+      } else {
+        statusEl.innerText = 'Revisar Conteúdo';
+        statusEl.style.color = '#ef4444';
+      }
+
+      // Oculta painel de submissão e exibe o resumo completo
+      document.querySelector('.actions-panel').style.display = 'none';
+      const resultsPanel = document.getElementById('results-panel');
+      resultsPanel.classList.add('active');
+
+      // Rolagem suave até a primeira questão para conferência
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Ação do Botão Recomeçar Simulado
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      // Limpa formulário
+      document.getElementById('quiz-form').reset();
+
+      // Habilita inputs e limpa estilos
+      document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.disabled = false;
+        const item = radio.closest('.option-item');
+        item.classList.remove('selected', 'state-correct', 'state-wrong-chosen');
+      });
+
+      // Remove classes dos cards e oculta resoluções
+      document.querySelectorAll('.question-card').forEach(card => {
+        card.classList.remove('evaluated-correct', 'evaluated-incorrect');
+        const tag = card.querySelector('.status-tag');
+        if (tag) tag.remove();
+      });
+
+      document.querySelectorAll('.resolution-box').forEach(box => {
+        box.style.display = 'none';
+      });
+
+      // Restaura painel de envio e esconde resultados
+      document.querySelector('.actions-panel').style.display = 'block';
+      document.getElementById('results-panel').classList.remove('active');
+      document.getElementById('validation-msg').style.display = 'none';
+      allowIncompleteSubmit = false;
+
+      atualizarProgresso();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Inicialização do estado
+    atualizarProgresso();
+  </script>
+</body>
+</html>
