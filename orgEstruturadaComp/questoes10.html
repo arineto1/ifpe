@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulado Interativo FAURGS - Sustentabilidade e TI Verde</title>
+  
+  <!-- Tipografia suave e de alta legibilidade para leitura prolongada -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Charter:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* Configuração de Paleta de Alto Conforto Visual (Light Theme para Leituras Longas) */
+    :root {
+      --bg-warm: #fbfaf8;          /* Fundo suave com tom de pergaminho/papel de livro */
+      --bg-card: #ffffff;          /* Branco limpo para os cartões de questão */
+      --bg-subtle: #f4f2ee;        /* Fundo de destaque discreto */
+      --text-main: #23272f;        /* Grafite escuro fosco de alta legibilidade (sem reflexo de preto puro) */
+      --text-muted: #5c6470;       /* Texto secundário balanceado */
+      --border-color: #e5e2da;     /* Bordas suaves */
+      --primary: #1e3a2b;          /* Verde floresta sóbrio e acadêmico */
+      --primary-hover: #14281e;
+      --accent: #2e6047;
+      
+      /* Estados de Resposta */
+      --correct-bg: #eef8f1;
+      --correct-border: #38a169;
+      --correct-text: #1d6139;
+      
+      --wrong-bg: #fdf2f2;
+      --wrong-border: #e53e3e;
+      --wrong-text: #9b2c2c;
+
+      --selected-bg: #f0f5f2;
+      --selected-border: #2e6047;
+
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-warm);
+      color: var(--text-main);
+      font-family: 'Charter', Georgia, Cambria, serif; /* Excelente para leitura de textos longos e provas */
+      font-size: 1.125rem;
+      line-height: 1.75;
+      padding: 0 1.25rem 5rem 1.25rem;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Elementos com interface técnica usam fonte sans-serif */
+    button, .badge, .meta, .header-tag, .hud-panel, .option-letter, .stats-box {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* Cabeçalho da Prova */
+    header {
+      padding: 3rem 0 2rem 0;
+      border-bottom: 2px solid var(--border-color);
+      margin-bottom: 2.5rem;
+    }
+
+    .header-tag {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      display: inline-block;
+    }
+
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--text-main);
+      margin-bottom: 0.75rem;
+    }
+
+    .header-desc {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    /* Barra de Progresso Superior */
+    .sticky-progress {
+      position: sticky;
+      top: 0;
+      background: rgba(251, 250, 248, 0.95);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .progress-bar-container {
+      flex: 1;
+      height: 8px;
+      background: var(--border-color);
+      border-radius: 999px;
+      margin: 0 1.5rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.3s ease;
+    }
+
+    /* Cartão da Questão */
+    .question-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2.25rem 2rem;
+      margin-bottom: 2.5rem;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .question-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .question-num {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--primary);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .question-status-badge {
+      font-size: 0.82rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .question-text {
+      margin-bottom: 1.5rem;
+      white-space: pre-line;
+      color: #2c313a;
+    }
+
+    .question-prompt {
+      font-weight: 700;
+      margin: 1.25rem 0 1.5rem 0;
+      color: var(--text-main);
+    }
+
+    /* Lista de Opções */
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: flex-start;
+      padding: 0.95rem 1.15rem;
+      border-radius: 8px;
+      border: 1.5px solid var(--border-color);
+      background-color: var(--bg-card);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .option-item:hover:not(.locked) {
+      border-color: #b5b0a3;
+      background-color: #faf9f6;
+    }
+
+    .option-item.selected {
+      border-color: var(--selected-border);
+      background-color: var(--selected-bg);
+    }
+
+    .option-letter {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 1.85rem;
+      height: 1.85rem;
+      border-radius: 6px;
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      font-weight: 700;
+      font-size: 0.875rem;
+      margin-right: 0.95rem;
+      margin-top: 0.15rem;
+      flex-shrink: 0;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .option-item.selected .option-letter {
+      background: var(--selected-border);
+      color: #ffffff;
+    }
+
+    .option-content {
+      flex: 1;
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
+
+    /* Estilos de Resposta Revelada */
+    .option-item.state-correct {
+      background-color: var(--correct-bg) !important;
+      border-color: var(--correct-border) !important;
+      color: var(--correct-text) !important;
+    }
+    .option-item.state-correct .option-letter {
+      background: var(--correct-border) !important;
+      color: white !important;
+    }
+
+    .option-item.state-wrong {
+      background-color: var(--wrong-bg) !important;
+      border-color: var(--wrong-border) !important;
+      color: var(--wrong-text) !important;
+      text-decoration: line-through;
+    }
+    .option-item.state-wrong .option-letter {
+      background: var(--wrong-border) !important;
+      color: white !important;
+    }
+
+    /* Seção da Resolução (Inserida abaixo de cada questão) */
+    .resolution-box {
+      margin-top: 1.75rem;
+      padding: 1.5rem 1.65rem;
+      border-radius: 8px;
+      background-color: #f7f9f7;
+      border-left: 5px solid var(--accent);
+      display: none;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .resolution-box.active {
+      display: block;
+    }
+
+    .resolution-title {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      margin-bottom: 0.65rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .resolution-content {
+      font-size: 1.025rem;
+      color: #2b332c;
+      line-height: 1.7;
+    }
+
+    .resolution-badge-gabarito {
+      display: inline-block;
+      margin-top: 0.85rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--correct-text);
+      background: var(--correct-bg);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      border: 1px solid var(--correct-border);
+    }
+
+    /* Painel Final de Ações & Resultados */
+    .actions-panel {
+      margin: 3rem 0;
+      padding: 2rem;
+      border-radius: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-finish {
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 1rem 2.5rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      box-shadow: 0 4px 12px rgba(30, 58, 43, 0.2);
+    }
+
+    .btn-finish:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-finish:active {
+      transform: translateY(0);
+    }
+
+    .btn-restart {
+      background-color: transparent;
+      color: var(--text-muted);
+      border: 1.5px solid var(--border-color);
+      padding: 0.75rem 1.75rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: all 0.2s ease;
+      display: none;
+    }
+
+    .btn-restart:hover {
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      border-color: #b5b0a3;
+    }
+
+    /* Scoreboard */
+    .result-section {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .score-card {
+      background: #ffffff;
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 2.25rem 2rem;
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+
+    .score-number {
+      font-family: 'Inter', sans-serif;
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+      margin: 0.75rem 0;
+    }
+
+    .score-performance {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .score-message {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsividade */
+    @media (max-width: 640px) {
+      body {
+        font-size: 1.05rem;
+        padding: 0 1rem 4rem 1rem;
+      }
+      .question-card {
+        padding: 1.5rem 1.25rem;
+      }
+      h1 {
+        font-size: 1.65rem;
+      }
+      .sticky-progress span {
+        font-size: 0.85rem;
+      }
+      .btn-finish {
+        width: 100%;
+        padding: 0.95rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Cabeçalho -->
+    <header>
+      <span class="header-tag">Simulado Oficial • Banca FAURGS</span>
+      <h1>Organização de Computadores: Sustentabilidade e TI Verde</h1>
+      <p class="header-desc">
+        Caderno com 10 questões originais na íntegra. Selecione suas respostas com tranquilidade. 
+        Ao concluir, acione o botão final para computar o percentual de acerto e ler a resolução técnica de cada questão diretamente na página.
+      </p>
+    </header>
+
+    <!-- Barra de Acompanhamento Fixa -->
+    <div class="sticky-progress" id="progressSticky">
+      <span id="answeredCounter">0 de 10 respondidas</span>
+      <div class="progress-bar-container">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <span id="percentCounter">0%</span>
+    </div>
+
+    <!-- Área de Questões do Quiz -->
+    <main id="quizArea"></main>
+
+    <!-- Painel de Conclusão e Resultado Geral -->
+    <div class="actions-panel" id="actionsPanel">
+      <button class="btn-finish" id="finishBtn" onclick="concluirQuiz()">Finalizar Simulado e Ver Resoluções</button>
+      
+      <!-- Box de Pontuação (Revelado pós finalização) -->
+      <div class="result-section" id="resultSection">
+        <div class="score-card">
+          <span class="header-tag">Resultado Consolidado</span>
+          <div class="score-number" id="scoreValue">0 / 10</div>
+          <div class="score-performance" id="performanceMsg">Desempenho</div>
+          <p class="score-message" id="detailMsg">
+            Suas respostas foram comparadas com o gabarito oficial da banca. Confira abaixo as marcações e a resolução analítica de cada questão.
+          </p>
+        </div>
+        <button class="btn-restart" id="restartBtn" onclick="reiniciarQuiz()">Reiniciar e Responder Novamente</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Base de dados contendo exatamente as questões e resoluções completas do documento original
+    const questoesData = [
+      {
+        id: 1,
+        enunciado: "Considere as seguintes afirmações sobre o descarte de resíduos eletroeletrônicos (e-waste) e os impactos ecotoxicológicos derivados do lixo computacional:\n\nI - O descarte global de dispositivos eletroeletrônicos atinge anualmente dezenas de bilhões de unidades e se expande em um ritmo aproximadamente três vezes superior à taxa de geração do lixo urbano comum.\nII - O chumbo (Pb) e o mercúrio (Hg), comumente empregados na fabricação de circuitos impressos, soldas e tubos de imagem, atuam predominantemente como venenos com efeito neurotóxico que contaminam águas subterrâneas.\nIII - O cádmio (Cd), composto amplamente utilizado em acumuladores e contatos semicondutores, caracteriza-se por seu efeito carcinogênico que contamina solos agrícolas ao ser descarregado em lixões desprovidos de tratamento sanitário.",
+        comando: "Quais estão corretas?",
+        opcoes: [
+          { letra: "A", texto: "Apenas I." },
+          { letra: "B", texto: "Apenas III." },
+          { letra: "C", texto: "Apenas I e II." },
+          { letra: "D", texto: "Apenas II e III." },
+          { letra: "E", texto: "I, II e III." }
+        ],
+        gabarito: "E",
+        resolucao: "A análise ecotoxicológica do lixo tecnológico comprova a veracidade integral das três proposições apresentadas no enunciado. O item I reflete o cenário de que o ritmo de descarte de computadores, smartphones e aparelhos televisivos ultrapassa em cerca de três vezes o ritmo do lixo convencional, resultando em bilhões de equipamentos descartados anualmente.\n\nO item II aborda a toxicidade de metais pesados: o chumbo (Pb) e o mercúrio (Hg) são conhecidos pela sua ação neurotóxica crônica no organismo humano e animal, provocando distúrbios neurológicos permanentes quando os lixiviados infiltram os aquíferos subterrâneos.\n\nPor sua vez, o item III destaca o cádmio (Cd), composto amplamente listado pelas agências de saúde pública ambiental por suas propriedades carcinogênicas, cuja deposição em lixões sem impermeabilização contamina solos produtivos e entra na cadeia alimentar de comunidades agrícolas vizinhas. Estando todas as assertivas plenamente respaldadas, a opção correta é a que reúne os itens I, II e III."
+      },
+      {
+        id: 2,
+        enunciado: "No âmbito da governança de infraestrutura tecnológica, as diretrizes de TI Verde (Green IT) estruturam-se em três níveis operacionais complementares.\n\nRelacione a Coluna 1 à Coluna 2, associando cada pilar da TI Verde ao seu respectivo campo de aplicação técnica.\n\nColuna 1 — Pilares da TI Verde\n1. TI Verde Tática\n2. TI Verde Estratégica\n3. TI Verde Profunda\n\nColuna 2 — Campo de Aplicação Técnica\n( ) Reformulação dos processos industriais de manufatura de semicondutores, priorizando circuitos integrados concebidos com menor teor de substâncias tóxicas e projetados para desmontagem limpa ao final de sua vida útil.\n( ) Ajuste de configurações comportamentais cotidianas nas estações de trabalho do usuário final, a exemplo da parametrização de suspensão automática do sistema após quinze minutos de inatividade.\n( ) Concepção arquitetural e reengenharia de centros de dados voltadas à transição para matrizes elétricas renováveis (eólica e solar) e aproveitamento de resfriamento passivo por convecção natural.",
+        comando: "A sequência correta de preenchimento dos parênteses, de cima para baixo, é:",
+        opcoes: [
+          { letra: "A", texto: "1 – 2 – 3." },
+          { letra: "B", texto: "2 – 1 – 3." },
+          { letra: "C", texto: "3 – 1 – 2." },
+          { letra: "D", texto: "3 – 2 – 1." },
+          { letra: "E", texto: "2 – 3 – 1." }
+        ],
+        gabarito: "C",
+        resolucao: "A taxonomia tripartite clássica da TI Verde estabelece uma separação entre os níveis de intervenção em processos fabris, gestão de infraestrutura predial e hábitos rotineiros de operação.\n\nO primeiro parêntese corresponde à TI Verde Profunda (item 3), a qual abrange a remodelação nas linhas de montagem industriais para que chips e placas de circuito utilizem quantidades mínimas de materiais perigosos e incorporem princípios de ecodesign facilitadores da reciclagem.\n\nO segundo parêntese descreve a TI Verde Tática (item 1), caracterizada por ajustes comportamentais imediatos do cotidiano que não exigem investimentos estruturais expressivos, como o provisionamento de temporizadores automáticos que ativam o estado de suspensão de telas e estações após quinze minutos sem utilização.\n\nPor fim, o terceiro parêntese delimita a TI Verde Estratégica (item 2), que engloba o redesenho físico e térmico dos centros de dados para viabilizar resfriamento por ar externo e transição do suprimento para usinas solares ou parques eólicos. O encadeamento correlato resultante, de cima para baixo, é 3 – 1 – 2."
+      },
+      {
+        id: 3,
+        enunciado: "A expansão dos modelos fundacionais de Inteligência Artificial Generativa gerou novos desafios energéticos e ambientais para a infraestrutura de computação. Considere as seguintes afirmações sobre o impacto energético e hídrico associado à IA:\n\nI - O volume de energia elétrica demandado para processar uma única inferência em grandes modelos de linguagem (LLMs) situa-se entre 5 e 10 vezes o gasto energético de uma consulta executada em mecanismos de busca convencionais.\nII - A pegada hídrica de instalações que treinam modelos densos decorre fundamentalmente da evaporação contínua de milhões de litros de água potável em torres de resfriamento térmico de data centers.\nIII - O paradigma de Engenharia de Software Sustentável denominado Green AI adota quantização e destilação de modelos com o propósito de reduzir a quantidade de ciclos em Unidades de Processamento Gráfico (GPUs), mitigando o consumo elétrico associado.",
+        comando: "Quais estão corretas?",
+        opcoes: [
+          { letra: "A", texto: "Apenas I." },
+          { letra: "B", texto: "Apenas II." },
+          { letra: "C", texto: "Apenas I e III." },
+          { letra: "D", texto: "Apenas II e III." },
+          { letra: "E", texto: "I, II e III." }
+        ],
+        gabarito: "E",
+        resolucao: "A sustentabilidade de modelos fundacionais de Inteligência Artificial Generativa demanda análise combinada de consumo de eletricidade e dissipação térmica por ciclo computacional. O item I sintetiza o paradoxo energético moderno ao constatar que a inferência matemática realizada por transformadores e redes neurais profundas consome rotineiramente entre cinco e dez vezes mais energia elétrica do que a indexação textual e a execução de algoritmos tradicionais de busca na web.\n\nO item II retrata com exatidão a pegada hídrica oculta, demonstrando que a estabilidade operacional dos aceleradores gráficos instalados em data centers hiperconvergentes depende do consumo evaporativo contínuo de milhões de litros de água potável em sistemas industriais de troca de calor.\n\nO item III descreve as soluções de Green AI, nas quais técnicas matemáticas de quantização (como o mapeamento de tensores de ponto flutuante em representações inteiras de menor largura de bit) e destilação de modelos diminuem o volume absoluto de operações aritméticas exigidas das GPUs, encurtando o tempo de treinamento e reduzindo a drenagem de energia. Uma vez que todas as proposições mostram-se tecnicamente corretas, confirma-se o conjunto integral das asserções."
+      },
+      {
+        id: 4,
+        enunciado: "Assinale a alternativa que preenche, correta e respectivamente, as lacunas do parágrafo abaixo sobre as dimensões conceituais da obsolescência programada.\n\nA obsolescência programada compreende práticas deliberadas de concepção industrial voltadas a abreviar o ciclo de funcionamento dos produtos eletrônicos no mercado. Quando o aparelho deixa de operar em virtude da deterioração estrutural precoce de uma peça plástica interna insubstituível que inviabiliza o conserto físico do hardware, manifesta-se a obsolescência __________. Quando um equipamento mantém sua integridade de hardware, mas sofre a cessação de atualizações do sistema operacional, inviabilizando a execução de softwares e aplicativos corriqueiros, configura-se a obsolescência __________. Por fim, nos cenários em que o hardware opera perfeitamente e o sistema encontra-se plenamente funcional, porém intervenções mercadológicas de design e publicidade provocam no usuário a percepção de desatualização do dispositivo, estabelece-se a obsolescência __________.",
+        comando: "Assinale a alternativa que preenche correta e respectivamente as lacunas:",
+        opcoes: [
+          { letra: "A", texto: "perceptiva – funcional – sistêmica" },
+          { letra: "B", texto: "funcional – sistêmica – perceptiva" },
+          { letra: "C", texto: "sistêmica – perceptiva – funcional" },
+          { letra: "D", texto: "funcional – perceptiva – sistêmica" },
+          { letra: "E", texto: "perceptiva – sistêmica – funcional" }
+        ],
+        gabarito: "B",
+        resolucao: "O preenchimento adequado do parágrafo requer o domínio conceitual das três modalidades fundamentais de obsolescência forçada adotadas pelo mercado eletrônico de consumo. Quando a inutilização do dispositivo provém do colapso de peças mecânicas ou do desgaste irreversível de estruturas de polímero cuja substituição é impedida pela falta de reposição no mercado, tem-se a configuração da obsolescência econômica ou funcional, em que o hardware perde sua função física primordial.\n\nQuando o aparelho se encontra em perfeitas condições de integridade em seu hardware, porém sofre a paralisação de suporte e de atualizações pelo sistema operacional — fenômeno que bloqueia a compatibilidade com navegadores e comunicadores instantâneos —, constata-se a obsolescência sistêmica ou de software.\n\nQuando o dispositivo mantém plenamente sua operabilidade e recebe suporte de software, mas o departamento de marketing de fabricantes veicula apelos centrados em pequenas alterações cromáticas ou detalhes de chassi para despertar sentimentos de atraso e vergonha social no usuário, incide a obsolescência perceptiva ou psicológica. O encadeamento conceitual estrito é dado pelos termos funcional, sistêmica e perceptiva."
+      },
+      {
+        id: 5,
+        enunciado: "Como resposta regulatória e técnica ao monopólio de reparos imposto por fabricantes, consolidou-se internacionalmente o movimento denominado Direito ao Reparo (Right to Repair). Considere as seguintes afirmações sobre os preceitos defendidos por essa vertente:\n\nI - Estabelece a obrigatoriedade da comercialização de componentes originais de reposição e da disponibilização pública de manuais esquemáticos oficiais a preços acessíveis tanto para prestadores independentes quanto para usuários finais.\nII - Requer a abolição de barreiras mecânicas concebidas exclusivamente para bloquear intervenções técnicas, tais como baterias coladas aos chassis e o uso de parafusos com encaixes de perfil proprietário não normatizado.\nIII - Incentiva propostas de engenharia modular, a exemplo do Fairphone e do Framework Laptop, nos quais os componentes podem ser substituídos individualmente em poucos minutos por meio de ferramentas universais, propiciando índices de reparabilidade superiores a 8 em escalas decimais.",
+        comando: "Quais estão corretas?",
+        opcoes: [
+          { letra: "A", texto: "Apenas I." },
+          { letra: "B", texto: "Apenas II." },
+          { letra: "C", texto: "Apenas I e II." },
+          { letra: "D", texto: "Apenas II e III." },
+          { letra: "E", texto: "I, II e III." }
+        ],
+        gabarito: "E",
+        resolucao: "O movimento pelo Direito ao Reparo constitui um marco técnico e jurídico contra as estratégias de confinamento promovidas pela indústria eletroeletrônica. O item I valida a principal demanda legislativa desse ecossistema, que impõe às fabricantes a venda irrestrita de módulos originais de substituição a preços condizentes com a realidade de assistências técnicas independentes e proprietários individuais, além da liberação obrigatória dos manuais de reparo.\n\nO item II explicita o combate às travas físicas de projeto deliberadamente inseridas nas etapas de montagem, a exemplo do uso sistemático de adesivos químicos que dificultam a extração de baterias desgastadas e o uso de parafusos de formato proprietário criados para impedir que ferramentas padronizadas abram os gabinetes.\n\nO item III referencia soluções de arquitetura modular aberta, destacando iniciativas concebidas sob a ótica de sustentabilidade de ciclo fechado, como os projetos do Fairphone e do Framework Laptop, cujas estruturas modulares facilitam a troca de telas, portas de comunicação e câmeras por meio de parafusos normatizados, o que lhes rende notas e índices de reparabilidade superiores a 8 em padrões de certificação global. Todas as asserções encontram-se fundamentadas e corretas."
+      },
+      {
+        id: 6,
+        enunciado: "No campo da Engenharia de Software Sustentável, analistas de desenvolvimento desempenham função central na redução da pegada de carbono de aplicações de TI por meio de práticas de Green Coding. Sobre a eficiência algorítmica e seu impacto na sustentabilidade energética de sistemas computacionais, é correto afirmar que:",
+        comando: "Assinale a alternativa correta:",
+        opcoes: [
+          { letra: "A", texto: "a complexidade ciclomática de um algoritmo impacta unicamente o número de caminhos de teste, inexistindo vínculo termodinâmico com a energia dissipada pelas unidades de execução do processador." },
+          { letra: "B", texto: "a concepção de algoritmos com complexidade lógica e ciclomática reduzida minimiza a contagem total de ciclos de instrução da CPU, diminuindo a potência demandada e o consumo total de quilowatt-hora da infraestrutura computacional." },
+          { letra: "C", texto: "otimizações introduzidas em nível de compilador neutralizam perdas energéticas de algoritmos com ordens de complexidade exponencial, dispensando a refatoração do código-fonte em ambientes de produção corporativa." },
+          { letra: "D", texto: "o emprego irrestrito de laços de espera ativa (busy waiting) otimiza o perfil de TI Verde dos sistemas operacionais ao manter os núcleos em regime de capacidade de pico." },
+          { letra: "E", texto: "os padrões de software sustentável proíbem o isolamento de serviços em conteinerização leve, requerendo a execução de sistemas legados exclusivamente em servidores físicos bare-metal monopostos." }
+        ],
+        gabarito: "B",
+        resolucao: "A resolução da questão fundamenta-se na relação entre projeto de software e o comportamento elétrico dos circuitos de microprocessadores.\n\nA alternativa B é a única correta porque expressa com exatidão o princípio da Engenharia de Software Sustentável (Green Coding): códigos desenvolvidos sob rigor algorítmico e menor complexidade ciclomática eliminam desvios condicionais desnecessários e laços redundantes, encurtando o número absoluto de ciclos de clock que os núcleos da CPU precisam executar. Como cada comutação lógica nos transistores de silício drena corrente elétrica e dissipa calor proporcional, a redução nos ciclos de trabalho diminui de forma direta a demanda de energia e a dissipação térmica da máquina.\n\nA alternativa A é incorreta porque a complexidade ciclomática influencia diretamente a densidade de instruções executadas e o consumo elétrico do hardware.\n\nA alternativa C erra ao superestimar as etapas de compilação, visto que compiladores otimizadores não conseguem modificar a classe assintótica de algoritmos construídos com ineficiência estrutural.\n\nA alternativa D é absurda, pois manter transistores em espera ativa consome energia máxima de forma inútil.\n\nA alternativa E contradiz as boas práticas de TI Verde, dado que a virtualização é uma das estratégias recomendadas para consolidar servidores e combater o desperdício de energia."
+      },
+      {
+        id: 7,
+        enunciado: "A transição de arquiteturas legadas de computação para o modelo de Nuvem Sustentável envolve estratégias de localização geográfica e gestão térmica de data centers. Considere as seguintes afirmações acerca das soluções aplicadas a data centers verdes:\n\nI - A instalação de infraestruturas de servidores em países de altas latitudes e clima frio, como a Islândia, possibilita a utilização direta do ar externo para resfriamento (free cooling), substituindo compressores de ar-condicionado baseados em fluidos refrigerantes poluentes.\nII - A implantação de cápsulas estanques de servidores em profundidades marinhas aproveita a condutividade térmica da água do mar para transferir o calor gerado pelos circuitos integrados de forma passiva.\nIII - A descarbonização operacional dos grandes provedores corporativos de nuvem baseia-se na migração contratual para matrizes de fornecimento sustentadas integralmente por usinas solares fotovoltaicas e parques geradores eólicos.",
+        comando: "Quais estão corretas?",
+        opcoes: [
+          { letra: "A", texto: "Apenas I." },
+          { letra: "B", texto: "Apenas II." },
+          { letra: "C", texto: "Apenas I e III." },
+          { letra: "D", texto: "Apenas II e III." },
+          { letra: "E", texto: "I, II e III." }
+        ],
+        gabarito: "E",
+        resolucao: "A sustentabilidade em escala de hiperdata centers ampara-se no emprego de recursos termodinâmicos do ambiente natural somado ao uso de energia limpa. O item I reflete a lógica do free cooling, estratégia em que a instalação de data centers em zonas geográficas com temperaturas atmosféricas constantemente baixas (como regiões subárticas e a Islândia) permite o uso direto das correntes de ar atmosférico externo para dissipar a carga térmica dos racks, eliminando a dependência de sistemas de ar-condicionado baseados em compressores contínuos e gases nocivos.\n\nO item II ilustra a pesquisa e a aplicação prática de centros de processamento submarinos, nos quais o casco dos módulos submersos transfere calor para a massa de água oceânica por convecção natural, aproveitando o meio aquático como dissipador passivo estável e eliminando a drenagem de eletricidade da refrigeração convencional.\n\nO item III expressa a diretriz corporativa de sustentabilidade que busca substituir o fornecimento de redes elétricas abastecidas por termelétricas fósseis por contratos de longo prazo suportados exclusivamente por fontes eólicas e parques fotovoltaicos. Desse modo, todos os itens (I, II e III) mostram-se verdadeiros e alinhados aos preceitos da infraestrutura sustentável em nuvem."
+      },
+      {
+        id: 8,
+        enunciado: "O planejamento da infraestrutura de TI engloba intervenções voltadas a desacelerar o descarte precoce de estações de trabalho e maximizar a eficiência energética de servidores.\n\nRelacione a Coluna 1 à Coluna 2, associando a prática técnica ao seu benefício específico de sustentabilidade computacional.\n\nColuna 1 — Práticas Técnicas\n1. Virtualização e Conteinerização (Docker)\n2. Substituição de discos rígidos mecânicos por unidades SSD\n3. Instalação de distribuições leves de Linux\n\nColuna 2 — Benefícios Específicos de Sustentabilidade\n( ) Consolidação de cargas de trabalho dinâmicas sobre nós computacionais unificados, eliminando a ociosidade de servidores físicos alimentados continuamente sem carga de trabalho útil.\n( ) Eliminação de atrito eletromecânico e diminuição da latência de acesso aos dados, reduzindo o perfil térmico e o consumo energético do subsistema de armazenamento ao reabilitar computadores corporativos.\n( ) Mitigação dos requisitos de memória principal e de ciclos de CPU por parte do núcleo do sistema operacional, viabilizando o reuso de máquinas legadas em iniciativas educacionais e comunitárias.",
+        comando: "A sequência correta de preenchimento dos parênteses, de cima para baixo, é:",
+        opcoes: [
+          { letra: "A", texto: "1 – 2 – 3." },
+          { letra: "B", texto: "1 – 3 – 2." },
+          { letra: "C", texto: "2 – 1 – 3." },
+          { letra: "D", texto: "3 – 1 – 2." },
+          { letra: "E", texto: "2 – 3 – 1." }
+        ],
+        gabarito: "A",
+        resolucao: "O prolongamento da utilidade operacional de ativos computacionais combina intervenções no subsistema de armazenamento, na alocação de servidores e nas camadas de software básico.\n\nA primeira associação da Coluna 2 descreve os benefícios de Virtualização e Conteinerização por Docker (item 1), ferramentas voltadas a executar múltiplos serviços e ambientes encapsulados sobre um único hardware físico, minimizando a quantidade de servidores dedicados mantidos em marcha lenta ociosa.\n\nA segunda descrição vincula-se à modernização de subsistemas de armazenamento mediante a adoção de SSDs (item 2): ao substituir discos magnéticos mecânicos dotados de pratos giratórios e atuadores eletromecânicos, o SSD não apenas melhora as taxas de transferência por trabalhar em circuitos de silício integrados, como também reduz o consumo de corrente elétrica e o aquecimento interno, revitalizando computadores defasados.\n\nA terceira linha da coluna sintetiza o emprego de distribuições Linux enxutas (item 3), que consomem pouca memória RAM e exigem poucos ciclos de microprocessamento do processador, permitindo que estações de trabalho antes condenadas à sucata continuem utilizáveis em salas de aula e telecentros de inclusão digital. O preenchimento vertical resultante é 1 – 2 – 3."
+      },
+      {
+        id: 9,
+        enunciado: "Organizações reguladoras internacionais aplicaram multas substanciais a corporações tecnológicas após a confirmação pericial de atualizações de software voltadas a abreviar artificialmente a vida útil de smartphones. No âmbito da organização de computadores e da gestão de energia em dispositivos móveis, o mecanismo técnico deliberadamente implementado para deteriorar a experiência do usuário consistiu em:",
+        comando: "Assinale a alternativa correta:",
+        opcoes: [
+          { letra: "A", texto: "estrangular a frequência máxima de clock do processador central (throttling deliberado) por meio do firmware do sistema, sob o pretexto de preservar baterias de íon-lítio que apresentavam perda natural de capacidade química de retenção de carga." },
+          { letra: "B", texto: "reescrever os circuitos de decodificação de instruções da Unidade de Controle do processador, tornando inoperantes os registradores internos do chip." },
+          { letra: "C", texto: "forçar gravações ininterruptas de sobrecarga estática na camada semicondutora da memória cache L1 para desativar os núcleos secundários da arquitetura multicore." },
+          { letra: "D", texto: "suprimir a pilha de protocolos de rede no nível de enlace, forçando colisões permanentes de pacotes de dados no controlador de barramento sem fio." },
+          { letra: "E", texto: "travar a controladora DMA (Direct Memory Access) em barramentos de memória não volátil, impedindo a alocação dinâmica de páginas na memória principal." }
+        ],
+        gabarito: "A",
+        resolucao: "As investigações e sanções impostas pelas autoridades europeias contra fabricantes de dispositivos móveis decorreram da comprovação técnica de que certas atualizações de software degradavam intencionalmente o desempenho de terminais mais antigos.\n\nA alternativa A é a única correta ao diagnosticar o mecanismo computacional empregado: os desenvolvedores do sistema operacional inseriram linhas de código que detectavam o envelhecimento químico das baterias de íon-lítio e passavam a restringir de forma deliberada a frequência de clock (throttling) da unidade central de processamento. Como efeito dessa restrição de frequência nas operações da CPU, os dispositivos tornavam-se perceptivelmente lentos e travavam durante rotinas rotineiras, induzindo o consumidor a crer que o processador havia se tornado obsoleto.\n\nAs demais alternativas são incorretas sob o ponto de vista de arquitetura de computadores: atualizações de software de sistema operacional não possuem o condão de alterar fisicamente a estrutura de decodificação de instruções de processadores (alternativa B), danificar a camada semicondutora da cache L1 (alternativa C), cancelar o funcionamento de camadas de enlace da pilha TCP/IP (alternativa D) ou invalidar canais de controle de acesso direto à memória em barramentos periféricos (alternativa E)."
+      },
+      {
+        id: 10,
+        enunciado: "A dinâmica físico-química do descarte inadequado de componentes eletrônicos em lixões ou aterros convencionais desencadeia graves processos de degradação ambiental e contaminação em saúde pública. Considere as seguintes afirmações sobre o comportamento de poluentes de origem computacional no meio biológico:\n\nI - O processo de lixiviação ocorre quando a precipitação pluviométrica percola por pilhas de resíduos eletrônicos, solubilizando metais pesados e retardantes de chama bromados e transportando-os para os aquíferos subterrâneos.\nII - A absorção continuada de chumbo, arsênio e cádmio por pastagens irrigadas com águas contaminadas por resíduos computacionais transfere essas substâncias aos animais de corte, promovendo fenômenos cumulativos de biomagnificação ao longo da cadeia trófica.\nIII - Os metais pesados descartados em lixões caracterizam-se por sua acelerada biodegradação ambiental sob exposição à luz solar, convertendo-se em compostos orgânicos inertes em um intervalo inferior a vinte e quatro meses.",
+        comando: "Quais estão corretas?",
+        opcoes: [
+          { letra: "A", texto: "Apenas I." },
+          { letra: "B", texto: "Apenas III." },
+          { letra: "C", texto: "Apenas I e II." },
+          { letra: "D", texto: "Apenas II e III." },
+          { letra: "E", texto: "I, II e III." }
+        ],
+        gabarito: "C",
+        resolucao: "A retenção e o transporte de substâncias tóxicas oriundas de componentes de computadores descartados envolvem fenômenos de geoquímica e dinâmica biológica nos ecossistemas.\n\nO item I detalha o processo de lixiviação química, no qual a água das chuvas atravessa carcaças e placas expostas a céu aberto, reagindo com compostos halogenados e solventes residuais e dissolvendo íons de metais pesados que se infiltram no solo até atingirem as reservas hídricas subterrâneas.\n\nO item II descreve o processo de contaminação ecológica e biomagnificação trófica: uma vez absorvidos por vegetais agrícolas e pastos irrigados, o chumbo, o arsênio e o cádmio não são eliminados pelos organismos biológicos; ao contrário, fixam-se progressivamente nos tecidos e aumentam de concentração a cada nível trófico superior, atingindo índices alarmantes nos animais de corte e nos seres humanos que os consomem.\n\nO item III é categoricamente incorreto, pois os metais pesados são elementos químicos elementares persistentes que não sofrem biodegradação, não se decompõem por ação de radiação ultravioleta e não desaparecem do ecossistema em intervalos de meses, permanecendo ativos e perigosos no meio ambiente por décadas e séculos. Diante do erro na proposição III, apenas os itens I e II sustentam-se cientificamente."
+      }
+    ];
+
+    // Estado do usuário
+    const userAnswers = {};
+    let finalizado = false;
+
+    // Renderização das Questões
+    function renderQuiz() {
+      const quizContainer = document.getElementById("quizArea");
+      quizContainer.innerHTML = "";
+
+      questoesData.forEach((q, index) => {
+        const card = document.createElement("article");
+        card.className = "question-card";
+        card.id = `card-q-${q.id}`;
+
+        // Cabeçalho da questão
+        const header = document.createElement("div");
+        header.className = "question-header";
+        header.innerHTML = `
+          <span class="question-num">Questão ${String(q.id).padStart(2, '0')}</span>
+          <span class="question-status-badge" id="badge-q-${q.id}">Pendente</span>
+        `;
+        card.appendChild(header);
+
+        // Texto do enunciado (com preservação de quebras)
+        const text = document.createElement("div");
+        text.className = "question-text";
+        text.textContent = q.enunciado;
+        card.appendChild(text);
+
+        // Linha de comando da banca
+        const prompt = document.createElement("div");
+        prompt.className = "question-prompt";
+        prompt.textContent = q.comando;
+        card.appendChild(prompt);
+
+        // Lista de opções
+        const optionsList = document.createElement("div");
+        optionsList.className = "options-list";
+        optionsList.id = `options-q-${q.id}`;
+
+        q.opcoes.forEach(op => {
+          const item = document.createElement("div");
+          item.className = "option-item";
+          item.dataset.letra = op.letra;
+          item.onclick = () => selectOption(q.id, op.letra);
+
+          item.innerHTML = `
+            <span class="option-letter">${op.letra}</span>
+            <span class="option-content">${op.texto}</span>
+          `;
+          optionsList.appendChild(item);
+        });
+        card.appendChild(optionsList);
+
+        // Caixa de Resolução (inicialmente oculta)
+        const resBox = document.createElement("div");
+        resBox.className = "resolution-box";
+        resBox.id = `resolution-q-${q.id}`;
+        resBox.innerHTML = `
+          <div class="resolution-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            Resolução Técnica & Justificativa do Gabarito
+          </div>
+          <div class="resolution-content">${q.resolucao.replace(/\n\n/g, '<br><br>')}</div>
+          <div class="resolution-badge-gabarito">Gabarito Oficial: Alternativa (${q.gabarito})</div>
+        `;
+        card.appendChild(resBox);
+
+        quizContainer.appendChild(card);
+      });
+
+      atualizarProgresso();
+    }
+
+    // Seleção de alternativa pelo usuário
+    function selectOption(questionId, letter) {
+      if (finalizado) return; // Impede alteração após entrega
+
+      userAnswers[questionId] = letter;
+
+      const optionsContainer = document.getElementById(`options-q-${questionId}`);
+      const options = optionsContainer.getElementsByClassName("option-item");
+
+      for (let opt of options) {
+        if (opt.dataset.letra === letter) {
+          opt.classList.add("selected");
+        } else {
+          opt.classList.remove("selected");
+        }
+      }
+
+      // Atualiza o crachá de estado da questão
+      const badge = document.getElementById(`badge-q-${questionId}`);
+      badge.textContent = `Respondida (${letter})`;
+      badge.style.backgroundColor = "var(--selected-bg)";
+      badge.style.color = "var(--accent)";
+
+      atualizarProgresso();
+    }
+
+    // Atualiza a barra e os contadores de progresso
+    function atualizarProgresso() {
+      const total = questoesData.length;
+      const respondidas = Object.keys(userAnswers).length;
+      const percent = Math.round((respondidas / total) * 100);
+
+      document.getElementById("answeredCounter").textContent = `${respondidas} de ${total} respondidas`;
+      document.getElementById("percentCounter").textContent = `${percent}%`;
+      document.getElementById("progressFill").style.width = `${percent}%`;
+    }
+
+    // Ação de finalizar o quiz e avaliar
+    function concluirQuiz() {
+      if (finalizado) return;
+
+      const total = questoesData.length;
+      const respondidas = Object.keys(userAnswers).length;
+
+      // Alerta sutil na própria interface caso faltem questões
+      if (respondidas < total) {
+        const confirmar = confirm(`Você respondeu ${respondidas} das ${total} questões. Deseja finalizar mesmo assim?`);
+        if (!confirmar) return;
+      }
+
+      finalizado = true;
+      let acertos = 0;
+
+      questoesData.forEach(q => {
+        const userChoice = userAnswers[q.id];
+        const optionsContainer = document.getElementById(`options-q-${q.id}`);
+        const options = optionsContainer.getElementsByClassName("option-item");
+        const badge = document.getElementById(`badge-q-${q.id}`);
+        const resBox = document.getElementById(`resolution-q-${q.id}`);
+
+        // Trata opções visualmente
+        for (let opt of options) {
+          opt.classList.add("locked");
+          const optLetra = opt.dataset.letra;
+
+          if (optLetra === q.gabarito) {
+            opt.classList.add("state-correct");
+          } else if (optLetra === userChoice && userChoice !== q.gabarito) {
+            opt.classList.add("state-wrong");
+          }
+        }
+
+        // Avalia acerto individual
+        if (userChoice === q.gabarito) {
+          acertos++;
+          badge.textContent = "Acertou";
+          badge.style.backgroundColor = "var(--correct-bg)";
+          badge.style.color = "var(--correct-text)";
+        } else {
+          badge.textContent = userChoice ? `Errou (marcou ${userChoice})` : "Em branco";
+          badge.style.backgroundColor = "var(--wrong-bg)";
+          badge.style.color = "var(--wrong-text)";
+        }
+
+        // Torna a resolução visível
+        resBox.classList.add("active");
+      });
+
+      // Exibe pontuação final
+      document.getElementById("finishBtn").style.display = "none";
+      document.getElementById("restartBtn").style.display = "inline-block";
+      document.getElementById("resultSection").style.display = "block";
+
+      const scoreEl = document.getElementById("scoreValue");
+      scoreEl.textContent = `${acertos} / ${total}`;
+
+      const pct = (acertos / total) * 100;
+      const perfMsg = document.getElementById("performanceMsg");
+
+      if (pct >= 80) {
+        perfMsg.textContent = `Excelente! Domínio elevado (${pct}% de acerto)`;
+        perfMsg.style.color = "var(--accent)";
+      } else if (pct >= 60) {
+        perfMsg.textContent = `Bom resultado! Rendimento regular (${pct}% de acerto)`;
+        perfMsg.style.color = "#854d0e";
+      } else {
+        perfMsg.textContent = `Atenção aos conceitos! Rendimento de ${pct}%`;
+        perfMsg.style.color = "var(--wrong-text)";
+      }
+
+      // Rola suavemente até o cartão de resultados
+      document.getElementById("resultSection").scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Reiniciar para treinar novamente
+    function reiniciarQuiz() {
+      for (let k in userAnswers) delete userAnswers[k];
+      finalizado = false;
+
+      document.getElementById("finishBtn").style.display = "inline-block";
+      document.getElementById("restartBtn").style.display = "none";
+      document.getElementById("resultSection").style.display = "none";
+
+      renderQuiz();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Inicialização ao carregar
+    window.onload = function() {
+      renderQuiz();
+    };
+  </script>
+</body>
+</html>
